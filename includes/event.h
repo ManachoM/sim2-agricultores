@@ -6,7 +6,7 @@
 class Message;
 class Agent;
 
-enum Agent_Type {
+enum AGENT_TYPE {
   CONSUMIDOR,
   FERIANTE,
   AGRICULTOR,

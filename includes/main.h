@@ -2,7 +2,8 @@
 #define MAIN_H
 
 #include "glob.h"
-
-
+#include "event.h"
+#include "message.h"
+#include "consumidor.h"
 
 #endif // !MAIN_H

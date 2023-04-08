@@ -6,7 +6,5 @@
 #include "message.h"
 #include "consumidor.h"
 #include "sim_config.h"
-#include <cstdlib>
-
 
 #endif // !MAIN_H

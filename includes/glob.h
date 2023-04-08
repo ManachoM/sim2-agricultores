@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-// #include <json.hpp>
+#include <json.hpp>
 #include <string.h>
 #include <map>
 #include <mutex>
@@ -16,6 +16,10 @@
 #include <random>
 #include <cstdlib>
 #include <unistd.h>
+#include <iomanip>
+
+
+using json = nlohmann::json;
 
 
 #endif // !GLOB_H

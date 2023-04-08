@@ -15,7 +15,7 @@ $(OUT): $(OBJS) | $(BIN)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(INCLUDE)
 
 $(OBJ)/%.o: $(SRC)/%.cpp | $(OBJ)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@ $(INCLUDE)
 
 $(BIN) $(OBJ):
 	mkdir $@

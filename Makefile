@@ -1,4 +1,4 @@
-CXX			:= g++
+CXX			:= /usr/bin/g++
 CXXFLAGS	:= -std=c++14 -Wall -g -pthread -O3
 INCLUDE		:= -I./libs 
 BIN			:= ./bin

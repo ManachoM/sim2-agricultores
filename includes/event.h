@@ -27,7 +27,8 @@ public:
   Event();
 
   Event(double _time = 0.0, int _agent_type = -1, int _process = -1,
-        int _caller_id = -1, Message _msg = Message());
+        int _caller_id = -1, Message _msg = Message(),
+        Agent *_caller_ptr = nullptr);
 
   /**
    * Getters

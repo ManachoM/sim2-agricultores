@@ -1,6 +1,6 @@
 CXX			:= /usr/bin/g++
 CXXFLAGS	:= -std=c++14 -Wall -g -pthread -O3
-INCLUDE		:= -I./libs 
+INCLUDE		:= -I./libs -I/usr/include/c++
 BIN			:= ./bin
 SRC			:= ./src
 OBJ			:= ./obj
@@ -22,4 +22,4 @@ $(BIN) $(OBJ):
 
 clean:
 	rm $(wildcard obj/*.o)
-	rm $(BIN)/$(OUT)
+	rm $(OUT)

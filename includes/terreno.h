@@ -1,0 +1,33 @@
+#ifndef TERRENO_H
+#define TERRENO_H
+
+#include "glob.h"
+
+class Terreno
+{
+    private:
+    static int _current_id;
+    int id;
+    int cod_comuna;
+    double area;
+    short amenaza_plaga;
+    std::string comuna;
+    int id_producto_plantado;
+
+public:
+
+Terreno(int _cod, double _area, std::string _comuna, int _id_prod = -1);
+
+int get_id();
+
+int get_cod_comuna();
+
+double get_area();
+
+int get_producto();
+
+void set_producto_plantado(int _id_prod);
+
+};
+
+#endif // !TERRENO_H

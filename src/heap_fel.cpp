@@ -23,3 +23,5 @@ Event *HeapFEL::next_event() {
 double HeapFEL::get_time() { return this->clock; }
 
 bool HeapFEL::is_empty() { return this->pq.empty(); }
+
+HeapFEL::~HeapFEL() = default;

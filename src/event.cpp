@@ -68,3 +68,5 @@ void Event::set_next_event(Event *_next)
 {
     this->next = _next;
 }
+
+Event::~Event() = default;

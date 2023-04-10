@@ -30,6 +30,9 @@ public:
   double get_time() override;
 
   bool is_empty() override;
+
+
+  ~HeapFEL();
 };
 
 #endif // !HEAP_FEL_H

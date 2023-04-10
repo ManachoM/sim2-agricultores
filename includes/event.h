@@ -6,14 +6,16 @@
 class Message;
 class Agent;
 
-enum AGENT_TYPE {
+enum AGENT_TYPE
+{
   CONSUMIDOR,
   FERIANTE,
   AGRICULTOR,
   AMBIENTE // Tipo de agente especial para eventos de contextos
 };
 
-class Event {
+class Event
+{
 private:
   double time; /** Tiempo de simulación en que ocurre el evento*/
   int agent_type;

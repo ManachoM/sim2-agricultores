@@ -6,7 +6,6 @@
 
 // Implicit class declaration, to avoid compilation errors
 class Environment;
-// class Event;
 class Monitor;
 
 

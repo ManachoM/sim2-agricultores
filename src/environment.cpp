@@ -62,3 +62,5 @@ void Environment::initialize_system()
 {
   printf("Inicializando sistema...\n");
 }
+
+Environment::~Environment() = default;

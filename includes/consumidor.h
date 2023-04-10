@@ -5,9 +5,14 @@
 #include "fel.h"
 #include "glob.h"
 
-enum EVENTOS_CONSUMIDOR { COMPRA_FERIANTE };
+enum EVENTOS_CONSUMIDOR
+{
+  SOLICITAR_COMPRA_FERIANTE,
+  RESPUESTA_COMPRA_FERIANTE
+};
 
-class Consumidor : public Agent {
+class Consumidor : public Agent
+{
 private:
   static int current_consumer_id;
   int consumer_id;

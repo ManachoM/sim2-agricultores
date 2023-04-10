@@ -1,0 +1,10 @@
+{
+    "out_path": "./out/",
+    "prod_file": "./inputs/prods.json",
+    "ferias_file": "./inputs/ferias.json",
+    "terrenos_file": "./inputs/terrenos.json",
+    "debug_level": "N",
+    "consumidor_feriante_ratio": 2,
+    "output_path": "./out/sim_1",
+    "output_prefix": "sim_1"
+}

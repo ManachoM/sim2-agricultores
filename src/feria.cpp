@@ -15,3 +15,5 @@ Feria::Feria(std::map<int, Feriante *> const &_feriantes,
 }
 
 std::map<int, Feriante *> Feria::get_feriantes() const { return this->feriantes; }
+
+int Feria::get_id() const { return this->feria_id; }

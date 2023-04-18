@@ -42,6 +42,8 @@ class Feria
 
         std::vector< std::vector<bool> > get_index();
 
+        int get_id() const ;
+
 };
 
 

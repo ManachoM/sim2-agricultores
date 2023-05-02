@@ -38,3 +38,5 @@ void Feriante::comprar_productos()
 {
     // TODO
 }
+
+Feriante::~Feriante() = default;

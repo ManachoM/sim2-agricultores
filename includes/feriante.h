@@ -14,7 +14,7 @@
 #include "event.h"
 #include "fel.h"
 // TODO #include "MercadoMayorista.h"
-// TODO #include "Inventario.h"
+#include "inventory.h"
 #include "feria.h"
 #include "product.h"
 #include "glob.h"

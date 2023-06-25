@@ -5,11 +5,6 @@
 #include "fel.h"
 #include "glob.h"
 
-enum EVENTOS_CONSUMIDOR
-{
-  SOLICITAR_COMPRA_FERIANTE,
-  RESPUESTA_COMPRA_FERIANTE
-};
 
 class Consumidor : public Agent
 {
@@ -19,6 +14,7 @@ private:
   FEL *fel;     // Ptr a FEL con eventos del simulador
   int id_feria; // ID de la feria a la que asiste el Consumidor
   int cant_integrantes = 1;
+  std::vector<int> feriantes_consultados; /** "Memoria" de los feriantes a los que intenta comprarle un determinado producto. Con cada compra debería vaciarse*/
   int choose_product();
 
 public:

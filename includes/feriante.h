@@ -23,12 +23,6 @@ class Feria;
 class MercadoMayorista;
 class Inventario;
 
-enum EVENTOS_FERIANTE
-{
-    COMPRA_MAYORISTA,
-    VENTA_CONSUMIDOR,
-    LIMPIEZA_INVENTARIO
-};
 
 class Feriante : public Agent
 {

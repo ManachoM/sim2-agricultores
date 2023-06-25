@@ -14,6 +14,21 @@ enum AGENT_TYPE
   AMBIENTE // Tipo de agente especial para eventos de contextos
 };
 
+enum EVENTOS_FERIANTE
+{
+    COMPRA_MAYORISTA,
+    VENTA_CONSUMIDOR,
+    LIMPIEZA_INVENTARIO
+};
+
+
+enum EVENTOS_CONSUMIDOR
+{
+  BUSCAR_FERIANTE,      /** Evento para buscar a feriante dentro de la feria*/
+  INIT_COMPRA_FERIANTE, /** Representa la solicitud de compra de producto a un feriante*/
+  FIN_COMPRA_FERIANTE   /** Una vez que el feriante confirma la compra, se actualiza el presupuesto/inventario*/
+};
+
 class Event
 {
 private:

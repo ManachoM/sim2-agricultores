@@ -27,10 +27,10 @@ public:
 
 protected:
     int id; /** Identificador de la instancia entre todos los agentes */
+    Environment * env;
+    Monitor * monitor;
 private:
     static int current_id;
-    Monitor * monitor;
-    Environment * env;
 };
 
 #endif // !AGENT_H

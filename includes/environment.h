@@ -12,6 +12,7 @@
 #include "event.h"
 #include "fel.h"
 #include "feria.h"
+#include "message_queue.h"
 #include "glob.h"
 
 class Consumidor;
@@ -44,6 +45,8 @@ private:
   std::vector<int> sequias_nivel;
   std::vector<int> oc_nivel;
   Monitor *monitor;
+  MessageQueue* message_queue;
+
 
 public:
   explicit Environment(FEL *_fel);

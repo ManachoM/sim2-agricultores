@@ -1,6 +1,6 @@
 #include "../includes/environment.h"
 
-Environment::Environment(FEL *_fel) { this->fel = _fel; }
+Environment::Environment(FEL *_fel): fel(_fel) {  }
 
 void Environment::set_feriantes(std::map<int, Feriante *> _feriantes)
 {
@@ -61,6 +61,9 @@ int Environment::get_nivel_olas_calor() { return this->oc_nivel.at(this->get_mon
 void Environment::initialize_system()
 {
   printf("Inicializando sistema...\n");
+  this->message_queue = new MessageQueue(
+    (int) this->agricultores.size() + this->consumidores.size() + this->consumidores.size()
+  );
 }
 
 Environment::~Environment() = default;

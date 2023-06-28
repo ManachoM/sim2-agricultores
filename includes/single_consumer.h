@@ -39,10 +39,11 @@ private:
     int id_feria;                           /** Identificador de la feria a la que asiste el consumidor*/
     std::vector<std::vector<int>> feriantes_consultados; /** "Memoria" del consumidor, con todos los feriantes a los que se le intentó preguntar por un producto*/
     int choose_product();
+    int cantidad_integrantes;
     Feria *feria;
 
 public:
-    SingleConsumer(FEL *_fel = nullptr, int _fer = -1);
+    SingleConsumer(FEL *_fel = nullptr, int _fer = -1, int _int = 1);
 
     void process_event(Event *e) override;
 

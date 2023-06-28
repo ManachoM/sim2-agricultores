@@ -2,7 +2,7 @@
 
 int SingleConsumer::current_cons_id(-1);
 
-SingleConsumer::SingleConsumer(FEL *_fel, int _fer) : fel(_fel), id_feria(_fer)
+SingleConsumer::SingleConsumer(FEL *_fel, int _fer, int _int) : fel(_fel), id_feria(_fer), cantidad_integrantes(_int)
 {
     // Inicializamos la memoria para cada producto
     for (long unsigned int _ = 0; _ < this->env->get_productos().size(); ++_)
@@ -121,7 +121,7 @@ void SingleConsumer::initialize_purchase()
             double generatedTime = h(gen);
             std::map<std::string, double> msg;
             msg.insert({"TARGET_PROD", p->get_id()});
-            msg.insert({"TARGET_AMMOUNT", p->get_volumen_consumidor()});
+            msg.insert({"TARGET_AMMOUNT", p->get_volumen_consumidor()*this->cantidad_integrantes});
             this->fel->insert_event(generatedTime + this->fel->get_time(), AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::BUSCAR_FERIANTE, this->get_id(), Message(msg), this);
         }
     }

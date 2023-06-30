@@ -22,7 +22,9 @@ class Feria
         Environment *env;
 
     public:
-        Feria(std::map<int, Feriante *> const  & _feriantes, std::vector<int> const & _dias, Environment *_env = nullptr, FEL *_fel = nullptr);
+        Feria();
+
+        Feria(std::vector<int> const & _dias, Environment *_env = nullptr, FEL *_fel = nullptr);
 
         std::map<int, Feriante*> get_feriantes() const;
 
@@ -44,6 +46,7 @@ class Feria
 
         int get_id() const ;
 
+        void set_feriantes(std::map<int, Feriante*> const & _fers);
 };
 
 

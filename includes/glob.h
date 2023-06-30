@@ -1,6 +1,7 @@
 #ifndef GLOB_H
 #define GLOB_H
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <json.hpp>
@@ -17,6 +18,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <iomanip>
+#include <fstream>
 
 
 using json = nlohmann::json;

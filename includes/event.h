@@ -29,6 +29,12 @@ enum EVENTOS_CONSUMIDOR
   FIN_COMPRA_FERIANTE   /** Una vez que el feriante confirma la compra, se actualiza el presupuesto/inventario*/
 };
 
+enum EVENTOS_AGRICULTOR
+{
+  CULTIVO_TERRENO,
+  COSECHA
+};
+
 class Event
 {
 private:

@@ -8,12 +8,18 @@
 #define AFECTACION_OLAS_CALOR 0.1
 #define AFECTACION_PLAGAS 0.3
 
+
 #include "consumidor.h"
 #include "event.h"
 #include "fel.h"
 #include "feria.h"
+#include "feriante.h"
 #include "message_queue.h"
 #include "glob.h"
+#include "aggregated_monitor.h"
+#include "sim_config.h"
+#include "product.h"
+#include "terreno.h"
 
 class Consumidor;
 class Feria;
@@ -41,6 +47,7 @@ private:
   std::map<int, Producto *> productos;
   std::map<int, std::vector<Consumidor *>> consumidor_dia;
   std::map<int, std::vector<Producto *>> venta_producto_mes;
+  std::map<int, std::vector<Producto *>> siembra_producto_mes;
   // TODO:  helada_nivel;
   std::vector<int> sequias_nivel;
   std::vector<int> oc_nivel;
@@ -76,6 +83,8 @@ public:
   std::map<int, Producto *> get_productos();
 
   std::map<int, std::vector<Producto *>> get_venta_producto_mes();
+
+  std::map<int, std::vector<Producto *>> get_siembra_producto_mes();
 
   int  get_nivel_heladas();
 

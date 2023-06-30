@@ -12,7 +12,7 @@ private:
     json config_parameters;
 
 protected:
-    explicit SimConfig(const std::string &config_file_path);
+    explicit SimConfig(const std::string &config_file_path = "");
 
     ~SimConfig();
 

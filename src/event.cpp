@@ -19,37 +19,37 @@ Event::Event(double _time, int _agent_type, int _process, int _caller_id, Messag
     this->caller_ptr = _caller_ptr;
 }
 
-double Event::get_time()
+double Event::get_time() const
 {
     return this->time;
 }
 
-int Event::get_type()
+int Event::get_type() const
 {
     return this->agent_type;
 }
 
-int Event::get_process()
+int Event::get_process() const
 {
     return this->process;
 }
 
-int Event::get_caller_id()
+int Event::get_caller_id() const
 {
     return this->caller_id;
 }
 
-Event * Event::get_next_event()
+Event * Event::get_next_event() const
 {
     return this->next;
 }
 
-Message Event::get_message()
+Message Event::get_message() const
 {
     return this->msg;
 }
 
-Agent * Event::get_caller_ptr()
+Agent * Event::get_caller_ptr() const
 {
     return this->caller_ptr;
 }

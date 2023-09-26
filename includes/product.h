@@ -59,13 +59,13 @@ public:
 
     double get_dias_cosecha() const;
 
-    void set_heladas(std::vector<int> const & _hel);
+    void set_heladas(std::vector<int> const &_hel);
 
-    void set_sequias(std::vector<int> const & _seq);
+    void set_sequias(std::vector<int> const &_seq);
 
-    void set_olas_calor(std::vector<int> const & _oc);
+    void set_olas_calor(std::vector<int> const &_oc);
 
-    void set_plagas(std::vector<int> const & _pl);
+    void set_plagas(std::vector<int> const &_pl);
 
     std::vector<int> get_heladas();
 

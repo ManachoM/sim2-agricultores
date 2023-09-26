@@ -16,11 +16,10 @@ enum AGENT_TYPE
 
 enum EVENTOS_FERIANTE
 {
-    COMPRA_MAYORISTA,
-    VENTA_CONSUMIDOR,
-    LIMPIEZA_INVENTARIO
+  COMPRA_MAYORISTA,
+  VENTA_CONSUMIDOR,
+  LIMPIEZA_INVENTARIO
 };
-
 
 enum EVENTOS_CONSUMIDOR
 {
@@ -58,19 +57,19 @@ public:
    *
    */
 
-  double get_time();
+  double get_time() const;
 
-  int get_type();
+  int get_type() const;
 
-  int get_process();
+  int get_process() const;
 
-  int get_caller_id();
+  int get_caller_id() const;
 
-  Event *get_next_event();
+  Event *get_next_event() const;
 
-  Message get_message();
+  Message get_message() const;
 
-  Agent *get_caller_ptr();
+  Agent *get_caller_ptr() const;
 
   /**
    * Setters

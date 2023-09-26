@@ -27,6 +27,10 @@ class Inventario;
 class Feriante : public Agent
 {
 private:
+    static int current_feriante_id;
+
+    int feriante_id;
+
     FEL *event_list; /** Referencia  a la lista de eventos global */
 
     std::map<int, Inventario> inventario; /** Mapa del tipo <id_producto, Inventario> con todo el inventario del feriante */
@@ -41,8 +45,14 @@ private:
 
     MercadoMayorista *mercado; /** Puntero al mercado mayorista del sistema*/
 
+    static std::string feriante_mode;
+
+    static bool mode_set;
+
 public:
     Feriante(FEL *list = nullptr, Environment *_env = nullptr, MercadoMayorista *_mer = nullptr);
+
+    void set_feriante_mode(std::string &mode);
 
     /**
      *   Método 100% virtual que se debe implementar desde

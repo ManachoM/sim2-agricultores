@@ -79,10 +79,10 @@ void Environment::initialize_system()
   /** Para productos */
   std::ifstream prods_f(config["prod_file"].get<std::string>());
   json prods = json::parse(prods_f);
-
+  printf("Inicializando productos\n");
   for (auto it : prods)
   {
-    std::cout << it.dump() << '\n';
+    // std::cout << it.dump() << '\n';
     std::vector<int> meses_siembra = it["meses_siembra"].get<std::vector<int>>();
     std::vector<int> meses_venta = it["meses_venta"].get<std::vector<int>>();
 
@@ -117,6 +117,7 @@ void Environment::initialize_system()
     p->set_plagas(pl);
     this->productos.insert({p->get_id(), p});
   }
+  printf("Creando índice invertido\n");
 
   // Genreamos el índice invertido de meses de venta
   for (int i = 0; i < 12; ++i)
@@ -171,6 +172,8 @@ void Environment::initialize_system()
   int cant_puestos = 0;
 
   std::map<int, Consumidor *> consumers; // Para ir almacenando todos los consumidores
+  printf("Creando ferias y consumidores\n");
+  
   for (auto feria : ferias_json)
   {
     ++cant_ferias;
@@ -209,6 +212,7 @@ void Environment::initialize_system()
   /** Vamos por los terrenos*/
   std::ifstream terr_f(config["terrenos_file"].get<std::string>());
   json terrenos_json = json::parse(terr_f);
+  printf("Inicializando agricultores\n");
 
   for (auto terreno : terrenos_json)
   {
@@ -224,8 +228,13 @@ void Environment::initialize_system()
         terreno["comuna"].get<std::string>(),
         prod);
 
-    // TODOauto agro = new Agricultor()
+    auto agro = new Agricultor(this->fel, terr, false);
+    agro->set_environment(this);
+    agro->set_monitor(this->monitor);
+    this->agricultores.insert({agro->get_agricultor_id(), agro});
   }
+  std::cout << "Cantidad de agricultores " << this->agricultores.size() << std::endl;
+  //exit(0);
 }
 
 Environment::~Environment() = default;

@@ -41,6 +41,9 @@ void AggregationMonitor::writeLog(json log)
         }
     }
 
+    if (this->debug_flag)
+        std::cout << log.dump() << std::endl;
+
     // Agregamos los resultados según el tipo de agente
     if (log["agent_type"].get<std::string>() == "AGRICULTOR" && log["agent_process"].get<std::string>() == "COSECHA")
     {
@@ -91,7 +94,7 @@ void AggregationMonitor::writeLog(json log)
             this->aggregated_logs["CONSUMIDOR"][year][month][target_prod] = +it.value()["target_amount"].get<double>();
         }
     }
-    this->last_recorded_month = int(log["time"].get<double>() / 720);
+    this->last_recorded_month = short(log["time"].get<double>() / 720);
 }
 
 AggregationMonitor::~AggregationMonitor()

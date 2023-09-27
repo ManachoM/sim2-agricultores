@@ -10,12 +10,12 @@ Terreno::Terreno(int _cod, double _area, std::string _comuna, int _id_prod) : id
     this->amenaza_plaga = d(gen);
 }
 
-int Terreno::get_id() { return this->id; }
+int Terreno::get_id() const{ return this->id; }
 
-int Terreno::get_cod_comuna() { return this->cod_comuna; }
+int Terreno::get_cod_comuna() const{ return this->cod_comuna; }
 
-double Terreno::get_area() { return this->area; }
+double Terreno::get_area() const{ return this->area; }
 
-int Terreno::get_producto() { return this->id_producto_plantado; }
+int Terreno::get_producto() const{ return this->id_producto_plantado; }
 
 void Terreno::set_producto_plantado(int _id) { this->id_producto_plantado = _id; }

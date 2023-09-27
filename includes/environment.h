@@ -8,7 +8,7 @@
 #define AFECTACION_OLAS_CALOR 0.1
 #define AFECTACION_PLAGAS 0.3
 
-
+#include "agricultor.h"
 #include "consumidor.h"
 #include "event.h"
 #include "fel.h"

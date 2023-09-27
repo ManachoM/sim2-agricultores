@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
     if(current_event->get_caller_ptr() != nullptr)
     {
       Agent *caller = current_event->get_caller_ptr();
+      printf("Caller id: %d\n", caller->get_id());
       caller->process_event(current_event);
       delete current_event;
       continue;

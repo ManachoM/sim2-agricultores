@@ -1,11 +1,20 @@
 #include "../includes/agricultor.h"
 
+int Agricultor::curr_agricultor_id(-1);
+
 std::string Agricultor::agricultor_mode("random");
 
 bool Agricultor::mode_set(false);
 
-Agricultor::Agricultor(FEL *_fel, Terreno *_terr, bool _seg) : fel(_fel), terreno(_terr), tiene_seguro(_seg)
+Agricultor::Agricultor(FEL *_fel, Terreno *_terr, bool _seg) : agricultor_id(++curr_agricultor_id), fel(_fel), terreno(_terr), tiene_seguro(_seg)
 {
+    this->fel->insert_event(
+        0.0,
+        AGENT_TYPE::AGRICULTOR,
+        EVENTOS_AGRICULTOR::CULTIVO_TERRENO,
+        this->get_id(),
+        Message(),
+        this);
 }
 
 void Agricultor::set_mode(const std::string &mode) const
@@ -18,6 +27,7 @@ void Agricultor::set_mode(const std::string &mode) const
 
 void Agricultor::process_event(Event *e)
 {
+    printf("Procesando agricultor...");
     json log;
     log["agent_type"] = "AGRICULTOR";
     log["time"] = e->get_time();
@@ -31,6 +41,8 @@ void Agricultor::process_event(Event *e)
     case EVENTOS_AGRICULTOR::CULTIVO_TERRENO:
     {
         this->process_cultivo_event(e, log);
+        // this->monitor->writeLog(log);
+
         break;
     }
 
@@ -39,9 +51,15 @@ void Agricultor::process_event(Event *e)
         this->process_cosecha_event(e, log);
         break;
     }
+    default:
+    {
+        printf("Procesando agricultor...");
+
+        break;
+    }
     }
 
-    this->monitor->writeLog(log);
+    // this->monitor->writeLog(log);
 }
 
 Producto const *Agricultor::choose_product()
@@ -64,7 +82,9 @@ void Agricultor::process_cultivo_event(const Event *e, json log)
     log["agent_process"] = "CULTIVO_TERRENO";
 
     // Consultamos el índice
-    auto lista_prods = this->env->get_siembra_producto_mes().find(this->env->get_month());
+    auto prods_mes = this->env->get_siembra_producto_mes();
+
+    auto lista_prods = prods_mes.find(this->env->get_month());
 
     if (lista_prods == this->env->get_siembra_producto_mes().end())
     {
@@ -76,7 +96,7 @@ void Agricultor::process_cultivo_event(const Event *e, json log)
     Producto const *prod_elegido = (*select_randomly(lista_prods->second.begin(), lista_prods->second.end()));
     log["producto_elegido"] = prod_elegido->get_id();
     this->terreno->set_producto_plantado(prod_elegido->get_id());
-
+    std::cout << "Días cosecha " << prod_elegido->get_dias_cosecha() << std::endl;
     // Insertamos la cosecha
     this->fel->insert_event(
         prod_elegido->get_dias_cosecha() * 24.0,
@@ -85,10 +105,13 @@ void Agricultor::process_cultivo_event(const Event *e, json log)
         this->get_id(),
         Message(),
         this);
+
+    this->monitor->writeLog(log);
 }
 
 void Agricultor::process_cosecha_event(const Event *e, json log)
 {
+    std::cout << "Procesando cosecha...";
     log["agent_process"] = "COSECHA";
     log["producto_cosechado"] = this->terreno->get_producto();
     log["cantidad_cosechada"] = this->terreno->get_area() * this->env->get_productos()[this->terreno->get_producto()]->get_rendimiento();
@@ -105,4 +128,14 @@ void Agricultor::process_cosecha_event(const Event *e, json log)
         this->get_id(),
         Message(),
         this);
+}
+
+std::vector<Inventario> Agricultor::get_inventory() const
+{
+    return this->inventario;
+}
+
+int Agricultor::get_agricultor_id() const
+{
+    return this->agricultor_id;
 }

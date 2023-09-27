@@ -43,23 +43,22 @@ int Producto::get_id() const { return this->id; }
 
 double Producto::get_dias_cosecha() const { return this->dias_cosecha; }
 
-void Producto::set_heladas(std::vector<int> const & _hel) 
+void Producto::set_heladas(std::vector<int> const &_hel)
 {
   this->heladas = _hel;
 }
 
-void Producto::set_sequias(std::vector<int> const & _seq)
+void Producto::set_sequias(std::vector<int> const &_seq)
 {
   this->sequias = _seq;
 }
 
-void Producto::set_olas_calor(std::vector<int> const & _oc)
+void Producto::set_olas_calor(std::vector<int> const &_oc)
 {
   this->olas_calor = _oc;
 }
 
-void Producto::set_plagas(std::vector<int> const & _pl)
+void Producto::set_plagas(std::vector<int> const &_pl)
 {
   this->plagas = _pl;
 }
-

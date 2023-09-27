@@ -18,13 +18,13 @@ public:
 
 Terreno(int _cod, double _area, std::string _comuna, int _id_prod = -1);
 
-int get_id();
+int get_id() const;
 
-int get_cod_comuna();
+int get_cod_comuna() const;
 
-double get_area();
+double get_area() const;
 
-int get_producto();
+int get_producto() const;
 
 void set_producto_plantado(int _id_prod);
 

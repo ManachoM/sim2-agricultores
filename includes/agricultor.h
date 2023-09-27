@@ -16,13 +16,18 @@
 #include "environment.h"
 #include "fel.h"
 #include "glob.h"
+#include "inventory.h"
 #include "product.h"
+#include "terreno.h"
 
 class MercadoMayorista;
+class Terreno;
 
 class Agricultor : public Agent
 {
 private:
+    static int curr_agricultor_id;
+    int agricultor_id;
     FEL *fel;
     std::vector<Inventario> inventario;
     Terreno *terreno;
@@ -32,12 +37,14 @@ private:
     static std::string agricultor_mode;
     static bool mode_set;
     void set_mode(const std::string &mode) const;
-    void process_cultivo_event (const Event *e, json log);
+    void process_cultivo_event(const Event *e, json log);
     void process_cosecha_event(const Event *e, json log);
 
 public:
     Agricultor(FEL *_fel = nullptr, Terreno *_terr = nullptr, bool _seg = false);
     void process_event(Event *e) override;
+    std::vector<Inventario> get_inventory() const;
+    int get_agricultor_id() const;
 };
 
 // Templates para selección de elemento de forma aleatoria en contenedor STL

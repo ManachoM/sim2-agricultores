@@ -20,6 +20,7 @@
 #include "sim_config.h"
 #include "product.h"
 #include "terreno.h"
+#include "mercado_mayorista.h"
 
 class Consumidor;
 class Feria;

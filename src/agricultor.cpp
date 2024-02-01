@@ -117,7 +117,7 @@ void Agricultor::process_cosecha_event(const Event *e, json log)
     log["cantidad_cosechada"] = this->terreno->get_area() * this->env->get_productos()[this->terreno->get_producto()]->get_rendimiento();
     this->inventario.emplace_back(
         e->get_time(),
-        e->get_time() + (14 * 24),
+        e->get_time() + (14 * 24), // Damos 14 días de vida útil al inventario
         this->terreno->get_producto(),
         this->terreno->get_area() * this->env->get_productos()[this->terreno->get_producto()]->get_rendimiento());
 
@@ -128,6 +128,8 @@ void Agricultor::process_cosecha_event(const Event *e, json log)
         this->get_id(),
         Message(),
         this);
+
+    this->monitor->writeLog(log);
 }
 
 std::vector<Inventario> Agricultor::get_inventory() const

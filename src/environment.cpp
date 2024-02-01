@@ -164,6 +164,10 @@ void Environment::initialize_system()
     assert((int)prods_a_insertar.size() > 0);
     this->siembra_producto_mes.insert({i, prods_a_insertar});
   }
+
+  // Creamos mercado mayorista
+  MercadoMayorista *mercado = new MercadoMayorista(this);
+
   // TODO: Cargar amenazas
   /** Para consumidores y feriantes*/
   std::ifstream ferias_f(config["ferias_file"].get<std::string>());
@@ -173,7 +177,7 @@ void Environment::initialize_system()
 
   std::map<int, Consumidor *> consumers; // Para ir almacenando todos los consumidores
   printf("Creando ferias y consumidores\n");
-  
+
   for (auto feria : ferias_json)
   {
     ++cant_ferias;
@@ -185,7 +189,7 @@ void Environment::initialize_system()
     auto fer = new Feria(dias_funcionamiento, this, this->fel);
     for (int i = 0; i < feria["cantidad_puestos"].get<int>(); ++i)
     {
-      feriante = new Feriante(this->fel, this); // TODO: Arreglar referencia a MM
+      feriante = new Feriante(this->fel, this, mercado);
       feriante->add_feria(fer);
       feriante->set_monitor(this->monitor);
       current_feriantes.insert({feriante->get_id(), feriante});
@@ -196,8 +200,9 @@ void Environment::initialize_system()
 
     int consumidores_por_puesto = config["consumidor_feriante_ratio"].get<int>();
     int cant_integrantes = 1;
+    int cant_consumidores = consumidores_por_puesto * feria["cantidad_puestos"].get<int>();
     // Creamos los consumidores
-    for (size_t i = 0; i < consumidores_por_puesto * feria["cantidad_puestos"].get<int>(); ++i)
+    for (int i = 0; i < cant_consumidores; ++i)
     {
       auto cons = new Consumidor(this->fel, fer->get_id(), cant_integrantes);
       consumers.insert({cons->get_id(), cons});
@@ -234,7 +239,7 @@ void Environment::initialize_system()
     this->agricultores.insert({agro->get_agricultor_id(), agro});
   }
   std::cout << "Cantidad de agricultores " << this->agricultores.size() << std::endl;
-  //exit(0);
+  // exit(0);
 }
 
 Environment::~Environment() = default;

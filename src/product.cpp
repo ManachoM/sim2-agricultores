@@ -35,6 +35,8 @@ double Producto::get_volumen_consumidor() const { return this->volumen_un_consum
 
 double Producto::get_probabilidad_consumo() const { return this->prob_consumo; }
 
+double Producto::get_precio_feria() const { return this->precio_feria; }
+
 std::vector<int> Producto::get_meses_siembra() const { return this->meses_siembra; }
 
 std::vector<int> Producto::get_meses_venta() const { return this->meses_venta; }

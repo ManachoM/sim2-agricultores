@@ -1,36 +1,80 @@
 #include "../includes/consumidor.h"
 
 int Consumidor::current_consumer_id(-1);
-std::string Consumidor::consumer_mode("single");
-bool Consumidor::mode_set(false);
 
-Consumidor::Consumidor(FEL *_fel, int _feria, int _cant_integrantes)
-    : consumer_id(++current_consumer_id), fel(_fel), id_feria(_feria)
+Consumidor::Consumidor(FEL *_fel, int _feria)
+    : fel(_fel), id_feria(_feria)
 {
-
-  if (Consumidor::consumer_mode == "single")
-    this->cant_integrantes = 1;
-  else
-    this->cant_integrantes = _cant_integrantes;
 }
 
 void Consumidor::process_event(Event *e)
 {
-  printf("%s", "procesando evento de consumidor \n");
+  json log;
+  printf("%s", "procesando evento de consumidor en [CONSUMIDOR]\n");
+  switch (e->get_process())
+  {
+  case EVENTOS_CONSUMIDOR::INIT_COMPRA_FERIANTE:
+  {
+    this->process_init_compra();
+    break;
+  }
+  case EVENTOS_CONSUMIDOR::PROCESAR_COMPRA_FERIANTE:
+  {
+    this->process_resp_feriante(e, log);
+    break;
+  }
+  default:
+    break;
+  }
+  this->monitor->write_log(log);
 }
 
-void Consumidor::initialize_purchase() {}
+void Consumidor::process_init_compra()
+{
+  printf("%s", "procesando inicio de compra de feriante en [CONSUMIDOR]\n");
+  // Determinamos el producto a comprar y la cantidad
+  int prod = this->choose_product();
+  double amount = this->purchase_amount(prod);
+
+  // Elegimos el feriante del cual vamos a comprar
+  Feriante *fer = this->choose_feriante(prod, amount);
+
+  //* TODO: Cambiar con implementación de cola de mensajes
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::exponential_distribution<> d(2);
+  double purchase_time = d(gen);
+  std::map<std::string, double> content = {{"amount", amount}, {"prod_id", (double)prod}};
+  this->fel->insert_event(
+      purchase_time, AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::VENTA_CONSUMIDOR, fer->get_id(), Message(content), fer);
+}
+
+void Consumidor::process_resp_feriante(const Event *e, json &log)
+{
+  log["event_type"] = "PROCESAR_COMPRA_FERIANTE";
+  printf("%s", "procesando respuesta de feriante en [CONSUMIDOR]\n");
+  Message msg = e->get_message();
+  if (msg.msg.count("error")) // Si retornamos con error
+  {
+    msg.msg.erase("error");
+    Feriante *new_fer;
+    double prod_id = msg.msg.at("prod_id");
+    double amount = msg.msg.at("amount");
+
+    // Lanzamos una excepción si no quedan feriantes de los cuales comprar, ver "Zero-Cost Exceptions" en gcc y MSVC
+    // try{
+    new_fer = this->choose_feriante((int)prod_id, amount);
+    //}
+    this->fel->insert_event(
+        0.0, AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::VENTA_CONSUMIDOR, new_fer->get_id(), msg, new_fer);
+    return;
+  }
+  this->finish_purchase();
+}
 
 void Consumidor::set_feria(int _feria_id) { this->id_feria = _feria_id; }
 
-int Consumidor::get_feria() { return this->id_feria; }
+int Consumidor::get_feria() const { return this->id_feria; }
 
-int Consumidor::get_consumer_id() { return this->consumer_id; }
-
-void Consumidor::set_consumer_mode(std::string &mode)
-{
-  if (Consumidor::mode_set)
-    return;
-  Consumidor::consumer_mode = mode;
-  Consumidor::mode_set = true;
-}
+int Consumidor::get_consumer_id() const { return this->consumer_id; }

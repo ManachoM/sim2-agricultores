@@ -14,7 +14,7 @@ AggregationMonitor::AggregationMonitor(std::string const &_file_prefix, bool _de
     }
 };
 
-void AggregationMonitor::writeLog(json log)
+void AggregationMonitor::write_log(json log)
 {
     // Obtenemos el mes y el año al que pertenece el nuevo evento
     std::string year = std::to_string(int(log["time"].get<double>() / 8'760));

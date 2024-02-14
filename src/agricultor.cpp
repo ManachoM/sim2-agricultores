@@ -41,7 +41,7 @@ void Agricultor::process_event(Event *e)
     case EVENTOS_AGRICULTOR::CULTIVO_TERRENO:
     {
         this->process_cultivo_event(e, log);
-        // this->monitor->writeLog(log);
+        // this->monitor->write_log(log);
 
         break;
     }
@@ -59,7 +59,7 @@ void Agricultor::process_event(Event *e)
     }
     }
 
-    // this->monitor->writeLog(log);
+    // this->monitor->write_log(log);
 }
 
 Producto const *Agricultor::choose_product()
@@ -106,7 +106,7 @@ void Agricultor::process_cultivo_event(const Event *e, json log)
         Message(),
         this);
 
-    this->monitor->writeLog(log);
+    this->monitor->write_log(log);
 }
 
 void Agricultor::process_cosecha_event(const Event *e, json log)
@@ -129,7 +129,7 @@ void Agricultor::process_cosecha_event(const Event *e, json log)
         Message(),
         this);
 
-    this->monitor->writeLog(log);
+    this->monitor->write_log(log);
 }
 
 std::vector<Inventario> Agricultor::get_inventory() const

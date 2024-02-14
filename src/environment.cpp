@@ -1,4 +1,6 @@
 #include "../includes/environment.h"
+#include "../includes/consumidor.h"
+
 
 Environment::Environment(FEL *_fel) : fel(_fel)
 {
@@ -68,13 +70,9 @@ int Environment::get_nivel_sequias() { return this->sequias_nivel.at(this->get_m
 
 int Environment::get_nivel_olas_calor() { return this->oc_nivel.at(this->get_month()); }
 
-void Environment::initialize_system()
+void Environment::read_products()
 {
-  printf("Inicializando sistema...\n");
-
   json config = SimConfig::get_instance("")->get_config();
-
-  // TODO: Generar MM
 
   /** Para productos */
   std::ifstream prods_f(config["prod_file"].get<std::string>());
@@ -82,7 +80,7 @@ void Environment::initialize_system()
   printf("Inicializando productos\n");
   for (auto it : prods)
   {
-    // std::cout << it.dump() << '\n';
+
     std::vector<int> meses_siembra = it["meses_siembra"].get<std::vector<int>>();
     std::vector<int> meses_venta = it["meses_venta"].get<std::vector<int>>();
 
@@ -164,18 +162,18 @@ void Environment::initialize_system()
     assert((int)prods_a_insertar.size() > 0);
     this->siembra_producto_mes.insert({i, prods_a_insertar});
   }
+}
 
-  // Creamos mercado mayorista
-  MercadoMayorista *mercado = new MercadoMayorista(this);
+void Environment::read_ferias()
+{
+  json config = SimConfig::get_instance("")->get_config();
 
-  // TODO: Cargar amenazas
   /** Para consumidores y feriantes*/
   std::ifstream ferias_f(config["ferias_file"].get<std::string>());
   json ferias_json = json::parse(ferias_f);
   int cant_ferias = 0;
   int cant_puestos = 0;
 
-  std::map<int, Consumidor *> consumers; // Para ir almacenando todos los consumidores
   printf("Creando ferias y consumidores\n");
 
   for (auto feria : ferias_json)
@@ -184,35 +182,17 @@ void Environment::initialize_system()
     std::vector<int> dias_funcionamiento = feria["dias"].get<std::vector<int>>();
 
     std::map<int, Feriante *> current_feriantes;
-    Feriante *feriante;
     cant_puestos += feria["cantidad_puestos"].get<int>();
-    auto fer = new Feria(dias_funcionamiento, this, this->fel);
-    for (int i = 0; i < feria["cantidad_puestos"].get<int>(); ++i)
-    {
-      feriante = new Feriante(this->fel, this, mercado);
-      feriante->add_feria(fer);
-      feriante->set_monitor(this->monitor);
-      current_feriantes.insert({feriante->get_id(), feriante});
-      this->feriantes.insert({feriante->get_id(), feriante});
-    }
-
-    fer->set_feriantes(current_feriantes);
-
-    int consumidores_por_puesto = config["consumidor_feriante_ratio"].get<int>();
-    int cant_integrantes = 1;
-    int cant_consumidores = consumidores_por_puesto * feria["cantidad_puestos"].get<int>();
-    // Creamos los consumidores
-    for (int i = 0; i < cant_consumidores; ++i)
-    {
-      auto cons = new Consumidor(this->fel, fer->get_id(), cant_integrantes);
-      consumers.insert({cons->get_id(), cons});
-    }
+    auto fer = new Feria(dias_funcionamiento, feria["cantidad_puestos"].get<int>(), this, this->fel);
+    this->ferias.insert({fer->get_id(), fer});
   }
+}
 
-  for (int i = 0; i < 7; ++i)
-  {
-    this->fel->insert_event(24.0 * i, AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::INICIO_FERIA, 0, Message());
-  }
+void Environment::read_terrenos()
+{
+  printf("Inicializando sistema...\n");
+
+  json config = SimConfig::get_instance("")->get_config();
 
   /** Vamos por los terrenos*/
   std::ifstream terr_f(config["terrenos_file"].get<std::string>());
@@ -239,7 +219,68 @@ void Environment::initialize_system()
     this->agricultores.insert({agro->get_agricultor_id(), agro});
   }
   std::cout << "Cantidad de agricultores " << this->agricultores.size() << std::endl;
-  // exit(0);
+}
+
+void Environment::initialize_agents(MercadoMayorista *_mer)
+{
+
+  json config = SimConfig::get_instance("")->get_config();
+
+  // Inicializamos feriantes y consumidores
+  for (auto feria : this->ferias)
+  {
+    std::map<int, Feriante *> current_feriantes;
+    Feriante *feriante;
+    for (int i = 0; i < feria.second->get_num_feriantes(); ++i)
+    {
+      feriante = new Feriante(this->fel, this, _mer);
+      feriante->add_feria(feria.second);
+      feriante->set_monitor(this->monitor);
+      current_feriantes.insert({feriante->get_id(), feriante});
+      this->feriantes.insert({feriante->get_id(), feriante});
+    }
+
+    feria.second->set_feriantes(current_feriantes);
+
+    int consumidores_por_puesto = config["consumidor_feriante_ratio"].get<int>();
+    std::string consumer_type = config["tipo_consumidor"].get<std::string>();
+    int cantidad_consumidores = consumidores_por_puesto * feria.second->get_num_feriantes();
+
+    auto cons_factory = ConsumidorFactory(this->fel, this, this->monitor);
+
+    for (int i = 0; i < cantidad_consumidores; ++i)
+    {
+      auto cons = cons_factory.create_consumidor(consumer_type, feria.first);
+      this->consumidores.insert({cons->get_id(), cons});
+    }
+  }
+}
+
+void Environment::initialize_system()
+{
+
+  // Leemos desde archivos y generamos objetos estáticos
+  this->read_products();
+
+  this->read_ferias();
+
+  this->read_terrenos();
+
+  // TODO: Generar MM
+
+  // Creamos mercado mayorista
+  MercadoMayorista *mercado = new MercadoMayorista(this);
+
+  // TODO: Cargar amenazas
+
+  // Generamos los agentes para la simulación
+  this->initialize_agents(mercado);
+
+  // Inicializamos los eventos del ambiente
+  for (int i = 0; i < 7; ++i)
+  {
+    this->fel->insert_event(24.0 * i, AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::INICIO_FERIA, 0, Message());
+  }
 }
 
 Environment::~Environment() = default;

@@ -34,7 +34,7 @@ public:
      *
      * @param log Objeto json con el evento. Debe contener al menos el tipo de agente, el tipo de evento y el tiempo de simulación.
      */
-    virtual void writeLog(json log) = 0;
+    virtual void write_log(json log) = 0;
 
     virtual ~Monitor();
 };

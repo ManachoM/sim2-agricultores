@@ -17,6 +17,8 @@
 #include "boolean_matrix.h"
 #include "environment.h"
 
+class Agricultor;
+
 class MercadoMayorista
 {
 private:

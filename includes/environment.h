@@ -9,7 +9,8 @@
 #define AFECTACION_PLAGAS 0.3
 
 #include "agricultor.h"
-#include "consumidor.h"
+//#include "consumidor.h"
+#include "consumidor_factory.h"
 #include "event.h"
 #include "fel.h"
 #include "feria.h"
@@ -23,6 +24,7 @@
 #include "mercado_mayorista.h"
 
 class Consumidor;
+class ConsumidorFactory;
 class Feria;
 class Feriante;
 class Agricultor;
@@ -54,6 +56,10 @@ private:
   std::vector<int> oc_nivel;
   Monitor *monitor;
   MessageQueue* message_queue;
+  void read_products();
+  void read_ferias();
+  void read_terrenos();
+  void initialize_agents(MercadoMayorista *mercado);
 
 
 public:

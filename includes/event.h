@@ -23,9 +23,9 @@ enum EVENTOS_FERIANTE
 
 enum EVENTOS_CONSUMIDOR
 {
-  BUSCAR_FERIANTE,      /** Evento para buscar a feriante dentro de la feria*/
-  INIT_COMPRA_FERIANTE, /** Representa la solicitud de compra de producto a un feriante*/
-  FIN_COMPRA_FERIANTE   /** Una vez que el feriante confirma la compra, se actualiza el presupuesto/inventario*/
+  BUSCAR_FERIANTE,         /** Evento para buscar a feriante dentro de la feria*/
+  INIT_COMPRA_FERIANTE,    /** Representa la solicitud de compra de producto a un feriante*/
+  PROCESAR_COMPRA_FERIANTE /** Una vez que el feriante confirma la compra, se actualiza el presupuesto/inventario*/
 };
 
 enum EVENTOS_AGRICULTOR

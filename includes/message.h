@@ -6,7 +6,7 @@
 class Message
 {
 public:
-    Message(std::map<std::string, double> const& _msg = std::map<std::string, double> ());
+    explicit Message(std::map<std::string, double> const& _msg = std::map<std::string, double> ());
 
     std::map<std::string, double> msg;
 };

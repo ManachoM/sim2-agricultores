@@ -23,6 +23,7 @@ private:
     double volumen_feriante;
     double volumen_un_consumidor;
     double prob_consumo;
+    double precio_feria = 1.0;
     std::vector<int> heladas;
     std::vector<int> sequias;
     std::vector<int> olas_calor;
@@ -50,6 +51,8 @@ public:
     double get_volumen_consumidor() const;
 
     double get_probabilidad_consumo() const;
+
+    double get_precio_feria() const;
 
     std::vector<int> get_meses_siembra() const;
 

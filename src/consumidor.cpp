@@ -45,7 +45,7 @@ void Consumidor::process_init_compra()
   std::mt19937 gen(rd());
   std::exponential_distribution<> d(2);
   double purchase_time = d(gen);
-  std::map<std::string, double> content = {{"amount", amount}, {"prod_id", (double)prod}};
+  std::map<std::string, double> content = {{"amount", amount}, {"prod_id", (double)prod}, {"buyer_id", (double)this->get_consumer_id()}};
   this->fel->insert_event(
       purchase_time, AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::VENTA_CONSUMIDOR, fer->get_id(), Message(content), fer);
 }

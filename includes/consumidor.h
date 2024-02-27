@@ -17,7 +17,7 @@ private:
   int consumer_id = ++current_consumer_id;
   FEL *fel;     // Ptr a FEL con eventos del simulador
   int id_feria; // ID de la feria a la que asiste el Consumidor
-  virtual int choose_product() = 0;
+  virtual std::vector<int> choose_product() = 0;
   virtual double purchase_amount(const int prod_id) = 0;
   virtual Feriante *choose_feriante(const int prod_id, const double amount) = 0;
   virtual void finish_purchase() = 0;

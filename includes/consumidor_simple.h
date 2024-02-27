@@ -9,7 +9,7 @@ class Feriante;
 class ConsumidorSimple : public Consumidor
 {
 private:
-    int choose_product() override;
+    std::vector<int> choose_product() override;
     double purchase_amount(const int prod_id) override;
     Feriante *choose_feriante(const int prod_id, const double amount) override;
     void finish_purchase() override;

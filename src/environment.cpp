@@ -1,7 +1,6 @@
 #include "../includes/environment.h"
 #include "../includes/consumidor.h"
 
-
 Environment::Environment(FEL *_fel) : fel(_fel)
 {
   // Traemos la configuración de la instancia
@@ -233,8 +232,7 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
     Feriante *feriante;
     for (int i = 0; i < feria.second->get_num_feriantes(); ++i)
     {
-      feriante = new Feriante(this->fel, this, _mer);
-      feriante->add_feria(feria.second);
+      feriante = new Feriante(this->fel, _mer, feria.first);
       feriante->set_monitor(this->monitor);
       current_feriantes.insert({feriante->get_id(), feriante});
       this->feriantes.insert({feriante->get_id(), feriante});

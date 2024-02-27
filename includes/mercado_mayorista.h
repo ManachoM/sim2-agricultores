@@ -32,7 +32,7 @@ public:
 
     void reset_index();
 
-    std::vector<Agricultor> get_agricultor_por_prod(int prod_id);
+    std::vector<Agricultor*> get_agricultor_por_prod(int prod_id);
 };
 
 #endif // !_MERCADO_MAYORISTA_

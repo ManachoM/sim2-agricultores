@@ -4,7 +4,6 @@
  *   como agennte de la simulación. Los feriantes son aquellos
  *   que se dedican a comprar a Agricultores en Mercacdos Mayoristas
  *
- *  !!Importado directamente desde sim1
  */
 #ifndef FERIANTE_H
 #define FERIANTE_H
@@ -19,10 +18,10 @@
 #include "product.h"
 #include "glob.h"
 
+class Agricultor;
 class Feria;
 class MercadoMayorista;
 class Inventario;
-
 
 class Feriante : public Agent
 {
@@ -31,28 +30,32 @@ private:
 
     int feriante_id;
 
-    FEL *event_list; /** Referencia  a la lista de eventos global */
+    FEL *fel; /** Referencia  a la lista de eventos global */
 
     std::map<int, Inventario> inventario; /** Mapa del tipo <id_producto, Inventario> con todo el inventario del feriante */
 
-    std::map<int, Feria *> ferias; /** Mapa con todas las ferias a las que atiende el feriante, del tipo <id_feria, Feria*> */
-
-    double ultima_limpieza = 0.0; /** Último tiempo de simulación en que se limpió el inventario del feriante. Representa la durabilidad del inventario.*/
-
-    Environment *env; /** Puntero al sistema */
+    int feria_id; /** Mapa con todas las ferias a las que atiende el feriante, del tipo <id_feria, Feria*> */
 
     std::vector<int> productos; /** Arreglo con los productos que el feriante venderá*/
 
     MercadoMayorista *mercado; /** Puntero al mercado mayorista del sistema*/
 
-    static std::string feriante_mode;
+    virtual std::vector<int> choose_product() = 0;
 
-    static bool mode_set;
+    virtual double purchase_amount(const int prod_id) = 0;
+
+    virtual Agricultor *choose_agricultor(const int prod_id, const double amount) = 0;
+
+    virtual void finish_purchase() = 0;
+
+    void process_init_compra();
+
+    void process_resp_agricultor(const Event *e, json &log);
+
+    void process_venta_feriante(const Event *e);
 
 public:
-    Feriante(FEL *list = nullptr, Environment *_env = nullptr, MercadoMayorista *_mer = nullptr);
-
-    void set_feriante_mode(std::string &mode);
+    Feriante(FEL *list = nullptr, MercadoMayorista *_mer = nullptr, int feria_id = -1);
 
     /**
      *   Método 100% virtual que se debe implementar desde
@@ -61,17 +64,6 @@ public:
      *   @param e Evento a ser procesado
      */
     void process_event(Event *e) override;
-
-    /*!
-        Método que representa el acto de comprarle al feriante.
-        En la práctica, esto implica reducir su inventario y aumentar su
-        dinero. Aún queda decidir cómo determinar la cantidad de producto a comprar
-        @param  idProducto ID del producto a comprar.
-        @param cantidad Cantidad de producto - en su respectiva unidad - a comprar por el consumidor
-        @return Booleano que es True cuando se concretó la compra, False si no tenía stock
-
-    */
-    bool comprar_by_id(int idProducto, double cantidad = -1.0);
 
     /*!
         Getter para obtener el mapa <id_producto, Inventario> del feriante.
@@ -86,19 +78,7 @@ public:
     */
     Inventario get_inventario_by_id(int idProducto);
 
-    /*!
-        Setter para agregar feria al mapa de ferias del feriante.
-        @param _feria Puntero a la feria que debe ser agregada al mapa
-    */
-    void add_feria(Feria *_feria);
-
-    /**
-     * @brief Método llamado para generar los eventos de compra de los agricultores.
-     * Esta toma de decisiones debería estar influenciada por el calendario y otras variables, como precio
-     * del mercado mayorista. Esta implementación es bastante ingenua en ese sentido.
-     *
-     */
-    void comprar_productos();
+    void set_feria(const int feria_id);
 
     /**
      * @brief Getter de la primera feria a la que pertenece el feriante
@@ -106,6 +86,8 @@ public:
      * @return Feria*
      */
     Feria *get_feria();
+
+    int get_feriante_id();
 
     ~Feriante();
 };

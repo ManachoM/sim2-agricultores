@@ -1,12 +1,8 @@
 #include "../includes/consumidor_factory.h"
 
-
-
 #include "../includes/consumidor_simple.h"
 #include "../includes/consumidor_familiar.h"
 #include "../includes/consumidor_familiar_presupuesto.h"
-
-
 
 ConsumidorFactory::ConsumidorFactory(FEL *_fel, Environment *_env, Monitor *_monitor) : fel(_fel), env(_env), monitor(_monitor)
 {

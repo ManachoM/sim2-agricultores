@@ -4,7 +4,7 @@ ConsumidorFamiliarPresupuesto::ConsumidorFamiliarPresupuesto(int fam_size, int f
 {
 }
 
-int ConsumidorFamiliarPresupuesto::choose_product()
+std::vector<int> ConsumidorFamiliarPresupuesto::choose_product()
 {
     int current_month = this->env->get_month();
     std::vector<Producto *> prods = this->env->get_venta_producto_mes().find(current_month)->second;
@@ -19,6 +19,7 @@ int ConsumidorFamiliarPresupuesto::choose_product()
     else
         presupuesto_mes = this->budget - gasto_iter->second;
 
+    std::vector<int> prods_to_buy;
     for (auto prod : prods)
     {
         std::random_device rd;
@@ -29,10 +30,12 @@ int ConsumidorFamiliarPresupuesto::choose_product()
         if (d(gen) > prod->get_probabilidad_consumo() ||
             presupuesto_mes < prod->get_precio_feria() * this->fam_size)
             continue;
+
+        prods_to_buy.push_back(prod->get_id());
     }
 
     // Caso borde, no se pudo elegir ningún producto - excepción?
-    return prods[0]->get_id();
+    return prods_to_buy;
 }
 
 double ConsumidorFamiliarPresupuesto::purchase_amount(const int prod_id)
@@ -58,4 +61,5 @@ Feriante *ConsumidorFamiliarPresupuesto::choose_feriante(const int prod_id, cons
 
 void ConsumidorFamiliarPresupuesto::finish_purchase()
 {
+    this->feriantes_consultados.clear();
 }

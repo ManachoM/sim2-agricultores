@@ -7,10 +7,11 @@ class BooleanMatrix
 {
 private:
     bool **matrix;
+
+public:
     int num_rows;
     int num_cols;
 
-public:
     BooleanMatrix(int num_rows = 0, int num_cols = 0);
 
     ~BooleanMatrix();

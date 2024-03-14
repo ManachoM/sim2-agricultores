@@ -33,21 +33,23 @@ void Consumidor::process_init_compra()
 {
   printf("%s", "procesando inicio de compra de feriante en [CONSUMIDOR]\n");
   // Determinamos el producto a comprar y la cantidad
-  int prod = this->choose_product();
-  double amount = this->purchase_amount(prod);
+  std::vector<int> prods = this->choose_product();
 
-  // Elegimos el feriante del cual vamos a comprar
-  Feriante *fer = this->choose_feriante(prod, amount);
+  for (int prod_id : prods)
+  { //
+    double amount = this->purchase_amount(prod_id);
 
-  //* TODO: Cambiar con implementación de cola de mensajes
-
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::exponential_distribution<> d(2);
-  double purchase_time = d(gen);
-  std::map<std::string, double> content = {{"amount", amount}, {"prod_id", (double)prod}, {"buyer_id", (double)this->get_consumer_id()}};
-  this->fel->insert_event(
-      purchase_time, AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::VENTA_CONSUMIDOR, fer->get_id(), Message(content), fer);
+    // Elegimos el feriante del cual vamos a comprar
+    Feriante *fer = this->choose_feriante(prod_id, amount);
+    //* TODO: Cambiar con implementación de cola de mensajes
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::exponential_distribution<> d(2);
+    double purchase_time = d(gen);
+    std::map<std::string, double> content = {{"amount", amount}, {"prod_id", (double)prod_id}, {"buyer_id", (double)this->get_consumer_id()}};
+    this->fel->insert_event(
+        purchase_time, AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::VENTA_CONSUMIDOR, fer->get_id(), Message(content), fer);
+  }
 }
 
 void Consumidor::process_resp_feriante(const Event *e, json &log)

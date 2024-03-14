@@ -1,5 +1,6 @@
 #include "../includes/environment.h"
 #include "../includes/consumidor.h"
+#include "../includes/feriante_factory.h"
 
 Environment::Environment(FEL *_fel) : fel(_fel)
 {
@@ -229,11 +230,13 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
   for (auto feria : this->ferias)
   {
     std::map<int, Feriante *> current_feriantes;
+    auto feriante_factory = FerianteFactory(this->fel, this, this->monitor, _mer);
+    std::string feriante_type = config["tipo_feriante"].get<std::string>();
     Feriante *feriante;
     for (int i = 0; i < feria.second->get_num_feriantes(); ++i)
     {
-      feriante = new Feriante(this->fel, _mer, feria.first);
-      feriante->set_monitor(this->monitor);
+      
+      feriante = feriante_factory.create_feriante(feriante_type, feria.first);
       current_feriantes.insert({feriante->get_id(), feriante});
       this->feriantes.insert({feriante->get_id(), feriante});
     }
@@ -263,9 +266,7 @@ void Environment::initialize_system()
   this->read_ferias();
 
   this->read_terrenos();
-
-  // TODO: Generar MM
-
+  
   // Creamos mercado mayorista
   MercadoMayorista *mercado = new MercadoMayorista(this);
 

@@ -34,11 +34,10 @@ private:
 
     std::map<int, Inventario> inventario; /** Mapa del tipo <id_producto, Inventario> con todo el inventario del feriante */
 
-    int feria_id; /** Mapa con todas las ferias a las que atiende el feriante, del tipo <id_feria, Feria*> */
+    int feria_id; 
 
     std::vector<int> productos; /** Arreglo con los productos que el feriante venderá*/
 
-    MercadoMayorista *mercado; /** Puntero al mercado mayorista del sistema*/
 
     virtual std::vector<int> choose_product() = 0;
 
@@ -55,6 +54,7 @@ private:
     void process_venta_feriante(const Event *e);
 
 public:
+    MercadoMayorista *mercado; /** Puntero al mercado mayorista del sistema*/
     Feriante(FEL *list = nullptr, MercadoMayorista *_mer = nullptr, int feria_id = -1);
 
     /**

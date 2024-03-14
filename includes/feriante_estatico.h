@@ -9,7 +9,7 @@ private:
     std::vector<int> choose_product() override;
     double purchase_amount(const int prod_id) override;
     Agricultor *choose_agricultor(const int prod_id, const double amount) override;
-    void finish_purchase();
+    void finish_purchase() override;
     std::vector<int> agricultores_consultados;
     std::vector<int> prods_ids;
 

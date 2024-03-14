@@ -34,3 +34,16 @@ void MercadoMayorista::reset_index()
         }
     }
 }
+
+std::vector<int> MercadoMayorista::get_agricultor_por_prod(int prod_id)
+{
+    std::vector<int> agricultores;
+    for (size_t i = 0; i < this->prod_mat.num_rows; ++i)
+    {
+        if (!this->prod_mat[i][prod_id])
+            continue;
+        agricultores.push_back(i);
+    }
+
+    return agricultores;
+}

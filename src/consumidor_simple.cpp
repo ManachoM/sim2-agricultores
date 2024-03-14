@@ -4,9 +4,11 @@ ConsumidorSimple::ConsumidorSimple(int _feria, FEL *fel) : Consumidor(fel, _feri
 {
 }
 
-int ConsumidorSimple::choose_product()
+std::vector<int> ConsumidorSimple::choose_product()
 {
     std::vector<Producto *> prods = this->env->get_venta_producto_mes().find(this->env->get_month())->second;
+
+    std::vector<int> prods_to_buy;
 
     for (auto prod : prods)
     {
@@ -16,11 +18,12 @@ int ConsumidorSimple::choose_product()
 
         if (d(gen) > prod->get_probabilidad_consumo())
             continue;
-        return prod->get_id();
+        
+        prods_to_buy.push_back(prod->get_id());
     }
 
     // Caso borde - lanzar excepción? - nunca lo ví en implementación anterior
-    return prods[0]->get_id();
+    return prods_to_buy;
 }
 
 double ConsumidorSimple::purchase_amount(const int prod_id)
@@ -47,4 +50,5 @@ Feriante *ConsumidorSimple::choose_feriante(const int prod_id, const double amou
 
 void ConsumidorSimple::finish_purchase()
 {
+    this->feriantes_consultados.clear();
 }

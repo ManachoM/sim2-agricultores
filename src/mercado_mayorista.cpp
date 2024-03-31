@@ -27,10 +27,10 @@ void MercadoMayorista::reset_index()
     // Para cada agricultor, obtenemos su lista de productos
     for (auto agr : agros)
     {
-        std::vector<Inventario> inv = agr.second->get_inventory();
+        std::map<int, Inventario> inv = agr.second->get_inventory();
         for (auto const& el : inv)
         {
-            this->prod_mat[agr.first][el.get_product_id()] = true;
+            this->prod_mat[agr.first][el.second.get_product_id()] = true;
         }
     }
 }

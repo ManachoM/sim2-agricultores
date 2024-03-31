@@ -43,7 +43,7 @@ void Feriante::process_init_compra()
         // Esto va dentro de un try catch
         Agricultor *agr = this->choose_agricultor(prod_id, amount);
 
-        std::map<std::string, double> content = {{"amount", amount}, {"prod_id", (double)prod_id}};
+        std::map<std::string, double> content = {{"amount", amount}, {"prod_id", (double)prod_id}, {"buyer_id", (double) this->get_feriante_id()}};
 
         this->fel->insert_event(
             1.0, AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::VENTA_FERIANTE, agr->get_id(), Message(content), agr);

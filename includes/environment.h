@@ -23,13 +23,14 @@
 #include "terreno.h"
 #include "mercado_mayorista.h"
 
+class Agricultor;
 class Consumidor;
 class ConsumidorFactory;
 class Feria;
 class Feriante;
-class Agricultor;
-class Producto;
 class Monitor;
+class Producto;
+class Terreno;
 
 enum EVENTOS_AMBIENTE
 {
@@ -48,6 +49,7 @@ private:
   std::map<int, Consumidor *> consumidores;
   std::map<int, Feriante *> feriantes;
   std::map<int, Producto *> productos;
+  std::map<int, Terreno*> terrenos; 
   std::map<int, std::vector<Consumidor *>> consumidor_dia;
   std::map<int, std::vector<Producto *>> venta_producto_mes;
   std::map<int, std::vector<Producto *>> siembra_producto_mes;

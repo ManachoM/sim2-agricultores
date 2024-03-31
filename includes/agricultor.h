@@ -29,21 +29,19 @@ private:
     static int curr_agricultor_id;
     int agricultor_id;
     FEL *fel;
-    std::vector<Inventario> inventario;
+    std::map<int, Inventario> inventario;
     Terreno *terreno;
     MercadoMayorista *mercado;
-    bool tiene_seguro;
-    Producto const *choose_product();
-    static std::string agricultor_mode;
-    static bool mode_set;
-    void set_mode(const std::string &mode) const;
+    virtual int const choose_product() = 0;
     void process_cultivo_event(const Event *e, json log);
     void process_cosecha_event(const Event *e, json log);
+    void process_venta_feriante_event(const Event *e);
+    void process_inventario_vencido_event(const Event *e, json log);
 
 public:
-    Agricultor(FEL *_fel = nullptr, Terreno *_terr = nullptr, bool _seg = false);
+    Agricultor(FEL *_fel = nullptr, Terreno *_terr = nullptr);
     void process_event(Event *e) override;
-    std::vector<Inventario> get_inventory() const;
+    std::map<int, Inventario> get_inventory() const;
     int get_agricultor_id() const;
 };
 

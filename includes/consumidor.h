@@ -3,12 +3,12 @@
 
 #include "agent.h"
 #include "fel.h"
+#include "feriante.h"
 #include "glob.h"
 #include "monitor.h"
 
 class Feriante;
 
-#include "feriante.h"
 
 class Consumidor : public Agent
 {

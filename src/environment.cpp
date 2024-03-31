@@ -1,5 +1,6 @@
 #include "../includes/environment.h"
 #include "../includes/consumidor.h"
+#include "../includes/agricultor_factory.h"
 #include "../includes/feriante_factory.h"
 
 Environment::Environment(FEL *_fel) : fel(_fel)
@@ -213,12 +214,8 @@ void Environment::read_terrenos()
         terreno["comuna"].get<std::string>(),
         prod);
 
-    auto agro = new Agricultor(this->fel, terr, false);
-    agro->set_environment(this);
-    agro->set_monitor(this->monitor);
-    this->agricultores.insert({agro->get_agricultor_id(), agro});
+    this->terrenos.insert({terr->get_id(), terr});
   }
-  std::cout << "Cantidad de agricultores " << this->agricultores.size() << std::endl;
 }
 
 void Environment::initialize_agents(MercadoMayorista *_mer)
@@ -235,7 +232,7 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
     Feriante *feriante;
     for (int i = 0; i < feria.second->get_num_feriantes(); ++i)
     {
-      
+
       feriante = feriante_factory.create_feriante(feriante_type, feria.first);
       current_feriantes.insert({feriante->get_id(), feriante});
       this->feriantes.insert({feriante->get_id(), feriante});
@@ -255,6 +252,16 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
       this->consumidores.insert({cons->get_id(), cons});
     }
   }
+
+  std::string agricultor_type = config["tipo_agricultor"].get<std::string>();
+  Agricultor *agr;
+  auto agricultor_factory = AgricultorFactory(this->fel, this, this->monitor);
+  for (auto terr : this->terrenos)
+  {
+    agr = agricultor_factory.create_agricultor(agricultor_type, terr.second);
+    this->agricultores.insert({agr->get_id(), agr});
+  }
+  std::cout << "Cantidad de agricultores " << this->agricultores.size() << std::endl;
 }
 
 void Environment::initialize_system()
@@ -266,7 +273,7 @@ void Environment::initialize_system()
   this->read_ferias();
 
   this->read_terrenos();
-  
+
   // Creamos mercado mayorista
   MercadoMayorista *mercado = new MercadoMayorista(this);
 

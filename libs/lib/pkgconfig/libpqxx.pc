@@ -1,0 +1,10 @@
+prefix=/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/libs
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libpqxx
+Description: C++ client API for the PostgreSQL database management system.
+Version: 7.9.1
+Libs: -L${libdir} -lpqxx
+Cflags: -I${includedir}

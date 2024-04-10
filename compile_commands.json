@@ -2,153 +2,23 @@
   {
     "arguments": [
       "/usr/bin/g++",
-      "-std=c++14",
+      "-I./libs",
+      "-I/usr/include/postgresql",
+      "-I./libs/include",
+      "-I/usr/include/c++",
+      "-std=c++17",
       "-Wall",
       "-g",
       "-pthread",
       "-O3",
+      "-fpermissive",
       "-c",
-      "-I./libs",
-      "-I/usr/include/c++",
       "-o",
-      "obj/agent.o",
-      "src/agent.cpp"
+      "obj/mercado_mayorista.o",
+      "src/mercado_mayorista.cpp"
     ],
     "directory": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores",
-    "file": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/src/agent.cpp",
-    "output": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/obj/agent.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-std=c++14",
-      "-Wall",
-      "-g",
-      "-pthread",
-      "-O3",
-      "-c",
-      "-I./libs",
-      "-I/usr/include/c++",
-      "-o",
-      "obj/consumidor.o",
-      "src/consumidor.cpp"
-    ],
-    "directory": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores",
-    "file": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/src/consumidor.cpp",
-    "output": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/obj/consumidor.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-std=c++14",
-      "-Wall",
-      "-g",
-      "-pthread",
-      "-O3",
-      "-c",
-      "-I./libs",
-      "-I/usr/include/c++",
-      "-o",
-      "obj/environment.o",
-      "src/environment.cpp"
-    ],
-    "directory": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores",
-    "file": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/src/environment.cpp",
-    "output": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/obj/environment.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-std=c++14",
-      "-Wall",
-      "-g",
-      "-pthread",
-      "-O3",
-      "-c",
-      "-I./libs",
-      "-I/usr/include/c++",
-      "-o",
-      "obj/event.o",
-      "src/event.cpp"
-    ],
-    "directory": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores",
-    "file": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/src/event.cpp",
-    "output": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/obj/event.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-std=c++14",
-      "-Wall",
-      "-g",
-      "-pthread",
-      "-O3",
-      "-c",
-      "-I./libs",
-      "-I/usr/include/c++",
-      "-o",
-      "obj/heap_fel.o",
-      "src/heap_fel.cpp"
-    ],
-    "directory": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores",
-    "file": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/src/heap_fel.cpp",
-    "output": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/obj/heap_fel.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-std=c++14",
-      "-Wall",
-      "-g",
-      "-pthread",
-      "-O3",
-      "-c",
-      "-I./libs",
-      "-I/usr/include/c++",
-      "-o",
-      "obj/main.o",
-      "src/main.cpp"
-    ],
-    "directory": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores",
-    "file": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/src/main.cpp",
-    "output": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/obj/main.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-std=c++14",
-      "-Wall",
-      "-g",
-      "-pthread",
-      "-O3",
-      "-c",
-      "-I./libs",
-      "-I/usr/include/c++",
-      "-o",
-      "obj/message.o",
-      "src/message.cpp"
-    ],
-    "directory": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores",
-    "file": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/src/message.cpp",
-    "output": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/obj/message.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-std=c++14",
-      "-Wall",
-      "-g",
-      "-pthread",
-      "-O3",
-      "-c",
-      "-I./libs",
-      "-I/usr/include/c++",
-      "-o",
-      "obj/sim_configuration.o",
-      "src/sim_configuration.cpp"
-    ],
-    "directory": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores",
-    "file": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/src/sim_configuration.cpp",
-    "output": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/obj/sim_configuration.o"
+    "file": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/src/mercado_mayorista.cpp",
+    "output": "/home/manacho/Documents/Code/Simulaciones/sim2-agricultores/obj/mercado_mayorista.o"
   }
 ]

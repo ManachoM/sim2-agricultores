@@ -1,0 +1,20 @@
+[
+  {
+    "cod_comuna": "13126",
+    "comuna": "QUINTA NORMAL",
+    "dias": [4],
+    "cantidad_puestos": 22
+  },
+  {
+    "cod_comuna": "13126",
+    "comuna": "QUINTA NORMAL",
+    "dias": [1],
+    "cantidad_puestos": 75
+  },
+  {
+    "cod_comuna": "13129",
+    "comuna": "SAN JOAQUIN",
+    "dias": [2],
+    "cantidad_puestos": 29
+  }
+]

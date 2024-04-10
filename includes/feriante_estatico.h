@@ -3,6 +3,8 @@
 
 #include "feriante.h"
 
+class Environment;
+
 class FerianteEstatico : public Feriante
 {
 private: 
@@ -14,7 +16,7 @@ private:
     std::vector<int> prods_ids;
 
 public:
-    FerianteEstatico(FEL *fel, MercadoMayorista *mer, int feria_id);
+    FerianteEstatico(Environment *_env, FEL *fel, MercadoMayorista *mer, int feria_id);
 
 };
 

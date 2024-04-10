@@ -6,7 +6,8 @@
 class BooleanMatrix
 {
 private:
-    bool **matrix;
+    // bool *matrix;
+    std::vector<std::vector<bool>> matrix;
 
 public:
     int num_rows;
@@ -15,6 +16,10 @@ public:
     BooleanMatrix(int num_rows = 0, int num_cols = 0);
 
     ~BooleanMatrix();
+
+    void set(int row, int col, bool val);
+
+    bool get(int row, int col);
 
     const bool *operator[](int row) const;
 

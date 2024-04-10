@@ -4,6 +4,8 @@
 #include "glob.h"
 #include "feriante_estatico.h"
 
+class Environment;
+
 class FerianteEstacionalProporcional : public FerianteEstatico
 {
     private:
@@ -11,7 +13,7 @@ class FerianteEstacionalProporcional : public FerianteEstatico
         int prod_amount;
 
     public:
-        FerianteEstacionalProporcional(FEL *fel, MercadoMayorista *mer, int feria_id, int prod_amount); 
+        FerianteEstacionalProporcional(Environment *_env, FEL *fel, MercadoMayorista *mer, int feria_id, int prod_amount); 
 
 };
 

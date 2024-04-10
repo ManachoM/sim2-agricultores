@@ -39,6 +39,7 @@ enum EVENTOS_AGRICULTOR
 class Event
 {
 private:
+  static int current_event_id;
   double time; /** Tiempo de simulación en que ocurre el evento*/
   int agent_type;
   int process;
@@ -48,6 +49,7 @@ private:
   Message msg;
 
 public:
+  int event_id;
   Event();
 
   Event(double _time = 0.0, int _agent_type = -1, int _process = -1,

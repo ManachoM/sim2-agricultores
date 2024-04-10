@@ -37,7 +37,7 @@ class AggregationMonitor : public Monitor
          * 
          * @param log Objeto json con el evento. Debe contener al menos el tipo de agente, el tipo de evento y el tiempo de simulación.
          */
-        void write_log(json log) override;
+        void write_log(json &log) override;
 
         /** 
          * Destructor de la clase.

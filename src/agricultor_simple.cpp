@@ -1,6 +1,6 @@
 #include "../includes/agricultor_simple.h"
 
-AgricultorSimple::AgricultorSimple(FEL *_fel, Terreno *_ter) : Agricultor(_fel, _ter)
+AgricultorSimple::AgricultorSimple(FEL *_fel, Terreno *_ter, MercadoMayorista *_mer) : Agricultor(_fel, _ter, _mer)
 {
 }
 
@@ -18,7 +18,7 @@ const int AgricultorSimple::choose_product()
     }
 
     // Elegimos el prod
-    Producto const *prod_elegido = (*select_randomly(lista_prods->second.begin(), lista_prods->second.end()));
+    Producto *prod_elegido = (*select_randomly(lista_prods->second.begin(), lista_prods->second.end()));
 
     return prod_elegido->get_id();
 }

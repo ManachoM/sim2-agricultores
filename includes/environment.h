@@ -9,7 +9,6 @@
 #define AFECTACION_PLAGAS 0.3
 
 #include "agricultor.h"
-//#include "consumidor.h"
 #include "consumidor_factory.h"
 #include "event.h"
 #include "fel.h"
@@ -45,11 +44,12 @@ class Environment
 private:
   FEL *fel;
   std::map<int, Agricultor *> agricultores;
+  std::map<int, Agricultor *> agricultor_por_id_relativo;
   std::map<int, Feria *> ferias;
   std::map<int, Consumidor *> consumidores;
   std::map<int, Feriante *> feriantes;
   std::map<int, Producto *> productos;
-  std::map<int, Terreno*> terrenos; 
+  std::map<int, Terreno *> terrenos;
   std::map<int, std::vector<Consumidor *>> consumidor_dia;
   std::map<int, std::vector<Producto *>> venta_producto_mes;
   std::map<int, std::vector<Producto *>> siembra_producto_mes;
@@ -57,15 +57,14 @@ private:
   std::vector<int> sequias_nivel;
   std::vector<int> oc_nivel;
   Monitor *monitor;
-  MessageQueue* message_queue;
+  MessageQueue *message_queue;
   void read_products();
   void read_ferias();
   void read_terrenos();
   void initialize_agents(MercadoMayorista *mercado);
 
-
 public:
-  explicit Environment(FEL *_fel);
+  Environment(FEL *_fel, Monitor *_monitor);
 
   void set_feriantes(std::map<int, Feriante *> _feriantes);
 
@@ -85,9 +84,13 @@ public:
 
   std::map<int, Feria *> get_ferias();
 
-  std::map<int, Feriante *> get_feriantes();
+  std::map<int, Feriante *> get_feriantes() const;
 
   std::map<int, Agricultor *> get_agricultores();
+
+  std::map<int, Agricultor *> get_agricultores_rel();
+
+  std::map<int, Consumidor *> get_consumidores();
 
   std::map<int, Producto *> get_productos();
 
@@ -95,13 +98,13 @@ public:
 
   std::map<int, std::vector<Producto *>> get_siembra_producto_mes();
 
-  int  get_nivel_heladas();
+  int get_nivel_heladas();
 
   int get_nivel_sequias();
 
-  int  get_nivel_olas_calor();
+  int get_nivel_olas_calor();
 
-  void  initialize_system();
+  void initialize_system();
 
   ~Environment();
 };

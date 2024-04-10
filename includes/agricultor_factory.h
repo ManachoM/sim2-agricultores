@@ -6,6 +6,7 @@
 class Agricultor;
 class FEL;
 class Terreno;
+class MercadoMayorista;
 class Environment;
 class Monitor;
 
@@ -15,9 +16,10 @@ class AgricultorFactory
     FEL *fel;
     Environment *env;
     Monitor *monitor;
+    MercadoMayorista *mer;
 
     public:
-    AgricultorFactory(FEL *_fel, Environment *_env, Monitor *_monitor);
+    AgricultorFactory(FEL *_fel, Environment *_env, Monitor *_monitor, MercadoMayorista *_mer);
 
     Agricultor *create_agricultor(std::string const &agr_type, Terreno *terr);
 };

@@ -1,19 +1,22 @@
 #include "../includes/feriante_estatico.h"
-
-FerianteEstatico::FerianteEstatico(FEL *fel, MercadoMayorista *mer, int feria_id) : Feriante(fel, mer, feria_id)
+#include <csignal>
+FerianteEstatico::FerianteEstatico(Environment *_env, FEL *fel, MercadoMayorista *mer, int feria_id) : Feriante(fel, mer, feria_id)
 {
+    this->set_environment(_env);
     std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(4, 12); // Para la cantidad de productos a vender
-
+    int num_productos = dist(gen);
     std::vector<int> prod_ids;
+    
+
     std::map<int, Producto *> arr = this->env->get_productos();
-    for (auto it = arr.begin(); it != arr.end(); ++it)
+    
+    for (auto const &[prod_id, prod_ptr] : this->env->get_productos())
     {
-        prod_ids.push_back(it->first);
+        prod_ids.push_back(prod_id);
     }
     shuffle(prod_ids.begin(), prod_ids.end(), gen);
-    int num_productos = dist(gen);
     for (int i = 0; i <= num_productos; ++i)
     {
         this->prods_ids.push_back(prod_ids[i]);
@@ -32,8 +35,11 @@ double FerianteEstatico::purchase_amount(const int prod_id)
 
 Agricultor *FerianteEstatico::choose_agricultor(const int prod_id, const double amount)
 {
+    // std::cout << "MERCADO PTR " << this->mercado << "\n";
     std::vector<int> agricultores = this->mercado->get_agricultor_por_prod(prod_id);
 
+    if(agricultores.size() <= 0)
+        return nullptr;
     for (auto agr : agricultores)
     {
         // Si ya intentamos comprarle al agricultor, seguimos
@@ -41,9 +47,9 @@ Agricultor *FerianteEstatico::choose_agricultor(const int prod_id, const double 
             continue;
 
         this->agricultores_consultados.push_back(agr);
-
+        // std::cout << "AGRICULTOR ELEGIDO: " << agr << std::endl;
         //? Esto podría ser caro eventualmente (?) ==> revisar por arreglo estático
-        return this->env->get_agricultores().at(agr);
+        return this->env->get_agricultores_rel().at(agr);
     }
     // En volaa levantar excepción?
     return nullptr;

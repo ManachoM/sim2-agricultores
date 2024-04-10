@@ -58,7 +58,7 @@ public:
 
     std::vector<int> get_meses_venta() const;
 
-    int get_id() const;
+    int get_id();
 
     double get_dias_cosecha() const;
 

@@ -54,8 +54,8 @@ private:
     void process_venta_feriante(const Event *e);
 
 public:
-    MercadoMayorista *mercado; /** Puntero al mercado mayorista del sistema*/
     Feriante(FEL *list = nullptr, MercadoMayorista *_mer = nullptr, int feria_id = -1);
+    MercadoMayorista *mercado; /** Puntero al mercado mayorista del sistema*/
 
     /**
      *   Método 100% virtual que se debe implementar desde

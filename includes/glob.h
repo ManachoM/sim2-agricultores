@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <unordered_set>
 #include <iostream>
 #include <fstream>
 #include <random>
@@ -19,6 +20,8 @@
 #include <unistd.h>
 #include <iomanip>
 #include <fstream>
+#include <chrono>
+#include <pqxx/pqxx>
 
 
 using json = nlohmann::json;

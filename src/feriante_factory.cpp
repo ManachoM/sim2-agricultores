@@ -14,18 +14,18 @@ Feriante *FerianteFactory::create_feriante(std::string const &feriante_type, con
 
     if (feriante_type == "static")
     {
-        feriante = new FerianteEstatico(this->fel, this->mer, feria_id);
+        // printf("ola desde feriante_factory\n");
+        feriante = new FerianteEstatico(this->env, this->fel, this->mer, feria_id);
     }
     else if (feriante_type == "seasonal")
     {
-        feriante = new FerianteEstacional(this->fel, this->mer, feria_id);
+        feriante = new FerianteEstacional(this->env, this->fel, this->mer, feria_id);
     }
     else if (feriante_type == "seasonal-proportional")
     {
-        feriante = new FerianteEstacionalProporcional(this->fel, this->mer, feria_id, prod_amount);
+        feriante = new FerianteEstacionalProporcional(this->env, this->fel, this->mer, feria_id, prod_amount);
     }
 
-    feriante->set_environment(this->env);
     feriante->set_monitor(this->monitor);
 
     return feriante;

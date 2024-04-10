@@ -10,7 +10,7 @@ class AgricultorSimple : public Agricultor
     const int choose_product() override;
 
     public:
-    AgricultorSimple(FEL *_fel, Terreno *_ter);
+    AgricultorSimple(FEL *_fel, Terreno *_ter, MercadoMayorista *_mer);
 };
 
 #endif // !_AGRICULTOR_SIMPLE_H_

@@ -1,5 +1,5 @@
 #include "../includes/inventory.h"
-
+#include <iostream>
 int Inventario::_current_id(0);
 
 Inventario::Inventario(double _creation_time,
@@ -22,7 +22,8 @@ double Inventario::get_quantity() const { return this->quantity; }
 
 bool Inventario::is_valid_inventory() const
 {
-    return (this->creation_time == 0.0 && this->expire_time == 0.0) || this->product_id == -1 || this->quantity == 0.0;
+    std::cout << "creation_time" << this->creation_time << " expire_t: " << this->expire_time << " prod_id: " << product_id << " quantity: "  << quantity << "  is_valid: " << ((this->creation_time == 0.0 && this->expire_time == 0.0) || this->product_id == -1 || this->quantity == 0.0) << std::endl;
+    return !((this->creation_time == 0.0 && this->expire_time == 0.0) || this->product_id == -1 || this->quantity == 0.0);
 }
 
 void Inventario::set_quantity(double _q) { this->quantity = _q; }

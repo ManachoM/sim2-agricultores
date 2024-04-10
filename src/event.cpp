@@ -1,6 +1,8 @@
 #include "../includes/event.h"
 
-Event::Event()
+int Event::current_event_id(-1);
+
+Event::Event() : event_id(++current_event_id)
 {
     this->time = 0.0;
     this->agent_type = -1;
@@ -9,7 +11,7 @@ Event::Event()
     this->msg = Message();
 }
 
-Event::Event(double _time, int _agent_type, int _process, int _caller_id, Message _msg, Agent *_caller_ptr)
+Event::Event(double _time, int _agent_type, int _process, int _caller_id, Message _msg, Agent *_caller_ptr) : event_id(++current_event_id)
 {
     this->time = _time;
     this->agent_type = _agent_type;

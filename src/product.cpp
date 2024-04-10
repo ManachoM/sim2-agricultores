@@ -41,7 +41,7 @@ std::vector<int> Producto::get_meses_siembra() const { return this->meses_siembr
 
 std::vector<int> Producto::get_meses_venta() const { return this->meses_venta; }
 
-int Producto::get_id() const { return this->id; }
+int Producto::get_id() { return this->id; }
 
 double Producto::get_dias_cosecha() const { return this->dias_cosecha; }
 

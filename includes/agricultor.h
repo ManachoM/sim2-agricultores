@@ -33,16 +33,16 @@ private:
     Terreno *terreno;
     MercadoMayorista *mercado;
     virtual int const choose_product() = 0;
-    void process_cultivo_event(const Event *e, json log);
-    void process_cosecha_event(const Event *e, json log);
+    void process_cultivo_event(const Event *e, json &log);
+    void process_cosecha_event(const Event *e, json &log);
     void process_venta_feriante_event(const Event *e);
-    void process_inventario_vencido_event(const Event *e, json log);
+    void process_inventario_vencido_event(const Event *e, json &log);
 
 public:
-    Agricultor(FEL *_fel = nullptr, Terreno *_terr = nullptr);
+    Agricultor(FEL *_fel = nullptr, Terreno *_terr = nullptr, MercadoMayorista *_mer = nullptr);
     void process_event(Event *e) override;
     std::map<int, Inventario> get_inventory() const;
-    int get_agricultor_id() const;
+    int get_agricultor_id();
 };
 
 // Templates para selección de elemento de forma aleatoria en contenedor STL

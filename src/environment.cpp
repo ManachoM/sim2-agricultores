@@ -2,13 +2,19 @@
 #include "../includes/consumidor.h"
 #include "../includes/agricultor_factory.h"
 #include "../includes/feriante_factory.h"
+#include "../includes/postgres_aggregated_monitor.h"
 
-Environment::Environment(FEL *_fel) : fel(_fel)
+Environment::Environment(FEL *_fel, Monitor *_monitor) : fel(_fel), monitor(_monitor)
 {
   // Traemos la configuración de la instancia
   json conf = SimConfig::get_instance("")->get_config();
-  std::string out_path = conf["out_path"].get<std::string>();
-  this->monitor = new AggregationMonitor(out_path, true);
+  // std::string connection_string = conf["DB_URL"].get<std::string>();
+
+  // std::string out_path = conf["out_path"].get<std::string>();
+  // this->monitor = new AggregationMonitor(out_path, true);
+  // this->monitor = new PostgresAggregatedMonitor(connection_string);
+  std::cout << "init_size:  " << this->productos.size() << "\n";
+  std::cout << "THIS ENV ptr: " << this << "\n";
 
   this->initialize_system();
 }
@@ -31,11 +37,40 @@ void Environment::set_ferias(std::map<int, Feria *> _ferias)
 void Environment::process_event(Event *e)
 {
   printf("Procesando evento del ambiente...");
+  switch (e->get_process())
+  {
+  case EVENTOS_AMBIENTE::INICIO_FERIA:
+  { /* code */
+    this->fel->insert_event(7 * 24.0, AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::INICIO_FERIA, 0, Message(), nullptr);
+
+    // Inicializamos las ferias
+    for (const auto &it : this->ferias)
+    {
+      if (it.second->is_active())
+        it.second->initialize_feria();
+    }
+
+    // Inicializamos los consumidores
+    auto consumidores_por_dia = this->consumidor_dia.find(this->get_day_week() % 7);
+    if (consumidores_por_dia == this->consumidor_dia.end())
+    {
+      fprintf(stderr, "[ERROR] - No hay consumidores que asistan a ferias ese día %d.\n", this->get_day_week() % 7);
+      break;
+    }
+
+    for (auto consumidor : consumidores_por_dia->second)
+      this->fel->insert_event(
+          0.0, AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::INIT_COMPRA_FERIANTE, consumidor->get_id(), Message(), consumidor);
+    break;
+  }
+  default:
+    break;
+  }
 }
 
 short Environment::get_day_week()
 {
-  return (short)(this->fel->get_time() / 24) % 24;
+  return (short)(this->fel->get_time() / 24) % 7;
 }
 
 short Environment::get_day_month()
@@ -53,13 +88,16 @@ short Environment::get_year()
   return ((short)this->fel->get_time() / 8640);
 }
 
-std::map<int, Feria *> Environment::get_ferias() { return this->ferias; }
+std::map<int, Feria *> Environment::get_ferias()
+{
+  return this->ferias;
+}
 
-std::map<int, Feriante *> Environment::get_feriantes() { return this->feriantes; }
+std::map<int, Feriante *> Environment::get_feriantes() const { return this->feriantes; }
 
 std::map<int, Agricultor *> Environment::get_agricultores() { return this->agricultores; }
 
-std::map<int, Producto *> Environment::get_productos() { return this->productos; }
+std::map<int, Agricultor *> Environment::get_agricultores_rel() { return this->agricultor_por_id_relativo; }
 
 std::map<int, std::vector<Producto *>> Environment::get_venta_producto_mes() { return this->venta_producto_mes; }
 
@@ -79,6 +117,7 @@ void Environment::read_products()
   std::ifstream prods_f(config["prod_file"].get<std::string>());
   json prods = json::parse(prods_f);
   printf("Inicializando productos\n");
+  std::map<int, Producto *> prod_map;
   for (auto it : prods)
   {
 
@@ -114,8 +153,9 @@ void Environment::read_products()
     p->set_sequias(seq);
     p->set_olas_calor(oc);
     p->set_plagas(pl);
-    this->productos.insert({p->get_id(), p});
+    prod_map[p->get_id()] = p;
   }
+  this->productos = std::map<int, Producto *>(prod_map);
   printf("Creando índice invertido\n");
 
   // Genreamos el índice invertido de meses de venta
@@ -223,9 +263,12 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
 
   json config = SimConfig::get_instance("")->get_config();
 
+  printf("Inicializando agentes...\t");
+  printf("Feriantes -\t");
   // Inicializamos feriantes y consumidores
   for (auto feria : this->ferias)
   {
+    // std::cout << "cantidad de terrenos: " << this->terrenos.size() << "\n";
     std::map<int, Feriante *> current_feriantes;
     auto feriante_factory = FerianteFactory(this->fel, this, this->monitor, _mer);
     std::string feriante_type = config["tipo_feriante"].get<std::string>();
@@ -253,13 +296,47 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
     }
   }
 
+  // Creamos el índice de consumidores por día
+  for (auto const &el : this->consumidores)
+  {
+    Feria *feria;
+    try
+    {
+      feria = this->ferias.at(el.second->get_feria());
+    }
+    catch (const std::out_of_range &e)
+    {
+      fprintf(stderr, "[ERROR] - El consumidor con id %d asiste a una feria que no existe (id %d)\n", el.second->get_id(), el.second->get_feria());
+      continue;
+    }
+
+    double dia_feria = feria->get_next_active_time();
+
+    auto busqueda_entrada = this->consumidor_dia.find((int) dia_feria);
+
+    // Si no existe, creamos la entrada
+    if (busqueda_entrada == this->consumidor_dia.end())
+    {
+      std::vector<Consumidor *> arr;
+      arr.push_back(el.second);
+      this->consumidor_dia.insert({dia_feria, arr});
+      continue;
+    }
+
+    // Si existe, simplemente anexamos
+    busqueda_entrada->second.push_back(el.second);
+  }
+
   std::string agricultor_type = config["tipo_agricultor"].get<std::string>();
   Agricultor *agr;
-  auto agricultor_factory = AgricultorFactory(this->fel, this, this->monitor);
+  auto agricultor_factory = AgricultorFactory(this->fel, this, this->monitor, _mer);
+  printf("Agricultores \n");
+
   for (auto terr : this->terrenos)
   {
     agr = agricultor_factory.create_agricultor(agricultor_type, terr.second);
     this->agricultores.insert({agr->get_id(), agr});
+    this->agricultor_por_id_relativo.insert({agr->get_agricultor_id(), agr});
   }
   std::cout << "Cantidad de agricultores " << this->agricultores.size() << std::endl;
 }
@@ -275,12 +352,14 @@ void Environment::initialize_system()
   this->read_terrenos();
 
   // Creamos mercado mayorista
-  MercadoMayorista *mercado = new MercadoMayorista(this);
+  auto *mercado = new MercadoMayorista(this);
 
   // TODO: Cargar amenazas
 
   // Generamos los agentes para la simulación
   this->initialize_agents(mercado);
+
+  mercado->reset_index();
 
   // Inicializamos los eventos del ambiente
   for (int i = 0; i < 7; ++i)
@@ -290,3 +369,13 @@ void Environment::initialize_system()
 }
 
 Environment::~Environment() = default;
+
+std::map<int, Producto *> Environment::get_productos()
+{
+  return this->productos;
+}
+
+std::map<int, Consumidor *> Environment::get_consumidores()
+{
+  return this->consumidores;
+}

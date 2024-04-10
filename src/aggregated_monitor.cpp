@@ -14,7 +14,7 @@ AggregationMonitor::AggregationMonitor(std::string const &_file_prefix, bool _de
     }
 };
 
-void AggregationMonitor::write_log(json log)
+void AggregationMonitor::write_log(json &log)
 {
     // Obtenemos el mes y el año al que pertenece el nuevo evento
     std::string year = std::to_string(int(log["time"].get<double>() / 8'760));
@@ -65,7 +65,7 @@ void AggregationMonitor::write_log(json log)
                 if (it.value()["id_agricultor"].get<int>() == -1)
                     continue;
             }
-            catch (const nlohmann::detail::type_error e)
+            catch (const nlohmann::detail::type_error &e)
             {
                 std::cerr << it.value().dump(4) << '\n';
                 std::cerr << e.what() << '\n';

@@ -19,7 +19,7 @@ private:
     std::map<int, Feriante *> feriantes;
     FEL *fel;
     std::vector<int> dia_funcionamiento;
-    std::vector<std::vector<bool>> feriante_producto; /** Matriz de booleanos que almacena el índice invertido*/
+    std::map<int, std::unordered_set<int>> feriante_producto; /** Matriz de booleanos que almacena el índice invertido*/
     Environment *env;
 
 public:
@@ -35,9 +35,9 @@ public:
      *
      * @return std::vector<int>
      */
-    std::vector<int> get_feriantes_by_id(int _id);
+    std::vector<int> get_feriantes_by_id(int prod_id);
 
-    void update_index(int _id = -1);
+    void update_index(int feriante_id, int prod_id, bool inv);
 
     bool is_active();
 
@@ -50,6 +50,8 @@ public:
     int get_num_feriantes() const;
 
     void set_feriantes(std::map<int, Feriante *> const &_fers);
+
+    double get_next_active_time();
 };
 
 #endif // !_FERIA_H_

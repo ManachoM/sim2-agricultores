@@ -1,7 +1,7 @@
 /**
  * @file Monitor.h
  * @author Manuel Ignacio Manríquez (@ManachoM)
- * @brief Clase abstracta que actúa como interfaz y permite definir cualquier monitor. 
+ * @brief Clase abstracta que actúa como interfaz y permite definir cualquier monitor.
  * @version solo diosito sabe
  * @date 2023-02-06
  *
@@ -19,7 +19,7 @@ class Monitor
 protected:
     std::string sim_id;      /** Identificador de la simulación basado en timestamp de inicio del programa*/
     std::string file_prefix; /** Prefijo con el cual se llamaran a todos los archivos/carpetas asociados a una ejecución específica del simulador*/
-    bool debug_flag;    /** Flag para debug por consola*/
+    bool debug_flag;         /** Flag para debug por consola*/
 public:
     /**
      * @brief Constructor base para cualquier Monitor. Genera el sim_id y asigna los atributos
@@ -34,7 +34,11 @@ public:
      *
      * @param log Objeto json con el evento. Debe contener al menos el tipo de agente, el tipo de evento y el tiempo de simulación.
      */
-    virtual void write_log(json log) = 0;
+    virtual void write_log(json &log) = 0;
+
+    virtual void write_duration(double t);
+
+    virtual void write_results();
 
     virtual ~Monitor();
 };

@@ -1,6 +1,6 @@
 #include "../includes/consumidor_familiar_presupuesto.h"
 
-ConsumidorFamiliarPresupuesto::ConsumidorFamiliarPresupuesto(int fam_size, int feria, double budget, FEL *fel = nullptr) : Consumidor(fel, feria),budget(budget), fam_size(fam_size)
+ConsumidorFamiliarPresupuesto::ConsumidorFamiliarPresupuesto(int fam_size, int feria, double budget, FEL *fel = nullptr) : Consumidor(fel, feria), budget(budget), fam_size(fam_size)
 {
 }
 
@@ -45,15 +45,17 @@ double ConsumidorFamiliarPresupuesto::purchase_amount(const int prod_id)
 
 Feriante *ConsumidorFamiliarPresupuesto::choose_feriante(const int prod_id, const double amount)
 {
-    std::map<int, Feriante *> feriantes = this->env->get_ferias().at(this->get_feria())->get_feriantes();
+    Feria *feria = this->env->get_ferias().at(this->get_feria());
+    std::vector<int> feriantes = feria->get_feriantes_by_id(prod_id);
+
     for (auto feriante : feriantes)
     {
         // Si el feriante existe en nuestra lista de feriantes visitados, significa que ya intentamos comprarle
-        if (count(this->feriantes_consultados.begin(), this->feriantes_consultados.end(), feriante.first))
+        if (count(this->feriantes_consultados.begin(), this->feriantes_consultados.end(), feriante))
             continue;
 
-        this->feriantes_consultados.push_back(feriante.first);
-        return feriante.second;
+        this->feriantes_consultados.push_back(feriante);
+        return feria->get_feriantes().at(feriante);
     }
     // Caso límite, levantar excepción (?) - TODO
     return nullptr;

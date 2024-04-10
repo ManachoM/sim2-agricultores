@@ -10,4 +10,12 @@ Monitor::Monitor(std::string const &_file_prefix, bool _debug) : file_prefix(_fi
     this->sim_id = oss.str();
 };
 
+void Monitor::write_duration(double t)
+{
+}
+
+void Monitor::write_results()
+{
+}
+
 Monitor::~Monitor() = default;

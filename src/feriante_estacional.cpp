@@ -1,6 +1,6 @@
 #include "../includes/feriante_estacional.h"
 
-FerianteEstacional::FerianteEstacional(FEL *fel, MercadoMayorista *mer, int feria_id) : FerianteEstatico(fel, mer, feria_id)
+FerianteEstacional::FerianteEstacional(Environment *_env, FEL *fel, MercadoMayorista *mer, int feria_id) : FerianteEstatico(_env, fel, mer, feria_id)
 {
 }
 

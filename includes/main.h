@@ -8,5 +8,6 @@
 #include "consumidor.h"
 #include "sim_config.h"
 #include "heap_fel.h"
+#include "postgres_aggregated_monitor.h"
 
 #endif // !MAIN_H

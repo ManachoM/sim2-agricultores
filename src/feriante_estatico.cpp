@@ -10,7 +10,7 @@ FerianteEstatico::FerianteEstatico(Environment *_env, FEL *fel, MercadoMayorista
     std::vector<int> prod_ids;
     
 
-    std::map<int, Producto *> arr = this->env->get_productos();
+    std::unordered_map<int, Producto *> arr = this->env->get_productos();
     
     for (auto const &[prod_id, prod_ptr] : this->env->get_productos())
     {
@@ -49,7 +49,7 @@ Agricultor *FerianteEstatico::choose_agricultor(const int prod_id, const double 
         this->agricultores_consultados.push_back(agr);
         // std::cout << "AGRICULTOR ELEGIDO: " << agr << std::endl;
         //? Esto podría ser caro eventualmente (?) ==> revisar por arreglo estático
-        return this->env->get_agricultores_rel().at(agr);
+        return this->env->get_agricultor(agr);
     }
     // En volaa levantar excepción?
     return nullptr;

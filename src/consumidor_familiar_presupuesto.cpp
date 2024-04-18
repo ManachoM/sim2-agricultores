@@ -45,7 +45,8 @@ double ConsumidorFamiliarPresupuesto::purchase_amount(const int prod_id)
 
 Feriante *ConsumidorFamiliarPresupuesto::choose_feriante(const int prod_id, const double amount)
 {
-    Feria *feria = this->env->get_ferias().at(this->get_feria());
+    // Feria *feria = this->env->get_ferias().at(this->get_feria());
+    Feria *feria = this->env->get_feria(this->get_feria());
     std::vector<int> feriantes = feria->get_feriantes_by_id(prod_id);
 
     for (auto feriante : feriantes)

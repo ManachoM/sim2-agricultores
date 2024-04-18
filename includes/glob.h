@@ -7,6 +7,7 @@
 #include <json.hpp>
 #include <string.h>
 #include <map>
+#include <unordered_map>
 #include <mutex>
 #include <queue>
 #include <vector>

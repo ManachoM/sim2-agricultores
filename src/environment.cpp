@@ -12,31 +12,31 @@ Environment::Environment(FEL *_fel, Monitor *_monitor) : fel(_fel), monitor(_mon
 
   // std::string out_path = conf["out_path"].get<std::string>();
   // this->monitor = new AggregationMonitor(out_path, true);
-  // this->monitor = new PostgresAggregatedMonitor(connection_string);
-  std::cout << "init_size:  " << this->productos.size() << "\n";
-  std::cout << "THIS ENV ptr: " << this << "\n";
+  // // this->monitor = new PostgresAggregatedMonitor(connection_string);
+  // std::cout << "init_size:  " << this->productos.size() << "\n";
+  // std::cout << "THIS ENV ptr: " << this << "\n";
 
   this->initialize_system();
 }
 
-void Environment::set_feriantes(std::map<int, Feriante *> _feriantes)
+void Environment::set_feriantes(std::unordered_map<int, Feriante *> _feriantes)
 {
   this->feriantes = _feriantes;
 }
 
-void Environment::set_consumidores(std::map<int, Consumidor *> _cons)
+void Environment::set_consumidores(std::unordered_map<int, Consumidor *> _cons)
 {
   this->consumidores = _cons;
 }
 
-void Environment::set_ferias(std::map<int, Feria *> _ferias)
+void Environment::set_ferias(std::unordered_map<int, Feria *> _ferias)
 {
   this->ferias = _ferias;
 }
 
 void Environment::process_event(Event *e)
 {
-  printf("Procesando evento del ambiente...");
+  // printf("Procesando evento del ambiente...");
   switch (e->get_process())
   {
   case EVENTOS_AMBIENTE::INICIO_FERIA:
@@ -58,9 +58,16 @@ void Environment::process_event(Event *e)
       break;
     }
 
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::exponential_distribution<> d(2);
     for (auto consumidor : consumidores_por_dia->second)
+    {
+      double purchase_time = d(gen);
+
       this->fel->insert_event(
-          0.0, AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::INIT_COMPRA_FERIANTE, consumidor->get_id(), Message(), consumidor);
+          purchase_time, AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::COMPRA_FERIANTE, consumidor->get_id(), Message(), consumidor);
+    }
     break;
   }
   default:
@@ -88,20 +95,20 @@ short Environment::get_year()
   return ((short)this->fel->get_time() / 8640);
 }
 
-std::map<int, Feria *> Environment::get_ferias()
+std::unordered_map<int, Feria *> Environment::get_ferias()
 {
   return this->ferias;
 }
 
-std::map<int, Feriante *> Environment::get_feriantes() const { return this->feriantes; }
+std::unordered_map<int, Feriante *> Environment::get_feriantes() const { return this->feriantes; }
 
-std::map<int, Agricultor *> Environment::get_agricultores() { return this->agricultores; }
+std::unordered_map<int, Agricultor *> Environment::get_agricultores() { return this->agricultores; }
 
-std::map<int, Agricultor *> Environment::get_agricultores_rel() { return this->agricultor_por_id_relativo; }
+std::unordered_map<int, Agricultor *> Environment::get_agricultores_rel() { return this->agricultor_por_id_relativo; }
 
-std::map<int, std::vector<Producto *>> Environment::get_venta_producto_mes() { return this->venta_producto_mes; }
+std::unordered_map<int, std::vector<Producto *>> Environment::get_venta_producto_mes() { return this->venta_producto_mes; }
 
-std::map<int, std::vector<Producto *>> Environment::get_siembra_producto_mes() { return this->siembra_producto_mes; }
+std::unordered_map<int, std::vector<Producto *>> Environment::get_siembra_producto_mes() { return this->siembra_producto_mes; }
 
 int Environment::get_nivel_heladas() { return -1; }
 
@@ -117,7 +124,7 @@ void Environment::read_products()
   std::ifstream prods_f(config["prod_file"].get<std::string>());
   json prods = json::parse(prods_f);
   printf("Inicializando productos\n");
-  std::map<int, Producto *> prod_map;
+  std::unordered_map<int, Producto *> prod_map;
   for (auto it : prods)
   {
 
@@ -155,7 +162,7 @@ void Environment::read_products()
     p->set_plagas(pl);
     prod_map[p->get_id()] = p;
   }
-  this->productos = std::map<int, Producto *>(prod_map);
+  this->productos = prod_map;
   printf("Creando índice invertido\n");
 
   // Genreamos el índice invertido de meses de venta
@@ -226,6 +233,7 @@ void Environment::read_ferias()
     cant_puestos += feria["cantidad_puestos"].get<int>();
     auto fer = new Feria(dias_funcionamiento, feria["cantidad_puestos"].get<int>(), this, this->fel);
     this->ferias.insert({fer->get_id(), fer});
+    this->feria_arr.push_back(fer);
   }
 }
 
@@ -279,6 +287,7 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
       feriante = feriante_factory.create_feriante(feriante_type, feria.first);
       current_feriantes.insert({feriante->get_id(), feriante});
       this->feriantes.insert({feriante->get_id(), feriante});
+      this->feriante_arr.push_back(feriante);
     }
 
     feria.second->set_feriantes(current_feriantes);
@@ -293,6 +302,7 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
     {
       auto cons = cons_factory.create_consumidor(consumer_type, feria.first);
       this->consumidores.insert({cons->get_id(), cons});
+      this->consumidores_arr.push_back(cons);
     }
   }
 
@@ -312,7 +322,7 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
 
     double dia_feria = feria->get_next_active_time();
 
-    auto busqueda_entrada = this->consumidor_dia.find((int) dia_feria);
+    auto busqueda_entrada = this->consumidor_dia.find((int)dia_feria);
 
     // Si no existe, creamos la entrada
     if (busqueda_entrada == this->consumidor_dia.end())
@@ -336,8 +346,9 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
   {
     agr = agricultor_factory.create_agricultor(agricultor_type, terr.second);
     this->agricultores.insert({agr->get_id(), agr});
-    this->agricultor_por_id_relativo.insert({agr->get_agricultor_id(), agr});
+    this->agricultor_arr.push_back(agr);
   }
+
   std::cout << "Cantidad de agricultores " << this->agricultores.size() << std::endl;
 }
 
@@ -370,12 +381,32 @@ void Environment::initialize_system()
 
 Environment::~Environment() = default;
 
-std::map<int, Producto *> Environment::get_productos()
+std::unordered_map<int, Producto *> Environment::get_productos()
 {
   return this->productos;
 }
 
-std::map<int, Consumidor *> Environment::get_consumidores()
+std::unordered_map<int, Consumidor *> Environment::get_consumidores()
 {
   return this->consumidores;
+}
+
+Consumidor *Environment::get_consumidor(int consumidor_id)
+{
+  return this->consumidores_arr[consumidor_id];
+}
+
+Feriante *Environment::get_feriante(int feriante_id)
+{
+  return this->feriante_arr[feriante_id];
+}
+
+Agricultor *Environment::get_agricultor(int agro_id)
+{
+  return this->agricultor_arr[agro_id];
+}
+
+Feria *Environment::get_feria(int feria_id)
+{
+  return this->feria_arr[feria_id];
 }

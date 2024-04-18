@@ -22,7 +22,6 @@ double Inventario::get_quantity() const { return this->quantity; }
 
 bool Inventario::is_valid_inventory() const
 {
-    std::cout << "creation_time" << this->creation_time << " expire_t: " << this->expire_time << " prod_id: " << product_id << " quantity: "  << quantity << "  is_valid: " << ((this->creation_time == 0.0 && this->expire_time == 0.0) || this->product_id == -1 || this->quantity == 0.0) << std::endl;
     return !((this->creation_time == 0.0 && this->expire_time == 0.0) || this->product_id == -1 || this->quantity == 0.0);
 }
 

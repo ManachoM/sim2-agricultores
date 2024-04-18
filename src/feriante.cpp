@@ -24,17 +24,22 @@ void Feriante::process_event(Event *e)
     }
     case EVENTOS_FERIANTE::PROCESS_COMPRA_MAYORISTA:
     {
-        printf("Procesando evento feriante PROCESAR_COMPRA_AGRICULTOR\n");
+        // printf("Procesando evento feriante PROCESAR_COMPRA_AGRICULTOR\n");
         log["agent_process"] = "PROCESAR_COMPRA_AGRICULTOR";
         this->process_resp_agricultor(e, log);
         break;
     }
     case EVENTOS_FERIANTE::VENTA_CONSUMIDOR:
     {
-        printf("Procesando evento feriante RESPUESTA_CONSUMIDOR\n");
+        // printf("Procesando evento feriante RESPUESTA_CONSUMIDOR\n");
         log["agent_process"] = "RESPUESTA_CONSUMIDOR";
         this->process_venta_feriante(e);
         break;
+    }
+    case EVENTOS_FERIANTE::COMPRA_MAYORISTA:
+    {
+        log["agent_process"] = "COMPRA_MAYORISTA";
+        this->process_compra_mayorista(e, log);
     }
     default:
         break;
@@ -55,7 +60,7 @@ void Feriante::process_init_compra()
         {
             continue;
         }
-        std::map<std::string, double> content = {{"amount", amount}, {"prod_id", (double)prod_id}, {"buyer_id", (double)this->get_id()}};
+        std::map<std::string, double> content = {{"amount", amount}, {"prod_id", (double)prod_id}, {"buyer_id", (double)this->get_feriante_id()}};
 
         this->fel->insert_event(
             1.0, AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::VENTA_FERIANTE, agr->get_agricultor_id(), Message(content), agr);
@@ -65,12 +70,7 @@ void Feriante::process_init_compra()
 
 void Feriante::process_resp_agricultor(const Event *e, json &log)
 {
-    printf("Procesando feriante respuesta agricultor\n");
     Message msg = e->get_message();
-    // for (auto const &[key, val] : msg.msg)
-    // {
-    //     std::cout << "key; " << key << " val: " << val << "\n";
-    // }
     double prod_id = msg.msg.at("prod_id");
     double amount = msg.msg.at("amount");
     log["target_product"] = prod_id;
@@ -90,7 +90,7 @@ void Feriante::process_resp_agricultor(const Event *e, json &log)
             return;
         }
         this->fel->insert_event(
-            0.0, AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::VENTA_FERIANTE, new_agr->get_id(), msg, new_agr);
+            0.0, AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::VENTA_FERIANTE, new_agr->get_agricultor_id(), msg, new_agr);
 
         return;
     }
@@ -108,14 +108,14 @@ void Feriante::process_resp_agricultor(const Event *e, json &log)
         inv->second.set_quantity(current_quantity + amount);
     }
 
-    this->env->get_ferias().at(this->feria_id)->update_index(this->get_id(), prod_id, true);
+    this->env->get_feria(this->feria_id)->update_index(this->get_id(), prod_id, true);
     this->finish_purchase();
 }
 
 void Feriante::process_venta_feriante(const Event *e)
 {
     Message msg = e->get_message();
-    printf("akii 1\n");
+    // printf("akii 1\n");
     double prod_id = msg.msg.at("prod_id");
     double amount = msg.msg.at("amount");
     double buyer_id = msg.msg.at("buyer_id");
@@ -130,14 +130,62 @@ void Feriante::process_venta_feriante(const Event *e)
     }
     inv.set_quantity(quantity - amount);
     this->inventario.at((int)prod_id) = inv;
-    if (quantity < amount)
+    if (inv.get_quantity() < amount)
     {
-        this->env->get_ferias().at(this->feria_id)->update_index(this->get_id(), prod_id, false);
+        this->env->get_feria(this->feria_id)->update_index(this->get_id(), prod_id, false);
     }
     msg.msg.insert({"seller_id", this->get_feriante_id()});
     this->fel->insert_event(
         0.0, AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::PROCESAR_COMPRA_FERIANTE, (int)buyer_id, msg, nullptr);
     return;
+}
+
+void Feriante::process_compra_mayorista(const Event *e, json &log)
+{
+    // Para loggearse la bida
+    std::vector<json> compras;
+    // IDS de productos a consumir
+    std::vector<int> prods_ids = this->choose_product();
+    for (const int &prod_id : prods_ids)
+    {
+        // Cantidad del producto a comprar
+        double amount = this->purchase_amount(prod_id);
+        // Lista de ids de agricultores potenciales vendedores
+        std::vector<int> agros_ids = this->mercado->get_agricultor_por_prod(prod_id);
+
+        for (const int &agro_id : agros_ids)
+        {
+            // Nos traemos al agricultor en cuestión y su inventario
+            Agricultor *agro = this->env->get_agricultor(agro_id);
+
+            Inventario inv = agro->get_inventory_by_id(prod_id);
+            double q = inv.get_quantity();
+            // Si no tiene inventario o no es válido
+            if (!inv.is_valid_inventory() || q < amount)
+                continue;
+
+            // Actualizamos el inventario
+            inv.set_quantity(q - amount);
+            agro->set_inventory_by_id(prod_id, inv);
+            // Si es apropiado, actualizamos el índice
+            if (inv.get_quantity() < amount)
+            {
+                this->mercado->update_index(agro->get_agricultor_id(), prod_id, false);
+            }
+
+            // too lo del log
+            json compra;
+            compra["id_agricultor"] = agro->get_agricultor_id();
+            compra["target_amount"] = amount;
+            compra["target_product"] = prod_id;
+            compras.push_back(compra);
+            // Si llegamos a este punto, significa que ya compramos
+            // lo que queríamos de este producto y podemos seguir
+            break; 
+
+        }
+    }
+    log["compras"] = compras;
 }
 
 int Feriante::get_feriante_id() { return this->feriante_id; }
@@ -152,6 +200,11 @@ Inventario Feriante::get_inventario_by_id(int _id_producto)
         return Inventario(0.0, 0.0, _id_producto, 0.0);
     }
     return aux->second;
+}
+
+void Feriante::set_inventario_by_id(int prod_id, const Inventario &inv)
+{
+    this->inventario.at(prod_id) = inv;
 }
 
 void Feriante::set_feria(const int feria_id) { this->feria_id = feria_id; }

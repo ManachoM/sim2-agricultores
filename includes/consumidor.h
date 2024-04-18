@@ -23,6 +23,7 @@ private:
   virtual void finish_purchase() = 0;
   void process_init_compra();
   void process_resp_feriante(const Event *e, json &log);
+  void process_compra_feriante(const Event *e, json &log);
 
 public:
   Consumidor(FEL *_fel = nullptr, int _feria = -1);

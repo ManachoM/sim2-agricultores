@@ -2,10 +2,6 @@
 
 BooleanMatrix::BooleanMatrix(int _num_rows, int _num_cols) : num_rows(_num_rows), num_cols(_num_cols), matrix(std::vector<std::vector<bool>>(_num_rows)) // matrix(new bool *[num_rows])
 {
-    std::cout << "MxM: " << this->num_rows << "x" << this->num_cols << std::endl;
-    // for (int i = 0; i < num_rows; ++i)
-    //     this->matrix[i] = new bool[num_cols]();
-
     for (int i = 0; i < num_rows; ++i)
     {
         this->matrix[i].resize(num_cols, false);

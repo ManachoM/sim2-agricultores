@@ -63,14 +63,17 @@ int main(int argc, char *argv[])
   auto *env = new Environment(fel, mon);
 
   Event *current_event;
-
+  std::map<std::string, int> agent_type_count = {{"CONSUMIDOR", 0}, {"FERIANTE", 0}, {"AGRICULTOR", 0}, {"AMBIENTE", 0}};
+  std::string agent_type;
   auto start_time = std::chrono::high_resolution_clock::now();
   while (fel->get_time() <= END_SIM_TIME && !fel->is_empty())
   {
     current_event = fel->next_event();
+    agent_type = agent_type_to_agent.at(current_event->get_type());
+    agent_type_count[agent_type]++;
     assert(current_event->get_time() >= fel->get_time());
 
-    if ((current_event->event_id % 1000) == 0)
+    if ((current_event->event_id % 10000) == 0)
       std::cout << "SIM TIME: " << current_event->get_time() << "\n EVENT ID: " << current_event->event_id << "\n";
 
     if (current_event->get_caller_ptr() != nullptr)
@@ -92,19 +95,14 @@ int main(int argc, char *argv[])
     }
     case AGENT_TYPE::AGRICULTOR:
     {
-
-      printf("aqui vamooo1");
-      exit(0);
-      Agent *agro = env->get_agricultores().at(current_event->get_caller_id());
+      Agent *agro = env->get_agricultor(current_event->get_caller_id());
       agro->process_event(current_event);
       break;
     }
 
     case AGENT_TYPE::FERIANTE:
     {
-
-      printf("aqui vamooo2");
-      Agent *fer = env->get_feriantes().at(current_event->get_caller_id());
+      Agent *fer = env->get_feriante(current_event->get_caller_id());
       fer->process_event(current_event);
       break;
     }
@@ -112,8 +110,7 @@ int main(int argc, char *argv[])
     case AGENT_TYPE::CONSUMIDOR:
     {
 
-      printf("aqui vamooo3");
-      Agent *cons = env->get_consumidores().at(current_event->get_caller_id());
+      Agent *cons = env->get_consumidor(current_event->get_caller_id());
       cons->process_event(current_event);
       break;
     }
@@ -129,8 +126,13 @@ int main(int argc, char *argv[])
   mon->write_duration((double)duration.count());
   mon->write_results();
   // Memory deletion
+  std::cout << "SIM DURATION: " << duration.count() << "[ms]\n";
   delete env;
   delete mon;
+  for (auto const &[tipo, cantidad] : agent_type_count)
+  {
+    std::cout << "AGENTE " << tipo << " \t CANTIDAD DE EVENTOS PROCESADOS: " << cantidad << "\n";
+  }
   printf("ÚLTIMO EVENTO EN COLA %d\n", fel->next_event()->event_id);
   printf("[FIN SIMLUACION]\n");
   exit(EXIT_SUCCESS);

@@ -42,6 +42,8 @@ public:
     Agricultor(FEL *_fel = nullptr, Terreno *_terr = nullptr, MercadoMayorista *_mer = nullptr);
     void process_event(Event *e) override;
     std::map<int, Inventario> get_inventory() const;
+    Inventario get_inventory_by_id(const int prod_id);
+    void set_inventory_by_id(const int prod_id, const Inventario &inv);
     int get_agricultor_id();
 };
 

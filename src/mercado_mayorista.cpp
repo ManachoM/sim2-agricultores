@@ -21,7 +21,7 @@ void MercadoMayorista::reset_index()
     auto agros = this->env->get_agricultores();
 
     auto prods = this->env->get_productos();
-    std::cout << "agros " << agros.size() << "  prods: " << prods.size() << std::endl;
+    // std::cout << "agros " << agros.size() << "  prods: " << prods.size() << std::endl;
     // Generamos una nueva matriz de índices
     auto new_mat =BooleanMatrix((int)agros.size(), (int)prods.size());
     // this->prod_mat = BooleanMatrix((int)agros.size(), (int)prods.size());
@@ -37,7 +37,7 @@ void MercadoMayorista::reset_index()
         }
     }
     this->prod_mat = new_mat;
-    std::cout << "Dimensiones nueva matriz" << this->prod_mat.num_rows << " x " << this->prod_mat.num_cols << "\n" << std::endl;
+    // std::cout << "Dimensiones nueva matriz" << this->prod_mat.num_rows << " x " << this->prod_mat.num_cols << "\n" << std::endl;
 }
 
 std::vector<int> MercadoMayorista::get_agricultor_por_prod(int prod_id)
@@ -56,7 +56,7 @@ std::vector<int> MercadoMayorista::get_agricultor_por_prod(int prod_id)
         }
         catch (const std::out_of_range &e)
         {
-            printf("error: i: %d, prod_id %d\t", i, prod_id);
+            // printf("error: i: %d, prod_id %d\t", i, prod_id);
             std::cerr << e.what() << '\n';
         }
         if (!entry)

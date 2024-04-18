@@ -1,8 +1,9 @@
 CXX			:= /usr/bin/g++
-CXXFLAGS	:= -std=c++17 -Wall -ggdb3 -O3 -pthread -fpermissive # -fsanitize=address
+CXXFLAGS	:= -std=c++17 -Wall -g -pg -O3 -pthread -fpermissive -flto# -fsanitize=address
 INCLUDE		:= -I./libs -I/usr/include/postgresql -I./libs/include -I/usr/include/c++ 
 LIBS 		:= -L./libs/lib -lpqxx -lpq
 BIN			:= ./bin
+SIM_CONFIGS	:= ./sim_config_files
 SRC			:= ./src
 OBJ			:= ./obj
 SRCS		:= $(wildcard $(SRC)/*.cpp)
@@ -37,3 +38,11 @@ init_db:
 clean:
 	rm $(wildcard obj/*.o)
 	rm $(OUT)
+
+
+run_scenarios: $(SIM_CONFIGS)/*
+	$(foreach file, $(wildcard $(SIM_CONFIGS)/*),$(OUT) -c $(file) >> out.log;)
+	$(foreach file, $(wildcard $(SIM_CONFIGS)/*),$(OUT) -c $(file) >> out.log;)
+	$(foreach file, $(wildcard $(SIM_CONFIGS)/*),$(OUT) -c $(file) >> out.log;)
+	$(foreach file, $(wildcard $(SIM_CONFIGS)/*),$(OUT) -c $(file) >> out.log;)
+	$(foreach file, $(wildcard $(SIM_CONFIGS)/*),$(OUT) -c $(file) >> out.log;)

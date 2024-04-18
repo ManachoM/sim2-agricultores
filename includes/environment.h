@@ -43,16 +43,20 @@ class Environment
 {
 private:
   FEL *fel;
-  std::map<int, Agricultor *> agricultores;
-  std::map<int, Agricultor *> agricultor_por_id_relativo;
-  std::map<int, Feria *> ferias;
-  std::map<int, Consumidor *> consumidores;
-  std::map<int, Feriante *> feriantes;
-  std::map<int, Producto *> productos;
-  std::map<int, Terreno *> terrenos;
-  std::map<int, std::vector<Consumidor *>> consumidor_dia;
-  std::map<int, std::vector<Producto *>> venta_producto_mes;
-  std::map<int, std::vector<Producto *>> siembra_producto_mes;
+  std::vector<Consumidor *> consumidores_arr;
+  std::vector<Feriante *> feriante_arr;
+  std::vector<Agricultor *> agricultor_arr;
+  std::vector<Feria *> feria_arr;
+  std::unordered_map<int, Agricultor *> agricultores;
+  std::unordered_map<int, Agricultor *> agricultor_por_id_relativo;
+  std::unordered_map<int, Feria *> ferias;
+  std::unordered_map<int, Consumidor *> consumidores;
+  std::unordered_map<int, Feriante *> feriantes;
+  std::unordered_map<int, Producto *> productos;
+  std::unordered_map<int, Terreno *> terrenos;
+  std::unordered_map<int, std::vector<Consumidor *>> consumidor_dia;
+  std::unordered_map<int, std::vector<Producto *>> venta_producto_mes;
+  std::unordered_map<int, std::vector<Producto *>> siembra_producto_mes;
   // TODO:  helada_nivel;
   std::vector<int> sequias_nivel;
   std::vector<int> oc_nivel;
@@ -66,11 +70,19 @@ private:
 public:
   Environment(FEL *_fel, Monitor *_monitor);
 
-  void set_feriantes(std::map<int, Feriante *> _feriantes);
+  Consumidor *get_consumidor(int consumidor_id);
 
-  void set_consumidores(std::map<int, Consumidor *> _cons);
+  Feriante *get_feriante(int feriante_id);
 
-  void set_ferias(std::map<int, Feria *> _ferias);
+  Agricultor *get_agricultor(int agro_id);
+
+  Feria *get_feria(int feria_id);
+
+  void set_feriantes(std::unordered_map<int, Feriante *> _feriantes);
+
+  void set_consumidores(std::unordered_map<int, Consumidor *> _cons);
+
+  void set_ferias(std::unordered_map<int, Feria *> _ferias);
 
   void process_event(Event *e);
 
@@ -82,21 +94,21 @@ public:
 
   short get_year();
 
-  std::map<int, Feria *> get_ferias();
+  std::unordered_map<int, Feria *> get_ferias();
 
-  std::map<int, Feriante *> get_feriantes() const;
+  std::unordered_map<int, Feriante *> get_feriantes() const;
 
-  std::map<int, Agricultor *> get_agricultores();
+  std::unordered_map<int, Agricultor *> get_agricultores();
 
-  std::map<int, Agricultor *> get_agricultores_rel();
+  std::unordered_map<int, Agricultor *> get_agricultores_rel();
 
-  std::map<int, Consumidor *> get_consumidores();
+  std::unordered_map<int, Consumidor *> get_consumidores();
 
-  std::map<int, Producto *> get_productos();
+  std::unordered_map<int, Producto *> get_productos();
 
-  std::map<int, std::vector<Producto *>> get_venta_producto_mes();
+  std::unordered_map<int, std::vector<Producto *>> get_venta_producto_mes();
 
-  std::map<int, std::vector<Producto *>> get_siembra_producto_mes();
+  std::unordered_map<int, std::vector<Producto *>> get_siembra_producto_mes();
 
   int get_nivel_heladas();
 

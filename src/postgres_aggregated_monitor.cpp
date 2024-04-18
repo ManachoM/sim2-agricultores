@@ -159,9 +159,6 @@ void PostgresAggregatedMonitor::write_log(json &log)
     }
     else if (log["agent_type"].get<std::string>() == "CONSUMIDOR" && log["agent_process"].get<std::string>() == "PROCESAR_COMPRA_FERIANTE")
     {
-
-        std::cout << log.dump() << "\n";
-        printf("LOGGEANDO CONSUMIDOR\n");
         // auto compras = log["compras"];
         // Si el id de feriante es -1, no se concretó una compra
         try
@@ -179,6 +176,28 @@ void PostgresAggregatedMonitor::write_log(json &log)
         this->agg_logs["CONSUMIDOR"][month_n][target_prod] += log["target_amount"].get<double>();
 
         // this->aggregated_logs["CONSUMIDOR"][year][month][target_prod] = +it.value()["target_amount"].get<double>();
+    }
+    else if (log["agent_type"].get<std::string>() == "CONSUMIDOR" && log["agent_process"].get<std::string>() == "COMPRA_FERIATE")
+    {
+        printf("Procesando nuevo evento del consumidor\n");
+        // Obtenemos la lista de compras
+        std::vector<json> compras = log["compras"].get<std::vector<json>>();
+
+        for (const json &compra : compras)
+        {
+            std::string target_prod = std::to_string(compra["target_product"].get<int>());
+            this->agg_logs["CONSUMIDOR"][month_n][target_prod] += compra["target_amount"].get<double>();
+        }
+    }
+    else if (log["agent_type"].get<std::string>() == "FERIANTE" && log["agent_process"].get<std::string>() == "COMPRA_MAYORISTA")
+    {
+        std::vector<json> compras = log["compras"].get<std::vector<json>>();
+        for (const json &compra : compras)
+        {
+            std::string target_prod = std::to_string(compra["target_product"].get<int>());
+            double cantidad = compra["target_amount"].get<double>();
+            this->agg_logs["FERIANTE"][month_n][target_prod] += cantidad;
+        }
     }
     this->last_recorded_month = short(log["time"].get<double>() / 720);
 }
@@ -230,20 +249,20 @@ PostgresAggregatedMonitor::~PostgresAggregatedMonitor()
     t.exec_prepared0("update_failed_execution", this->execution_id);
     t.commit();
 
-    for (auto const &[first, second] : this->agg_logs)
-    {
-        std::cout << first << "\n";
-        for (auto const &[month, value] : second)
-        {
-            std::cout << "MES: " << month << "\t";
-            for (auto const &[key, val] : value)
-            {
-                std::cout << "LLAVE: " << key << " VALOR: " << val << "\t";
-            }
-            std::cout << "\n";
-        }
-        std::cout << "\n\n";
-    }
+    // for (auto const &[first, second] : this->agg_logs)
+    // {
+    //     std::cout << first << "\n";
+    //     for (auto const &[month, value] : second)
+    //     {
+    //         std::cout << "MES: " << month << "\t";
+    //         for (auto const &[key, val] : value)
+    //         {
+    //             std::cout << "LLAVE: " << key << " VALOR: " << val << "\t";
+    //         }
+    //         std::cout << "\n";
+    //     }
+    //     std::cout << "\n\n";
+    // }
 }
 
 std::string PostgresAggregatedMonitor::get_current_timestamp()

@@ -18,14 +18,16 @@ enum EVENTOS_FERIANTE
 {
   INIT_COMPRA_MAYORISTA,
   VENTA_CONSUMIDOR,
-  PROCESS_COMPRA_MAYORISTA
+  PROCESS_COMPRA_MAYORISTA,
+  COMPRA_MAYORISTA,
 };
 
 enum EVENTOS_CONSUMIDOR
 {
-  BUSCAR_FERIANTE,         /** Evento para buscar a feriante dentro de la feria*/
-  INIT_COMPRA_FERIANTE,    /** Representa la solicitud de compra de producto a un feriante*/
-  PROCESAR_COMPRA_FERIANTE /** Una vez que el feriante confirma la compra, se actualiza el presupuesto/inventario*/
+  BUSCAR_FERIANTE,          /** Evento para buscar a feriante dentro de la feria*/
+  INIT_COMPRA_FERIANTE,     /** Representa la solicitud de compra de producto a un feriante*/
+  PROCESAR_COMPRA_FERIANTE, /** Una vez que el feriante confirma la compra, se actualiza el presupuesto/inventario*/
+  COMPRA_FERIANTE,          /** Representa el proceso completo de compra, sin considerar el paso de mensajes entre agentes*/
 };
 
 enum EVENTOS_AGRICULTOR
@@ -35,6 +37,11 @@ enum EVENTOS_AGRICULTOR
   VENTA_FERIANTE,
   INVENTARIO_VENCIDO,
 };
+
+const std::map<int, std::string> agent_type_to_agent = {{(int)AGENT_TYPE::CONSUMIDOR, "CONSUMIDOR"},
+                                                        {(int)AGENT_TYPE::FERIANTE, "FERIANTE"},
+                                                        {(int)AGENT_TYPE::AGRICULTOR, "AGRICULTOR"},
+                                                        {(int)AGENT_TYPE::AMBIENTE, "AMBIENTE"}};
 
 class Event
 {

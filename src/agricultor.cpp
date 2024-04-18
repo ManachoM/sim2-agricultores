@@ -2,7 +2,7 @@
 
 int Agricultor::curr_agricultor_id(-1);
 
-Agricultor::Agricultor(FEL *_fel, Terreno *_terr, MercadoMayorista* _mer) : Agent(), agricultor_id(++curr_agricultor_id), fel(_fel), terreno(_terr), mercado(_mer)
+Agricultor::Agricultor(FEL *_fel, Terreno *_terr, MercadoMayorista *_mer) : Agent(), agricultor_id(++curr_agricultor_id), fel(_fel), terreno(_terr), mercado(_mer)
 {
     this->fel->insert_event(
         0.0,
@@ -79,14 +79,13 @@ void Agricultor::process_cultivo_event(const Event *e, json &log)
 
 void Agricultor::process_cosecha_event(const Event *e, json &log)
 {
-    std::cout << "Procesando cosecha...";
     log["agent_process"] = "COSECHA";
 
     Producto *prod = this->env->get_productos()[this->terreno->get_producto()];
     double cantidad_cosechada = this->terreno->get_area() * prod->get_rendimiento();
     log["producto_cosechado"] = prod->get_id();
     log["cantidad_cosechada"] = cantidad_cosechada;
-    printf("cantidad_cosechada: %lf\t prod_id: %d\n", cantidad_cosechada, prod->get_id());
+    // printf("cantidad_cosechada: %lf\t prod_id: %d\n", cantidad_cosechada, prod->get_id());
     this->inventario.insert({prod->get_id(), Inventario(
                                                  e->get_time(),
                                                  e->get_time() + (14 * 24), // Damos 14 días de vida útil al inventario
@@ -106,7 +105,7 @@ void Agricultor::process_cosecha_event(const Event *e, json &log)
 
 void Agricultor::process_venta_feriante_event(const Event *e)
 {
-    printf("RESPONDIENDO A FERIANTE\n");
+    // printf("RESPONDIENDO A FERIANTE\n");
     Message msg = e->get_message();
     // for (auto const &[key, val] : msg.msg)
     // {
@@ -131,16 +130,15 @@ void Agricultor::process_venta_feriante_event(const Event *e)
             buyer_id,
             msg,
             nullptr);
-        std::cerr << e.what() << " - Prod_Id: " << prod_id << " - agro_id: " << this->agricultor_id <<'\n';
+        std::cerr << e.what() << " - Prod_Id: " << prod_id << " - agro_id: " << this->agricultor_id << '\n';
         this->mercado->update_index(this->agricultor_id, prod_id, false);
         return;
-
     }
 
     double quantity = inv.get_quantity();
     if (!inv.is_valid_inventory() || quantity < amount)
     {
-    printf("aki se vendió y q pasa, cantidad disponible: %f    cantidad pedida: %f   diferencia: %f\n", quantity, amount, quantity - amount);
+        // printf("aki se vendió y q pasa, cantidad disponible: %f    cantidad pedida: %f   diferencia: %f\n", quantity, amount, quantity - amount);
         msg.msg.insert({"error", -1});
         this->fel->insert_event(
             0.0,
@@ -189,6 +187,19 @@ void Agricultor::process_inventario_vencido_event(const Event *e, json &log)
 std::map<int, Inventario> Agricultor::get_inventory() const
 {
     return this->inventario;
+}
+
+Inventario Agricultor::get_inventory_by_id(const int prod_id)
+{
+    auto aux = this->inventario.find(prod_id);
+    if (aux == this->inventario.end())
+        return Inventario(0.0, 0.0, prod_id, 0.0);
+    return aux->second;
+}
+
+void Agricultor::set_inventory_by_id(const int prod_id, const Inventario &inv)
+{
+    this->inventario.at(prod_id) = inv;
 }
 
 int Agricultor::get_agricultor_id()

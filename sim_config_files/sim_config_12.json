@@ -2,14 +2,14 @@
   "out_path": "./out/",
   "prod_file": "./inputs/prods.json",
   "feriantes_prods_amount": 6,
-  "ferias_file": "./inputs/ferias_small.json",
-  "terrenos_file": "./inputs/terrenos_small.json",
+  "ferias_file": "./inputs/ferias.json",
+  "terrenos_file": "./inputs/terrenos.json",
   "debug_level": "N",
   "consumidor_feriante_ratio": 2,
   "output_path": "./out/sim_1",
   "output_prefix": "sim_1",
   "tipo_feriante": "seasonal-proportional",
-  "tipo_consumidor": "family",
+  "tipo_consumidor": "family_budget",
   "tipo_agricultor": "ganancia",
   "DB_URL": "postgresql://postgres:secret@localhost:5432/sim-db"
 }

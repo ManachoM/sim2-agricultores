@@ -23,11 +23,13 @@ private:
     double volumen_feriante;
     double volumen_un_consumidor;
     double prob_consumo;
+    double costo_ha;
     double precio_feria = 1.0;
     std::vector<int> heladas;
     std::vector<int> sequias;
     std::vector<int> olas_calor;
     std::vector<int> plagas;
+    std::vector<double> precios_mes;
 
 public:
     Producto(std::string _nombre,
@@ -70,6 +72,10 @@ public:
 
     void set_plagas(std::vector<int> const &_pl);
 
+    void set_precios_mes(std::vector<double> const &_pms);
+
+    void set_costo_ha(const double &costo);
+
     std::vector<int> get_heladas();
 
     std::vector<int> get_sequias();
@@ -77,6 +83,10 @@ public:
     std::vector<int> get_olas_calor();
 
     std::vector<int> get_plagas();
+
+    std::vector<double> get_precios_mes();
+
+    double get_costo_ha() const;
 };
 
 #endif // !PRODUCT_H

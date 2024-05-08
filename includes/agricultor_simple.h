@@ -6,10 +6,10 @@
 
 class AgricultorSimple : public Agricultor
 {
-    private:
+private:
     const int choose_product() override;
 
-    public:
+public:
     AgricultorSimple(FEL *_fel, Terreno *_ter, MercadoMayorista *_mer);
 };
 

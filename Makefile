@@ -3,7 +3,9 @@ CXXFLAGS	:= -std=c++17 -Wall -g -pg -O3 -pthread -fpermissive -flto# -fsanitize=
 INCLUDE		:= -I./libs -I/usr/include/postgresql -I./libs/include -I/usr/include/c++ 
 LIBS 		:= -L./libs/lib -lpqxx -lpq
 BIN			:= ./bin
-SIM_CONFIGS	:= ./sim_config_files
+SHELL := /bin/bash
+SIM_CONFIG_DIR	:= ./sim_config_files
+SIM_CONFIG_FILES := $(wildcard $(SIM_CONFIG_DIR)/*)
 SRC			:= ./src
 OBJ			:= ./obj
 SRCS		:= $(wildcard $(SRC)/*.cpp)
@@ -40,9 +42,9 @@ clean:
 	rm $(OUT)
 
 
-run_scenarios: $(SIM_CONFIGS)/*
-	$(foreach file, $(wildcard $(SIM_CONFIGS)/*),$(OUT) -c $(file) >> out.log;)
-	$(foreach file, $(wildcard $(SIM_CONFIGS)/*),$(OUT) -c $(file) >> out.log;)
-	$(foreach file, $(wildcard $(SIM_CONFIGS)/*),$(OUT) -c $(file) >> out.log;)
-	$(foreach file, $(wildcard $(SIM_CONFIGS)/*),$(OUT) -c $(file) >> out.log;)
-	$(foreach file, $(wildcard $(SIM_CONFIGS)/*),$(OUT) -c $(file) >> out.log;)
+run_scenarios:
+	for file in $(SIM_CONFIG_FILES); do \
+    	for i in $$(seq 1 $(n)); do \
+        	$(OUT) -c $$file; \
+		done; \
+	done

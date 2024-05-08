@@ -45,6 +45,7 @@ public:
     Inventario get_inventory_by_id(const int prod_id);
     void set_inventory_by_id(const int prod_id, const Inventario &inv);
     int get_agricultor_id();
+    Terreno * get_terreno();
 };
 
 // Templates para selección de elemento de forma aleatoria en contenedor STL

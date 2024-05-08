@@ -7,7 +7,7 @@
 Environment::Environment(FEL *_fel, Monitor *_monitor) : fel(_fel), monitor(_monitor)
 {
   // Traemos la configuración de la instancia
-  json conf = SimConfig::get_instance("")->get_config();
+  json conf = SimConfig::get_instance()->get_config();
   // std::string connection_string = conf["DB_URL"].get<std::string>();
 
   // std::string out_path = conf["out_path"].get<std::string>();
@@ -118,7 +118,7 @@ int Environment::get_nivel_olas_calor() { return this->oc_nivel.at(this->get_mon
 
 void Environment::read_products()
 {
-  json config = SimConfig::get_instance("")->get_config();
+  json config = SimConfig::get_instance()->get_config();
 
   /** Para productos */
   std::ifstream prods_f(config["prod_file"].get<std::string>());
@@ -156,15 +156,19 @@ void Environment::read_products()
     std::vector<int> seq = it["sequias"].get<std::vector<int>>();
     std::vector<int> oc = it["oc"].get<std::vector<int>>();
     std::vector<int> pl = it["plagas"].get<std::vector<int>>();
+    std::vector<double> pms = it["precios_mes"].get<std::vector<double>>();
+    double costo_ha = it["costo_ha"].get<double>();
     p->set_heladas(hel);
     p->set_sequias(seq);
     p->set_olas_calor(oc);
     p->set_plagas(pl);
+    p->set_precios_mes(pms);
+    p->set_costo_ha(costo_ha);
     prod_map[p->get_id()] = p;
   }
   this->productos = prod_map;
+  
   printf("Creando índice invertido\n");
-
   // Genreamos el índice invertido de meses de venta
   for (int i = 0; i < 12; ++i)
   {
@@ -214,7 +218,7 @@ void Environment::read_products()
 
 void Environment::read_ferias()
 {
-  json config = SimConfig::get_instance("")->get_config();
+  json config = SimConfig::get_instance()->get_config();
 
   /** Para consumidores y feriantes*/
   std::ifstream ferias_f(config["ferias_file"].get<std::string>());
@@ -241,7 +245,7 @@ void Environment::read_terrenos()
 {
   printf("Inicializando sistema...\n");
 
-  json config = SimConfig::get_instance("")->get_config();
+  json config = SimConfig::get_instance()->get_config();
 
   /** Vamos por los terrenos*/
   std::ifstream terr_f(config["terrenos_file"].get<std::string>());
@@ -269,7 +273,7 @@ void Environment::read_terrenos()
 void Environment::initialize_agents(MercadoMayorista *_mer)
 {
 
-  json config = SimConfig::get_instance("")->get_config();
+  json config = SimConfig::get_instance()->get_config();
 
   printf("Inicializando agentes...\t");
   printf("Feriantes -\t");

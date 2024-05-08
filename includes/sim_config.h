@@ -17,7 +17,7 @@ protected:
     ~SimConfig();
 
 public:
-    static SimConfig *get_instance(const std::string &_conf_file);
+    static SimConfig *get_instance(const std::string &_conf_file = "");
 
     std::string get_config_file_path() const;
 

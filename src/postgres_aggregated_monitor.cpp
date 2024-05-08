@@ -20,7 +20,7 @@ std::string const insert_aggregated_product_result = "INSERT INTO aggregated_pro
 
 PostgresAggregatedMonitor::PostgresAggregatedMonitor(std::string const &db_url, bool _debug) : Monitor("", _debug), _database_url(db_url)
 {
-    json conf = SimConfig::get_instance("")->get_config();
+    json conf = SimConfig::get_instance()->get_config();
 
     if (this->_database_url == "")
         this->_database_url = conf["DB_URL"].get<std::string>();

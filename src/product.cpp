@@ -64,3 +64,17 @@ void Producto::set_plagas(std::vector<int> const &_pl)
 {
   this->plagas = _pl;
 }
+
+void Producto::set_precios_mes(std::vector<double> const &_pms)
+{
+  this->precios_mes = _pms;
+}
+
+void Producto::set_costo_ha(const double &costo)
+{
+  this->costo_ha = costo;
+}
+
+std::vector<double> Producto::get_precios_mes() { return this->precios_mes; }
+
+double Producto::get_costo_ha() const { return this->costo_ha; }

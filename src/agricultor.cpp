@@ -206,3 +206,8 @@ int Agricultor::get_agricultor_id()
 {
     return this->agricultor_id;
 }
+
+Terreno *Agricultor::get_terreno()
+{
+    return this->terreno;
+}

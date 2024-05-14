@@ -16,7 +16,7 @@ Feria::Feria(
       env(_env)
 {
   auto cant_prods = this->env->get_productos().size();
-  for (int i = 0; i < cant_prods; ++i)
+  for (long unsigned int i = 0; i < cant_prods; ++i)
   {
     this->feriante_producto.insert({i, std::unordered_set<int>{}});
   }

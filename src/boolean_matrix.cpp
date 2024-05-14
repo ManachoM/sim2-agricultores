@@ -1,6 +1,6 @@
 #include "../includes/boolean_matrix.h"
 
-BooleanMatrix::BooleanMatrix(int _num_rows, int _num_cols) : num_rows(_num_rows), num_cols(_num_cols), matrix(std::vector<std::vector<bool>>(_num_rows)) // matrix(new bool *[num_rows])
+BooleanMatrix::BooleanMatrix(int _num_rows, int _num_cols) : matrix(std::vector<std::vector<bool>>(_num_rows)), num_rows(_num_rows), num_cols(_num_cols) // matrix(new bool *[num_rows])
 {
     for (int i = 0; i < num_rows; ++i)
     {
@@ -13,7 +13,6 @@ BooleanMatrix::BooleanMatrix(int _num_rows, int _num_cols) : num_rows(_num_rows)
         //     this->matrix[i].push_back(false);
         // }
     }
-
 
     // this->matrix = new bool[this->num_rows * this->num_cols];
 
@@ -30,24 +29,24 @@ BooleanMatrix::~BooleanMatrix()
     // delete[] this->matrix;
 }
 
-const bool *BooleanMatrix::operator[](int row) const
-{
-    // if (row >= 0 && row < this->num_rows)
-    // {
-    //     return &this->matrix[row];
-    // }
-    // throw std::out_of_range("Row index out of range! AAAA");
-}
+// const bool *BooleanMatrix::operator[](int row) const
+// {
+//     // if (row >= 0 && row < this->num_rows)
+//     // {
+//     //     return &this->matrix[row];
+//     // }
+//     // throw std::out_of_range("Row index out of range! AAAA");
+// }
 
-bool *BooleanMatrix::operator[](int row)
-{
-    // if (row >= 0 && row < this->num_rows)
-    // {
+// bool *BooleanMatrix::operator[](int row)
+// {
+//     // if (row >= 0 && row < this->num_rows)
+//     // {
 
-    //     return &this->matrix[row];
-    // }
-    // throw std::out_of_range("Row index out of range! BBBB");
-}
+//     //     return &this->matrix[row];
+//     // }
+//     // throw std::out_of_range("Row index out of range! BBBB");
+// }
 
 bool BooleanMatrix::get(int row, int col)
 {

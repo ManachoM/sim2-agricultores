@@ -333,7 +333,7 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
     {
       std::vector<Consumidor *> arr;
       arr.push_back(el.second);
-      this->consumidor_dia.insert({dia_feria, arr});
+      this->consumidor_dia.insert({(int)dia_feria, arr});
       continue;
     }
 

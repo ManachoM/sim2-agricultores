@@ -67,6 +67,8 @@ PostgresAggregatedMonitor::PostgresAggregatedMonitor(std::string const &db_url, 
 
         t.exec_prepared0("insert_exec_param", this->execution_id, it.key().c_str(), str_val.c_str());
     }
+    // Guardamos el nombre del archivo de config
+    t.exec_prepared0("insert_exec_param", this->execution_id, "sim_config_file", SimConfig::get_instance()->get_config_file_path());
 
     // Commit y cerrar la conexión
     t.commit();
@@ -177,11 +179,12 @@ void PostgresAggregatedMonitor::write_log(json &log)
 
         // this->aggregated_logs["CONSUMIDOR"][year][month][target_prod] = +it.value()["target_amount"].get<double>();
     }
-    else if (log["agent_type"].get<std::string>() == "CONSUMIDOR" && log["agent_process"].get<std::string>() == "COMPRA_FERIATE")
+    else if (log["agent_type"].get<std::string>() == "CONSUMIDOR" && log["agent_process"].get<std::string>() == "COMPRA_FERIANTE")
     {
-        printf("Procesando nuevo evento del consumidor\n");
+        // printf("Procesando nuevo evento del consumidor\n");
         // Obtenemos la lista de compras
         std::vector<json> compras = log["compras"].get<std::vector<json>>();
+
 
         for (const json &compra : compras)
         {

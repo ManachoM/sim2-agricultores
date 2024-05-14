@@ -45,6 +45,6 @@ clean:
 run_scenarios:
 	for file in $(SIM_CONFIG_FILES); do \
     	for i in $$(seq 1 $(n)); do \
-        	$(OUT) -c $$file; \
+        	$(OUT) -c $$file >> out.log; \
 		done; \
 	done

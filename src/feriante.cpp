@@ -3,13 +3,13 @@
 int Feriante::current_feriante_id(-1);
 
 Feriante::Feriante(FEL *_fel, MercadoMayorista *_mer, int _feria_id)
-    : Agent(), feriante_id(++current_feriante_id), fel(_fel), mercado(_mer), feria_id(_feria_id)
+    : Agent(), feriante_id(++current_feriante_id), fel(_fel), feria_id(_feria_id), mercado(_mer)
 {
 }
 
 void Feriante::process_event(Event *e)
 {
-    json log = json();
+    auto log = json();
     log["agent_type"] = "FERIANTE";
     log["agent_id"] = this->get_id();
     log["time"] = e->get_time();
@@ -164,6 +164,8 @@ void Feriante::process_compra_mayorista(const Event *e, json &log)
             if (!inv.is_valid_inventory() || q < amount)
                 continue;
 
+            this->inventario.insert({prod_id, Inventario(e->get_time(), 0.0, prod_id, amount)}); // FIXME: Vencimiento de inventario de feriantes
+
             // Actualizamos el inventario
             inv.set_quantity(q - amount);
             agro->set_inventory_by_id(prod_id, inv);
@@ -181,8 +183,7 @@ void Feriante::process_compra_mayorista(const Event *e, json &log)
             compras.push_back(compra);
             // Si llegamos a este punto, significa que ya compramos
             // lo que queríamos de este producto y podemos seguir
-            break; 
-
+            break;
         }
     }
     log["compras"] = compras;

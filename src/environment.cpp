@@ -167,7 +167,7 @@ void Environment::read_products()
     prod_map[p->get_id()] = p;
   }
   this->productos = prod_map;
-  
+
   printf("Creando índice invertido\n");
   // Genreamos el índice invertido de meses de venta
   for (int i = 0; i < 12; ++i)
@@ -310,6 +310,8 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
     }
   }
 
+  std::unordered_map<int, std::vector<Consumidor *>> consumidor_dia;
+
   // Creamos el índice de consumidores por día
   for (auto const &el : this->consumidores)
   {
@@ -325,20 +327,29 @@ void Environment::initialize_agents(MercadoMayorista *_mer)
     }
 
     double dia_feria = feria->get_next_active_time();
+    std::cout << "[CONS] - dia_feria: " << dia_feria << "\tFeria a la que pertenece: " << feria->get_id() << "\n";
 
-    auto busqueda_entrada = this->consumidor_dia.find((int)dia_feria);
+    auto busqueda_entrada = consumidor_dia.find((int)dia_feria);
 
     // Si no existe, creamos la entrada
-    if (busqueda_entrada == this->consumidor_dia.end())
+    if (busqueda_entrada == consumidor_dia.end())
     {
       std::vector<Consumidor *> arr;
       arr.push_back(el.second);
-      this->consumidor_dia.insert({(int)dia_feria, arr});
+      consumidor_dia.insert({(int)dia_feria, arr});
       continue;
     }
 
     // Si existe, simplemente anexamos
     busqueda_entrada->second.push_back(el.second);
+  }
+
+  this->consumidor_dia = consumidor_dia;
+
+  std::cout << "Cantidad de días para feria: " << this->consumidor_dia.size() << "\n";
+  for (auto const &[dia, fers] : this->consumidor_dia)
+  {
+    std::cout << "Día de feria: " << dia << "    Cantidad de feriantes: " << fers.size() << "\n";
   }
 
   std::string agricultor_type = config["tipo_agricultor"].get<std::string>();

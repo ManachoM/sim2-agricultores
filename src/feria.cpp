@@ -67,7 +67,7 @@ double Feria::get_next_active_time()
 {
   // printf("oli %p\n", this->env);
   int dia_actual = (int)(this->env->get_day_week());
-  int nextDay;
+  int nextDay = 10;
   for (int i : this->dia_funcionamiento)
   {
     if (i - dia_actual > 0 && i - dia_actual < nextDay)

@@ -9,7 +9,7 @@
   "output_path": "./out/sim_1",
   "output_prefix": "sim_1",
   "tipo_feriante": "seasonal-proportional",
-  "tipo_consumidor": "family",
+  "tipo_consumidor": "single",
   "tipo_agricultor": "ganancia",
   "DB_URL": "postgresql://postgres:secret@localhost:5432/sim-db"
 }

@@ -40,7 +40,8 @@ public:
              double _rendimiento,
              double _vol_feriante,
              double _vol_cons,
-             double _prob_cons);
+             double _prob_cons,
+             double _precio_feria);
 
     std::string get_nombre() const;
 

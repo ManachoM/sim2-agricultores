@@ -10,11 +10,7 @@
  */
 
 #include "../includes/main.h"
-
-void test_json(json &obj)
-{
-  obj["test"] = 1;
-};
+#include <string>
 
 int main(int argc, char *argv[])
 {
@@ -29,7 +25,7 @@ int main(int argc, char *argv[])
   // For parameter parsing
   int opt;
   SimConfig *sim_config;
-  double END_SIM_TIME = 15'000;
+  double END_SIM_TIME = 13'800;
 
   std::string CONFIG_PATH_FILE;
 
@@ -73,7 +69,7 @@ int main(int argc, char *argv[])
     agent_type_count[agent_type]++;
     assert(current_event->get_time() >= fel->get_time());
 
-    if ((current_event->event_id % 10000) == 0)
+    if ((current_event->event_id % 100'000) == 0)
       std::cout << "SIM TIME: " << current_event->get_time() << "\n EVENT ID: " << current_event->event_id << "\n";
 
     if (current_event->get_caller_ptr() != nullptr)
@@ -128,11 +124,14 @@ int main(int argc, char *argv[])
   // Memory deletion
   std::cout << "SIM DURATION: " << duration.count() << "[ms]\n";
   delete env;
-  delete mon;
+  
   for (auto const &[tipo, cantidad] : agent_type_count)
   {
     std::cout << "AGENTE " << tipo << " \t CANTIDAD DE EVENTOS PROCESADOS: " << cantidad << "\n";
+    mon->write_params(tipo, std::to_string(cantidad));
   }
+  delete mon;
+
   printf("ÚLTIMO EVENTO EN COLA %d\n", fel->next_event()->event_id);
   printf("[FIN SIMLUACION]\n");
   exit(EXIT_SUCCESS);

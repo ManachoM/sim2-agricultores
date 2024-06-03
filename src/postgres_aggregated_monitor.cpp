@@ -239,6 +239,19 @@ void PostgresAggregatedMonitor::write_results()
     t.commit();
 }
 
+void PostgresAggregatedMonitor::write_params(const std::string &key, const std::string &value)
+{
+  pqxx::connection conn(this->_database_url);
+  conn.prepare("insert_exec_param", insert_execution_params);
+  
+  pqxx::work t{conn};
+
+  t.exec_prepared0("insert_exec_param", this->execution_id, key.c_str(), value.c_str());
+
+  t.commit();
+
+}
+
 PostgresAggregatedMonitor::~PostgresAggregatedMonitor()
 {
     pqxx::connection conn(this->_database_url);

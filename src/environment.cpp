@@ -2,7 +2,7 @@
 #include "../includes/consumidor.h"
 #include "../includes/agricultor_factory.h"
 #include "../includes/feriante_factory.h"
-#include "../includes/postgres_aggregated_monitor.h"
+
 
 Environment::Environment(FEL *_fel, Monitor *_monitor) : fel(_fel), monitor(_monitor)
 {
@@ -150,7 +150,8 @@ void Environment::read_products()
         it["unit/ha"].get<double>(),
         it["volumen_feriante"].get<double>(),
         it["volumen_un_consumidor"].get<double>(),
-        it["prob_consumir"].get<double>());
+        it["prob_consumir"].get<double>(),
+        it["precio_consumidor"].get<double>());
 
     std::vector<int> hel = it["heladas"].get<std::vector<int>>();
     std::vector<int> seq = it["sequias"].get<std::vector<int>>();

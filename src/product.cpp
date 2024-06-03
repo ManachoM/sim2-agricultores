@@ -11,7 +11,8 @@ Producto::Producto(
     double _rendimiento,
     double _vol_feriante,
     double _vol_cons,
-    double _prob_cons)
+    double _prob_cons,
+    double _precio_feria)
     : id(++_current_id),
       nombre(_nombre),
       meses_siembra(_siembra),
@@ -21,7 +22,8 @@ Producto::Producto(
       rendimiento(_rendimiento),
       volumen_feriante(_vol_feriante),
       volumen_un_consumidor(_vol_cons),
-      prob_consumo(_prob_cons){};
+      prob_consumo(_prob_cons),
+      precio_feria(_precio_feria){};
 
 std::string Producto::get_nombre() const { return this->nombre; }
 

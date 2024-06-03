@@ -18,6 +18,7 @@ public:
     void write_log(json &log) override;
     void write_duration(double t) override;
     void write_results() override;
+    void write_params(const std::string &key, const std::string &value) override;
     ~PostgresAggregatedMonitor() final;
 };
 

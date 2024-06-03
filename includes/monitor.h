@@ -40,6 +40,8 @@ public:
 
     virtual void write_results();
 
+    virtual void write_params(const std::string &key, const std::string &value);
+
     virtual ~Monitor();
 };
 

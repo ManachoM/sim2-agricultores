@@ -24,9 +24,6 @@
 #include <chrono>
 #include <pqxx/pqxx>
 
-
 using json = nlohmann::json;
 
-
 #endif // !GLOB_H
-

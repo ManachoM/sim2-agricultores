@@ -2,36 +2,32 @@
 #define AGENT_H
 
 #include "event.h"
-#include "message.h"
 
 // Implicit class declaration, to avoid compilation errors
 class Environment;
 class Monitor;
 
-
-class Agent
-{
+class Agent {
 public:
+  Agent();
 
-    Agent();
+  virtual void process_event(Event *e) = 0;
 
-    virtual void process_event(Event * e) = 0;
+  int get_id();
 
-    int get_id();
+  void set_monitor(Monitor *_monitor);
 
-    void set_monitor(Monitor *_monitor);
+  void set_environment(Environment *_env);
 
-    void set_environment(Environment * _env);
-
-    virtual ~Agent();
+  virtual ~Agent();
 
 protected:
-    int id; /** Identificador de la instancia entre todos los agentes */
-    Environment * env;
-    Monitor * monitor;
+  int id; /** Identificador de la instancia entre todos los agentes */
+  Environment *env;
+  Monitor *monitor;
+
 private:
-    static int current_id;
+  static int current_id;
 };
 
 #endif // !AGENT_H
-

@@ -7,9 +7,10 @@
 
 class FEL {
 public:
-  virtual void insert_event(double _time, int _agent_type, int _process,
-                            int _caller_id, Message _msg,
-                            Agent *_caller_ptr = nullptr) = 0;
+  virtual void insert_event(
+      double _time, int _agent_type, int _process, int _caller_id, Message _msg,
+      Agent *_caller_ptr = nullptr
+  ) = 0;
 
   virtual Event *next_event() = 0;
 

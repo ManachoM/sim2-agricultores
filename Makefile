@@ -1,9 +1,9 @@
+SHELL := /bin/bash
 CXX			:= /usr/bin/g++
 CXXFLAGS	:= -std=c++17 -Wall -g -pg -O3 -pthread -fpermissive -flto# -fsanitize=address
 INCLUDE		:= -I./libs -I/usr/include/postgresql -I./libs/include -I/usr/include/c++ 
 LIBS 		:= -L./libs/lib -lpqxx -lpq
 BIN			:= ./bin
-SHELL := /bin/bash
 SIM_CONFIG_DIR	:= ./sim_config_files
 SIM_CONFIG_FILES := $(wildcard $(SIM_CONFIG_DIR)/*)
 SRC			:= ./src
@@ -27,7 +27,7 @@ $(OUT): $(OBJS) | $(BIN)
 	$(CXX) $(INCLUDE) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
 $(OBJ)/%.o: $(SRC)/%.cpp | $(OBJ)
-	$(CXX) $(INCLUDE) $(CXXFLAGS) -c $< -o $@  $(LIBS)
+	$(CXX) $(INCLUDE) -c $< -o $@ $(CXXFLAGS) $(LIBS)
 
 $(BIN) $(OBJ):
 	mkdir $@

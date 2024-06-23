@@ -5,13 +5,10 @@
 #include "fel.h"
 #include "feriante.h"
 #include "glob.h"
-#include "monitor.h"
 
 class Feriante;
 
-
-class Consumidor : public Agent
-{
+class Consumidor : public Agent {
 private:
   static int current_consumer_id;
   int consumer_id = ++current_consumer_id;

@@ -3,24 +3,19 @@
 
 #include "agent.h"
 // TODO: Pasar a objeto de configuración
-#define AFECTACION_HELDAS 0.3
-#define AFECTACION_SEQUIAS 0.3
+#define AFECTACION_HELDAS     0.3
+#define AFECTACION_SEQUIAS    0.3
 #define AFECTACION_OLAS_CALOR 0.1
-#define AFECTACION_PLAGAS 0.3
+#define AFECTACION_PLAGAS     0.3
 
-#include "agricultor.h"
+#include "consumidor.h"
 #include "consumidor_factory.h"
 #include "event.h"
 #include "fel.h"
-#include "feria.h"
 #include "feriante.h"
 #include "message_queue.h"
-#include "glob.h"
-#include "aggregated_monitor.h"
-#include "sim_config.h"
 #include "product.h"
 #include "terreno.h"
-#include "mercado_mayorista.h"
 
 class Agricultor;
 class Consumidor;
@@ -31,16 +26,14 @@ class Monitor;
 class Producto;
 class Terreno;
 
-enum EVENTOS_AMBIENTE
-{
+enum EVENTOS_AMBIENTE {
   INICIO_FERIA,
   FIN_FERIA,
   CALCULO_PRECIOS,
   LIMPIEZA_MERCADO_MAYORISTA
 };
 
-class Environment
-{
+class Environment {
 private:
   FEL *fel;
   std::vector<Consumidor *> consumidores_arr;
@@ -83,6 +76,10 @@ public:
   void set_consumidores(std::unordered_map<int, Consumidor *> _cons);
 
   void set_ferias(std::unordered_map<int, Feria *> _ferias);
+
+  void set_productos(std::unordered_map<int, Producto *> _prods);
+
+  void set_agricultores(std::unordered_map<int, Agricultor *> agros);
 
   void process_event(Event *e);
 

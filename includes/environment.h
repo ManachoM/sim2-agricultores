@@ -26,14 +26,16 @@ class Monitor;
 class Producto;
 class Terreno;
 
-enum EVENTOS_AMBIENTE {
-  INICIO_FERIA,
-  FIN_FERIA,
-  CALCULO_PRECIOS,
-  LIMPIEZA_MERCADO_MAYORISTA
+enum EVENTOS_AMBIENTE
+{
+  INICIO_FERIA = 41,
+  FIN_FERIA = 42,
+  CALCULO_PRECIOS = 43,
+  LIMPIEZA_MERCADO_MAYORISTA = 44
 };
 
-class Environment {
+class Environment
+{
 private:
   FEL *fel;
   std::vector<Consumidor *> consumidores_arr;

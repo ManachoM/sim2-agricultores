@@ -5,7 +5,8 @@
 #include "glob.h"
 #include "message.h"
 
-class FEL {
+class FEL
+{
 public:
   virtual void insert_event(
       double _time, int _agent_type, int _process, int _caller_id, Message _msg,
@@ -17,6 +18,10 @@ public:
   virtual double get_time() = 0;
 
   virtual bool is_empty() = 0;
+
+  int num_venta_feriante = 0;
+
+  int num_process_resp_agr = 0;
 };
 
 #endif // !FEL_H

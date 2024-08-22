@@ -1,17 +1,22 @@
 #include "../includes/consumidor_simple.h"
+
 #include "../includes/environment.h"
 #include "../includes/feria.h"
 
 ConsumidorSimple::ConsumidorSimple(int _feria, FEL *fel)
-    : Consumidor(fel, _feria) {}
+    : Consumidor(fel, _feria)
+{
+}
 
-std::vector<int> ConsumidorSimple::choose_product() {
+std::vector<int> ConsumidorSimple::choose_product()
+{
   std::vector<Producto *> prods =
       this->env->get_venta_producto_mes().find(this->env->get_month())->second;
 
   std::vector<int> prods_to_buy;
 
-  for (auto prod : prods) {
+  for (auto prod : prods)
+  {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> d(0.0, 1.0);
@@ -26,22 +31,27 @@ std::vector<int> ConsumidorSimple::choose_product() {
   return prods_to_buy;
 }
 
-double ConsumidorSimple::purchase_amount(const int prod_id) {
+double ConsumidorSimple::purchase_amount(const int prod_id)
+{
   this->last_purchase_amount =
       this->env->get_productos().at(prod_id)->get_volumen_consumidor();
   return this->last_purchase_amount;
 }
 
-Feriante *ConsumidorSimple::choose_feriante(const int prod_id,
-                                            const double amount) {
+Feriante *
+ConsumidorSimple::choose_feriante(const int prod_id, const double amount)
+{
   // Feria *feria = this->env->get_ferias().at(this->get_feria());
   Feria *feria = this->env->get_feria(this->get_feria());
   std::vector<int> feriantes = feria->get_feriantes_by_id(prod_id);
-  for (auto feriante : feriantes) {
+  for (auto feriante : feriantes)
+  {
     // Si el feriante existe en nuestra lista de feriantes visitados, significa
     // que ya intentamos comprarle
-    if (count(this->feriantes_consultados.begin(),
-              this->feriantes_consultados.end(), feriante))
+    if (count(
+            this->feriantes_consultados.begin(),
+            this->feriantes_consultados.end(), feriante
+        ))
       continue;
 
     this->feriantes_consultados.push_back(feriante);
@@ -51,6 +61,7 @@ Feriante *ConsumidorSimple::choose_feriante(const int prod_id,
   return nullptr;
 }
 
-void ConsumidorSimple::finish_purchase() {
+void ConsumidorSimple::finish_purchase()
+{
   this->feriantes_consultados.clear();
 }

@@ -1,16 +1,17 @@
 SHELL := /bin/bash
-CXX			:= /usr/bin/g++
-CXXFLAGS	:= -std=c++17 -Wall -g -pg -O3 -pthread -fpermissive -flto# -fsanitize=address
-INCLUDE		:= -I./libs -I/usr/include/postgresql -I./libs/include -I/usr/include/c++ 
-LIBS 		:= -L./libs/lib -lpqxx -lpq
-BIN			:= ./bin
+CXX			:= mpicxx
+CXXFLAGS	:= -std=c++17 -Wall -g3 -pg -O3 -pthread -fpermissive -flto# -fsanitize=address
+INCLUDE		:= -I./libs -I/usr/include/postgresql -I./libs/include -I/usr/include/c++ -I/usr/local/bsponmpi/include/
+LIBS 		:= -L./libs/lib -lpqxx -lpq -lbsponmpi -L /usr/local/bsponmpi/lib/
+NP      := 4
+BIN			:=  ./bin
 SIM_CONFIG_DIR	:= ./sim_config_files
 SIM_CONFIG_FILES := $(wildcard $(SIM_CONFIG_DIR)/*)
 SRC			:= ./src
 OBJ			:= ./obj
 SRCS		:= $(wildcard $(SRC)/*.cpp)
 OBJS		:= $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
-OUT			:= $(BIN)/agro-sim
+OUT			:=  $(BIN)/agro-sim
 DB_HOST		:= localhost
 DB_PORT 	:= 5432
 DB_NAME		:= postgres
@@ -45,6 +46,6 @@ clean:
 run_scenarios:
 	for file in $(SIM_CONFIG_FILES); do \
     	for i in $$(seq 1 $(n)); do \
-        	$(OUT) -c $$file >> out.log; \
+        	mpirun -np $(NP) $(OUT) -c $$file >> out.log; \
 		done; \
 	done

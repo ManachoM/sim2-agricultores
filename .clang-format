@@ -9,3 +9,5 @@ AlignOperands: Align
 AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
 IncludeBlocks: Regroup
+
+BreakBeforeBraces: Allman

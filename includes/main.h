@@ -8,8 +8,8 @@
 #include "glob.h"
 #include "heap_fel.h"
 #include "message.h"
+#include "parallel_simulation.h"
 #include "postgres_aggregated_monitor.h"
 #include "sim_config.h"
-#include "simulation.h"
 
 #endif // !MAIN_H

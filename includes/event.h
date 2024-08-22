@@ -8,40 +8,49 @@ class Agent;
 
 enum AGENT_TYPE
 {
-  CONSUMIDOR,
-  FERIANTE,
-  AGRICULTOR,
-  AMBIENTE // Tipo de agente especial para eventos de contextos
+  CONSUMIDOR = 1,
+  FERIANTE = 2,
+  AGRICULTOR = 3,
+  AMBIENTE = 4, // Tipo de agente especial para eventos de contextos
+  AGENT_COUNT = 4,
 };
 
 enum EVENTOS_FERIANTE
 {
-  INIT_COMPRA_MAYORISTA,
-  VENTA_CONSUMIDOR,
-  PROCESS_COMPRA_MAYORISTA,
-  COMPRA_MAYORISTA,
+  INIT_COMPRA_MAYORISTA = 21,
+  VENTA_CONSUMIDOR = 22,
+  PROCESS_COMPRA_MAYORISTA = 23,
+  COMPRA_MAYORISTA = 24,
+  EVENTOS_FERIANTE_COUNT = 4,
 };
 
 enum EVENTOS_CONSUMIDOR
 {
-  BUSCAR_FERIANTE,          /** Evento para buscar a feriante dentro de la feria*/
-  INIT_COMPRA_FERIANTE,     /** Representa la solicitud de compra de producto a un feriante*/
-  PROCESAR_COMPRA_FERIANTE, /** Una vez que el feriante confirma la compra, se actualiza el presupuesto/inventario*/
-  COMPRA_FERIANTE,          /** Representa el proceso completo de compra, sin considerar el paso de mensajes entre agentes*/
+  BUSCAR_FERIANTE = 11, /** Evento para buscar a feriante dentro de la feria*/
+  INIT_COMPRA_FERIANTE = 12, /** Representa la solicitud de compra de producto a
+                           un feriante*/
+  PROCESAR_COMPRA_FERIANTE = 13, /** Una vez que el feriante confirma la compra,
+                               se actualiza el presupuesto/inventario*/
+  COMPRA_FERIANTE = 14, /** Representa el proceso completo de compra, sin
+                      considerar el paso de mensajes entre agentes*/
+  EVENTOS_CONSUMIDOR_COUNT = 4,
 };
 
 enum EVENTOS_AGRICULTOR
 {
-  CULTIVO_TERRENO,
-  COSECHA,
-  VENTA_FERIANTE,
-  INVENTARIO_VENCIDO,
+  CULTIVO_TERRENO = 31,
+  COSECHA = 32,
+  VENTA_FERIANTE = 33,
+  INVENTARIO_VENCIDO = 34,
+  EVENTOS_AGRICULTOR_COUNT = 4,
 };
 
-const std::map<int, std::string> agent_type_to_agent = {{(int)AGENT_TYPE::CONSUMIDOR, "CONSUMIDOR"},
-                                                        {(int)AGENT_TYPE::FERIANTE, "FERIANTE"},
-                                                        {(int)AGENT_TYPE::AGRICULTOR, "AGRICULTOR"},
-                                                        {(int)AGENT_TYPE::AMBIENTE, "AMBIENTE"}};
+const std::map<int, std::string> agent_type_to_agent = {
+    {(int)AGENT_TYPE::CONSUMIDOR, "CONSUMIDOR"},
+    {(int)AGENT_TYPE::FERIANTE, "FERIANTE"},
+    {(int)AGENT_TYPE::AGRICULTOR, "AGRICULTOR"},
+    {(int)AGENT_TYPE::AMBIENTE, "AMBIENTE"}
+};
 
 class Event
 {
@@ -59,9 +68,11 @@ public:
   int event_id;
   Event();
 
-  Event(double _time = 0.0, int _agent_type = -1, int _process = -1,
-        int _caller_id = -1, Message _msg = Message(),
-        Agent *_caller_ptr = nullptr);
+  Event(
+      double _time = 0.0, int _agent_type = -1, int _process = -1,
+      int _caller_id = -1, Message _msg = Message(),
+      Agent *_caller_ptr = nullptr
+  );
 
   /**
    * Getters

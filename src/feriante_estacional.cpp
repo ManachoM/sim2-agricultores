@@ -1,12 +1,17 @@
 #include "../includes/feriante_estacional.h"
+
 #include "../includes/environment.h"
 #include "../includes/product.h"
 
-FerianteEstacional::FerianteEstacional(Environment *_env, FEL *fel,
-                                       MercadoMayorista *mer, int feria_id)
-    : FerianteEstatico(_env, fel, mer, feria_id) {}
+FerianteEstacional::FerianteEstacional(
+    Environment *_env, FEL *fel, MercadoMayorista *mer, int feria_id
+)
+    : FerianteEstatico(_env, fel, mer, feria_id)
+{
+}
 
-std::vector<int> FerianteEstacional::choose_product() {
+std::vector<int> FerianteEstacional::choose_product()
+{
   std::vector<int> prod_seleccionados;
   std::vector<Producto *> prods =
       this->env->get_venta_producto_mes().find(this->env->get_month())->second;
@@ -19,7 +24,8 @@ std::vector<int> FerianteEstacional::choose_product() {
 
   double threashold = threshold_dist(gen);
 
-  for (auto prod : prods) {
+  for (auto prod : prods)
+  {
     double rand_num = random_num_dist(gen);
 
     if (rand_num < threashold)

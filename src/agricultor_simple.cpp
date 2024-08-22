@@ -3,15 +3,19 @@
 AgricultorSimple::AgricultorSimple(
     FEL *_fel, Terreno *_ter, MercadoMayorista *_mer
 )
-    : Agricultor(_fel, _ter, _mer) {}
+    : Agricultor(_fel, _ter, _mer)
+{
+}
 
-const int AgricultorSimple::choose_product() {
+const int AgricultorSimple::choose_product()
+{
   // Consultamos el índice
   auto prods_mes = this->env->get_siembra_producto_mes();
 
   auto lista_prods = prods_mes.find(this->env->get_month());
 
-  if (lista_prods == this->env->get_siembra_producto_mes().end()) {
+  if (lista_prods == this->env->get_siembra_producto_mes().end())
+  {
     printf("ERROR EN SIEMBRA_PRODUCTO_MES\n");
     exit(EXIT_FAILURE);
   }

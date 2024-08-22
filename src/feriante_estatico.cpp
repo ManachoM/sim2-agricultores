@@ -8,7 +8,8 @@
 FerianteEstatico::FerianteEstatico(
     Environment *_env, FEL *fel, MercadoMayorista *mer, int feria_id
 )
-    : Feriante(fel, mer, feria_id) {
+    : Feriante(fel, mer, feria_id)
+{
   this->set_environment(_env);
   std::random_device rd;
   static std::mt19937 gen(rd());
@@ -20,30 +21,35 @@ FerianteEstatico::FerianteEstatico(
 
   std::unordered_map<int, Producto *> arr = this->env->get_productos();
 
-  for (auto const &[prod_id, prod_ptr] : this->env->get_productos()) {
+  for (auto const &[prod_id, prod_ptr] : this->env->get_productos())
+  {
     prod_ids.push_back(prod_id);
   }
   shuffle(prod_ids.begin(), prod_ids.end(), gen);
-  for (int i = 0; i <= num_productos; ++i) {
+  for (int i = 0; i <= num_productos; ++i)
+  {
     this->prods_ids.push_back(prod_ids[i]);
   }
 }
 
 std::vector<int> FerianteEstatico::choose_product() { return this->prods_ids; }
 
-double FerianteEstatico::purchase_amount(const int prod_id) {
+double FerianteEstatico::purchase_amount(const int prod_id)
+{
   return this->env->get_productos().at(prod_id)->get_volumen_feriante();
 }
 
 Agricultor *
-FerianteEstatico::choose_agricultor(const int prod_id, const double amount) {
+FerianteEstatico::choose_agricultor(const int prod_id, const double amount)
+{
   // std::cout << "MERCADO PTR " << this->mercado << "\n";
   std::vector<int> agricultores =
       this->mercado->get_agricultor_por_prod(prod_id);
 
   if (agricultores.size() <= 0)
     return nullptr;
-  for (auto agr : agricultores) {
+  for (auto agr : agricultores)
+  {
     // Si ya intentamos comprarle al agricultor, seguimos
     if (count(
             this->agricultores_consultados.begin(),
@@ -61,6 +67,7 @@ FerianteEstatico::choose_agricultor(const int prod_id, const double amount) {
   return nullptr;
 }
 
-void FerianteEstatico::finish_purchase() {
+void FerianteEstatico::finish_purchase()
+{
   this->agricultores_consultados.clear();
 }

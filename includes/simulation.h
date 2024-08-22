@@ -20,7 +20,7 @@ public:
   void run();
   ~Simulation();
 
-private:
+protected:
   const double max_sim_time;
   const std::string conf_path;
   FEL *fel = new HeapFEL();

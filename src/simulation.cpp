@@ -219,7 +219,7 @@ void Simulation::read_terrenos() {
 void Simulation::initialize_agents(MercadoMayorista *_mer) {
   json config = SimConfig::get_instance()->get_config();
 
-  printf("[INICIALIZANDO AGENTES]t");
+  printf("[INICIALIZANDO AGENTES]\t");
   printf("Feriantes -\t");
   // Inicializamos feriantes y consumidores
   for (auto feria : this->ferias) {

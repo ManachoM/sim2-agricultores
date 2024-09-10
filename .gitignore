@@ -37,3 +37,6 @@ bin/*
 
 # Logs
 *.log
+
+# Jupyter files
+*.ipynb_checkpoints

@@ -28,8 +28,11 @@ public:
           _objective_function
   );
 
-  std::unordered_map<int, std::vector<T *>>
-  partition_items(const int n_procs, const int k_max = 10'000, const int r = 1);
+  std::unordered_map<int, std::vector<T *>> partition_items(
+      const int n_procs, const int k_max = 10'000, const int r = 1,
+      const double init_temp = 1000.0, const double temp_threshold = 1e-3,
+      const double cooling_rate = 0.99, bool debug = false
+  );
 };
 
 #include "simmulated_annealing_partitioner.tpp"

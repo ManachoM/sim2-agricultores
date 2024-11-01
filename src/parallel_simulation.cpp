@@ -26,8 +26,55 @@ double product_objective_function(
 )
 {
   size_t num_items = items.size();
-
+  const double penalty = 0.1;
   std::unordered_map<int, std::vector<double>> items_per_month_per_proc;
+
+  // Initialize each partition with a 12-month vector (all months set to 0)
+  for (size_t i = 0; i < num_items; ++i)
+  {
+    if (items_per_month_per_proc.find(sol[i]) == items_per_month_per_proc.end())
+    {
+      items_per_month_per_proc[sol[i]] = std::vector<double>(12, 0.0);
+    }
+
+    Producto *item = items.at(i);
+    std::vector<int> meses_venta = item->get_meses_venta();
+
+    // For each month the product is sold, increase the month's count
+    for (const auto &month : meses_venta)
+    {
+      items_per_month_per_proc[sol[i]][month] +=
+          item->get_probabilidad_consumo();
+    }
+  }
+
+  double total_score = 0.0;
+
+  // For each partition, compute the partition score
+  for (const auto &[proc, items_per_month] : items_per_month_per_proc)
+  {
+    double partition_score = 0.0;
+
+    // Calculate score for each month, applying penalty for months without
+    // activity
+    for (const auto &month_value : items_per_month)
+    {
+      if (month_value > 0)
+      {
+        partition_score += month_value; // Add value for months with sales
+      }
+      else
+      {
+        partition_score -= penalty; // Apply penalty for months without sales
+      }
+    }
+
+    // Add the partition score to the total score
+    total_score += partition_score;
+  }
+
+  return total_score; // Return the overall total score
+  /**
   std::vector<double> centroid(12, 0.0);
 
   for (size_t i = 0; i < num_items; ++i)
@@ -65,7 +112,7 @@ double product_objective_function(
     for (int i = 0; i < 12; ++i)
       result += abs(centroid[i] - items_per_month[i]);
   }
-  return result;
+  return result; **/
 }
 
 // Función de aiuda, pero para repartir ferias
@@ -73,57 +120,105 @@ double feria_objective_function(
     const std::unordered_map<int, Feria *> &items, const std::vector<int> &sol
 )
 {
+  const int penalty = 200;
   size_t num_ferias = items.size();
-  // En este caso, nos interesa evaluar por días de la semana
-  std::unordered_map<int, std::vector<double>> ferias_per_day_per_proc;
-  std::vector<double> centroid(7, 0.0);
 
+  std::unordered_map<int, std::vector<double>>
+      ferias_per_proc; // Partitions of ferias
+
+  // Initialize partitions with 7-day vectors (initialized to 0)
   for (size_t i = 0; i < num_ferias; ++i)
   {
-    std::vector<double> ferias_per_day;
-    try
+    if (ferias_per_proc.find(sol[i]) == ferias_per_proc.end())
     {
-      ferias_per_day = ferias_per_day_per_proc.at(sol[i]);
-    }
-    catch (std::out_of_range &e)
-    {
-      ferias_per_day = std::vector<double>(7, 0.0);
+      ferias_per_proc[sol[i]] = std::vector<double>(7, 0.0);
     }
 
     Feria *feria = items.at(i);
     std::vector<int> dias_funcionamiento = feria->get_dia_funcionamiento();
 
-    // Para cada uno de los meses en que funciona la feria,
-    // aumentamos el contador
+    // Increment counts in the 7-day vector based on dias_funcionamiento
     for (const auto &dia : dias_funcionamiento)
-      ferias_per_day[dia]++;
-
-    // Actualizamos el vector
-    ferias_per_day_per_proc[sol[i]] = ferias_per_day;
-
-    // Actualizamos el centroide
-    for (int j = 0; j < 7; ++j)
-      centroid[j] += ferias_per_day[j];
+    {
+      ferias_per_proc[sol[i]][dia] += feria->get_num_feriantes();
+    }
   }
 
-  // Dividimos y normalizamos
-  for (int i = 0; i < 7; ++i)
-    centroid[i] /= (double)ferias_per_day_per_proc.size();
+  std::vector<double> scores;
 
-  double result = 0.0;
-
-  // Ahora, por cada entrada del procesador, acumulamos la
-  // diferencia con respecto al centroide
-  for (const auto &[proc, ferias_per_day] : ferias_per_day_per_proc)
+  // For each partition (mapped by processor or partition ID)
+  for (const auto &[proc, ferias_per_day] : ferias_per_proc)
   {
-    for (int i = 0; i < 7; ++i)
-      result += abs(centroid[i] - ferias_per_day[i]);
+    double score = 0.0;
+
+    // Compute score for this partition, applying penalties where necessary
+    for (const auto &dia_value : ferias_per_day)
+    {
+      if (dia_value > 0)
+      {
+        score += dia_value; // Add value for days with ferias
+      }
+      else
+      {
+        score -= penalty; // Apply penalty for days with no ferias
+      }
+    }
+
+    scores.push_back(score);
   }
 
-  return result;
+  // Return the minimum score among all partitions
+  return *std::min_element(scores.begin(), scores.end());
+  // // En este caso, nos interesa evaluar por días de la semana
+  // std::unordered_map<int, std::vector<double>> ferias_per_day_per_proc;
+  // std::vector<double> centroid(7, 0.0);
+
+  // for (size_t i = 0; i < num_ferias; ++i)
+  // {
+  //   std::vector<double> ferias_per_day;
+  //   try
+  //   {
+  //     ferias_per_day = ferias_per_day_per_proc.at(sol[i]);
+  //   }
+  //   catch (std::out_of_range &e)
+  //   {
+  //     ferias_per_day = std::vector<double>(7, 0.0);
+  //   }
+
+  //   Feria *feria = items.at(i);
+  //   std::vector<int> dias_funcionamiento = feria->get_dia_funcionamiento();
+
+  //   // Para cada uno de los meses en que funciona la feria,
+  //   // aumentamos el contador
+  //   for (const auto &dia : dias_funcionamiento)
+  //     ferias_per_day[dia]++;
+
+  //   // Actualizamos el vector
+  //   ferias_per_day_per_proc[sol[i]] = ferias_per_day;
+
+  //   // Actualizamos el centroide
+  //   for (int j = 0; j < 7; ++j)
+  //     centroid[j] += ferias_per_day[j];
+  // }
+
+  // // Dividimos y normalizamos
+  // for (int i = 0; i < 7; ++i)
+  //   centroid[i] /= (double)ferias_per_day_per_proc.size();
+
+  // double result = 0.0;
+
+  // // Ahora, por cada entrada del procesador, acumulamos la
+  // // diferencia con respecto al centroide
+  // for (const auto &[proc, ferias_per_day] : ferias_per_day_per_proc)
+  // {
+  //   for (int i = 0; i < 7; ++i)
+  //     result += abs(centroid[i] - ferias_per_day[i]);
+  // }
+
+  // return result;
 }
 
-ParallelSimulation::ParallelSimulation() : Simulation(){};
+// ParallelSimulation::ParallelSimulation() : Simulation(){};
 
 ParallelSimulation::ParallelSimulation(
     const double _max_sim_time, const std::string &config_path
@@ -147,7 +242,7 @@ void ParallelSimulation::run()
   // Inicializamos el ambiente BSP
   this->nprocs = bsp_nprocs();
 
-  // Inicializamos lacola de salida
+  // Inicializamos la cola de salida
   for (bsp_size_t i = 0; i < this->nprocs; ++i)
     this->out_queue[i] = std::vector<Message>();
   bsp_begin(nprocs);

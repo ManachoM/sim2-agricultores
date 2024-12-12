@@ -264,11 +264,30 @@ void ParallelSimulation::run()
   this->env->set_agricultores(this->agricultores);
   this->mercado->reset_index();
 
+  std::map<int, bool> active_feria_dia;
+
   // Inicializamos los eventos del ambiente
   for (int i = 0; i < 7; ++i)
   {
+    // // this->fel->insert_event(
+    //     24.0 * i, AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::INICIO_FERIA, 0,
+    //     Message()
+    // );
+    active_feria_dia.insert_or_assign(i, false);
+  }
+
+  for (const auto [feria_id, feria] : this->ferias)
+  {
+    for (const int dia : feria->get_dia_funcionamiento())
+      active_feria_dia.insert_or_assign(dia, true);
+  }
+
+  for (const auto [dia, feria] : active_feria_dia)
+  {
+    if (!feria)
+      continue;
     this->fel->insert_event(
-        24.0 * i, AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::INICIO_FERIA, 0,
+        24.0 * dia, AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::INICIO_FERIA, 0,
         Message()
     );
   }
@@ -280,11 +299,47 @@ void ParallelSimulation::run()
   Event *current_event;
 
   // Para conteo de eventos
-  std::map<std::string, int> agent_type_count = {
+  std::map<std::string, int> agent_type_count_global = {
       {"CONSUMIDOR", 0}, {"FERIANTE", 0}, {"AGRICULTOR", 0}, {"AMBIENTE", 0}
   };
   std::string agent_type;
+  std::map<std::string, int> event_type_count_global = {
+      {"FERIANTE_COMPRA_MAYORISTA", 0},
+      {"FERIANTE_VENTA_CONSUMIDOR", 0},
+      {"FERIANTE_PROCESS_COMPRA_MAYORISTA", 0},
+      {"FERIANTE_COMPRA_MAYORISTA", 0},
+      {"CONSUMIDOR_BUSCAR_FERIANTE", 0},
+      {"CONSUMIDOR_INIT_COMPRA_FERIANTE", 0},
+      {"CONSUMIDOR_PROCESAR_COMPRA_FERIANTE", 0},
+      {"CONSUMIDOR_COMPRA_FERIANTE", 0},
+      {"AGRICULTOR_CULTIVO_TERRENO", 0},
+      {"AGRICULTOR_COSECHA", 0},
+      {"AGRICULTOR_VENTA_FERIANTE", 0},
+      {"AGRICULTOR_INVENTARIO_VENCIDO", 0},
+      {"AMBIENTE_INICIO_FERIA", 0},
+      {"AMBIENTE_FIN_FERIA", 0},
+      {"AMBIENTE_CALCULO_PRECIOS", 0},
+      {"AMBIENTE_LIMPIEZA_MERCADO_MAYORISTA", 0}
+  };
 
+  std::map<std::string, double> event_type_time_global = {
+      {"FERIANTE_COMPRA_MAYORISTA", 0.0},
+      {"FERIANTE_VENTA_CONSUMIDOR", 0.0},
+      {"FERIANTE_PROCESS_COMPRA_MAYORISTA", 0.0},
+      {"FERIANTE_COMPRA_MAYORISTA", 0.0},
+      {"CONSUMIDOR_BUSCAR_FERIANTE", 0.0},
+      {"CONSUMIDOR_INIT_COMPRA_FERIANTE", 0.0},
+      {"CONSUMIDOR_PROCESAR_COMPRA_FERIANTE", 0.0},
+      {"CONSUMIDOR_COMPRA_FERIANTE", 0.0},
+      {"AGRICULTOR_CULTIVO_TERRENO", 0.0},
+      {"AGRICULTOR_COSECHA", 0.0},
+      {"AGRICULTOR_VENTA_FERIANTE", 0.0},
+      {"AGRICULTOR_INVENTARIO_VENCIDO", 0.0},
+      {"AMBIENTE_INICIO_FERIA", 0},
+      {"AMBIENTE_FIN_FERIA", 0},
+      {"AMBIENTE_CALCULO_PRECIOS", 0},
+      {"AMBIENTE_LIMPIEZA_MERCADO_MAYORISTA", 0}
+  };
   int nsteps = 0;
   int events_per_ss = 0;
   double window_size = 48;
@@ -295,37 +350,132 @@ void ParallelSimulation::run()
   // Ciclo principal de simulación
   while (this->gvt <= this->max_sim_time && !fel->is_empty())
   {
+
+    std::map<std::string, int> agent_type_count = {
+        {"CONSUMIDOR", 0}, {"FERIANTE", 0}, {"AGRICULTOR", 0}, {"AMBIENTE", 0}
+    };
+
+    std::map<std::string, int> event_type_count = {
+        {"FERIANTE_COMPRA_MAYORISTA", 0},
+        {"FERIANTE_VENTA_CONSUMIDOR", 0},
+        {"FERIANTE_PROCESS_COMPRA_MAYORISTA", 0},
+        {"FERIANTE_COMPRA_MAYORISTA", 0},
+        {"CONSUMIDOR_BUSCAR_FERIANTE", 0},
+        {"CONSUMIDOR_INIT_COMPRA_FERIANTE", 0},
+        {"CONSUMIDOR_PROCESAR_COMPRA_FERIANTE", 0},
+        {"CONSUMIDOR_COMPRA_FERIANTE", 0},
+        {"AGRICULTOR_CULTIVO_TERRENO", 0},
+        {"AGRICULTOR_COSECHA", 0},
+        {"AGRICULTOR_VENTA_FERIANTE", 0},
+        {"AGRICULTOR_INVENTARIO_VENCIDO", 0}
+    };
+
+    std::map<std::string, double> event_type_time = {
+        {"FERIANTE_COMPRA_MAYORISTA", 0.0},
+        {"FERIANTE_VENTA_CONSUMIDOR", 0.0},
+        {"FERIANTE_PROCESS_COMPRA_MAYORISTA", 0.0},
+        {"FERIANTE_COMPRA_MAYORISTA", 0.0},
+        {"CONSUMIDOR_BUSCAR_FERIANTE", 0.0},
+        {"CONSUMIDOR_INIT_COMPRA_FERIANTE", 0.0},
+        {"CONSUMIDOR_PROCESAR_COMPRA_FERIANTE", 0.0},
+        {"CONSUMIDOR_COMPRA_FERIANTE", 0.0},
+        {"AGRICULTOR_CULTIVO_TERRENO", 0.0},
+        {"AGRICULTOR_COSECHA", 0.0},
+        {"AGRICULTOR_VENTA_FERIANTE", 0.0},
+        {"AGRICULTOR_INVENTARIO_VENCIDO", 0.0}
+    };
+
     events_per_ss = 0;
     while (this->fel->get_time() <= next_window)
     {
+
       current_event = fel->next_event();
       agent_type = agent_type_to_agent.at(current_event->get_type());
       ++agent_type_count[agent_type];
+      ++event_type_count[event_type_to_type.at(current_event->get_process())];
       ++events_per_ss;
       // Para mostrar algo por consola
-      if ((current_event->event_id % 1'000'000) == 0)
+      if ((current_event->event_id % 10'000'000) == 0)
         printf(
             "[PROC %d/%d] - SIM TIME: %lf\tEVENT ID: %d\n", this->pid,
             this->nprocs, fel->get_time(), current_event->event_id
         );
+      auto start = std::chrono::steady_clock::now();
       this->route_event(current_event);
+      auto end = std::chrono::steady_clock::now();
+      double duration_ms =
+          std::chrono::duration_cast<std::chrono::microseconds>(end - start)
+              .count() /
+          1000.0;
+      event_type_time[event_type_to_type.at(current_event->get_process())] +=
+          duration_ms;
       delete current_event;
     }
     // Aumentamos el contador de super pasos
     nsteps++;
 
+    // Actualizamos los contadores globales
+    for (const auto &[agent, count] : agent_type_count)
+    {
+      agent_type_count_global[agent] += count;
+    }
+    for (const auto &[event_type, count] : event_type_count)
+    {
+      event_type_count_global[event_type] += count;
+      event_type_time_global[event_type] += event_type_time[event_type];
+    }
     // Actualizamos la próxima ventana
     next_window += window_size;
     // Imprimimos la cantidad de eventos procesados en el SS
     // para efectos de debug
 
     printf(
-        "[PROC: %d]\t- SS: %d\t- Eventos procesados: %d\n ", this->pid, nsteps,
-        events_per_ss
+        "[PROC: %d] || \t- SS: %d\t- Eventos procesados: %d\n ", this->pid,
+        nsteps, events_per_ss
     );
 
+    printf("\n[PROC: %d] || Event Timing Statistics:\n", this->pid);
+    printf("%-40s %10s\n", "Event Type", "Time (ms)");
+    printf("%s\n", std::string(50, '-').c_str());
+
+    // Print each group with its events
+    printf("\nFERIANTE Events:\n");
+    for (const auto &pair : event_type_time)
+    {
+      if (pair.first.find("FERIANTE") == 0)
+      {
+        printf(
+            "[PROC: %d] || %-40s %10.3f\n", this->pid, pair.first.c_str(),
+            pair.second
+        );
+      }
+    }
+
+    printf("\n[PROC: %d] || CONSUMIDOR Events:\n", this->pid);
+    for (const auto &pair : event_type_time)
+    {
+      if (pair.first.find("CONSUMIDOR") == 0)
+      {
+        printf(
+            "[PROC: %d] || %-40s %10.3f\n", this->pid, pair.first.c_str(),
+            pair.second
+        );
+      }
+    }
+
+    printf("\nAGRICULTOR Events:\n");
+    for (const auto &pair : event_type_time)
+    {
+      if (pair.first.find("AGRICULTOR") == 0)
+      {
+        printf(
+            "[PROC: %d] || %-40s %10.3f\n", this->pid, pair.first.c_str(),
+            pair.second
+        );
+      }
+    }
+
     // Procesamos colas de entrada y de salida
-    printf("[PROC %d] SINCRONIZAAANDOOO A LO LOKO Y KE PASA\n", this->pid);
 
     // Mandamos mensajes de salida
     for (auto &[proc, messages] : this->out_queue)
@@ -353,7 +503,7 @@ void ParallelSimulation::run()
     {
       this->update_gvt();
       printf(
-          "[PROC %d] - GVT: %lf - LVT: %lf - SS: %d \n", this->pid, this->gvt,
+          "[PROC %d] || GVT: %lf - LVT: %lf - SS: %d \n", this->pid, this->gvt,
           this->fel->get_time(), nsteps
       );
     }

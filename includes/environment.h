@@ -26,14 +26,6 @@ class Monitor;
 class Producto;
 class Terreno;
 
-enum EVENTOS_AMBIENTE
-{
-  INICIO_FERIA = 41,
-  FIN_FERIA = 42,
-  CALCULO_PRECIOS = 43,
-  LIMPIEZA_MERCADO_MAYORISTA = 44
-};
-
 class Environment
 {
 private:

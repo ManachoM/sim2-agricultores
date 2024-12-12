@@ -4,6 +4,8 @@
 #include "event.h"
 #include "simulation.h"
 
+#include <map>
+
 class Message;
 class Producto;
 class MercadoMayorista;
@@ -27,6 +29,7 @@ private:
   int finished_procs = 0;
   double gvt = 0.0;
   void update_gvt();
+  std::map<int, double> credit_per_proc;
   // Guarda qué procesador almacena qué producto
   std::unordered_map<int, std::vector<Producto *>> prods_per_proc;
   // Guarda qué procesador le corresponde al producto según posición

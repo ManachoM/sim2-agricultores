@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 CXX			:= ./libs_build/bsponmpi/bin/bspcxx
-CXXFLAGS	:= -std=c++17 -Wall -g3 -ggdb -pg  -pthread -fpermissive -flto #--enable-checking -Q -v -da # -fsanitize=address
+CXXFLAGS	:= -std=c++17 -Wall -g  -O3 -pg  -pthread -fpermissive -flto #--enable-checking -Q -v -da # -fsanitize=address
 INCLUDE		:= -I./libs -I/usr/include/postgresql  -I./libs_build/libpqxx/include  -I./libs/include  -I./libs_build/bsponmpi/include/
 LIBS 		:= -L./libs/lib -lpqxx -lpq -lbsponmpi -L./libs_build/local/bsponmpi/lib/ -L./libs_build/libpqxx/lib/
 NP      := 4

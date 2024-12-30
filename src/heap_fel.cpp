@@ -51,9 +51,12 @@ void HeapFEL::insert_event(
     Agent *_caller_ptr
 )
 {
-  Event *e = new Event(
+  Event *e = this->event_pool.alloc(
       _time + this->clock, _agent_type, _proc, _caller_id, _msg, _caller_ptr
   );
+  // Event *e = new Event(
+  //     _time + this->clock, _agent_type, _proc, _caller_id, _msg, _caller_ptr
+  // );
   this->pq.push(e);
   // this->agent_event_type_count[_agent_type][_proc]++;
   if (_agent_type == AGENT_TYPE::FERIANTE &&

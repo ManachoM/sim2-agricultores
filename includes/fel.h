@@ -4,6 +4,7 @@
 #include "event.h"
 #include "glob.h"
 #include "message.h"
+#include "object_pool.h"
 
 class FEL
 {
@@ -22,6 +23,8 @@ public:
   int num_venta_feriante = 0;
 
   int num_process_resp_agr = 0;
+
+  ObjectPool<Event> event_pool;
 };
 
 #endif // !FEL_H

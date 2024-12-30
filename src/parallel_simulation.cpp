@@ -409,7 +409,8 @@ void ParallelSimulation::run()
           1000.0;
       event_type_time[event_type_to_type.at(current_event->get_process())] +=
           duration_ms;
-      delete current_event;
+      this->fel->event_pool.release(current_event);
+      // delete current_event;
     }
     // Aumentamos el contador de super pasos
     nsteps++;

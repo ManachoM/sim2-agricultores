@@ -2,7 +2,9 @@
 #define _GENERIC_OBJECT_PARTITIONER_H_
 
 #include <cstddef>
+#include <cstdio>
 #include <type_traits>
+#include <utility>
 
 template <typename T, std::size_t chunk_size = 1'024> class ObjectPool
 {
@@ -11,19 +13,20 @@ public:
   {
     this->allocate_chunk();
   };
+
   template <typename... Args> T *alloc(Args &&...args)
   {
     if (!this->free_slot)
     {
       this->allocate_chunk();
     }
-
     slot *first_slot = this->free_slot;
     this->free_slot = first_slot->next;
 
-    T *instance = new (&free_slot->storage) T(std::forward<Args>(args)...);
+    T *instance = new (&first_slot->storage) T(std::forward<Args>(args)...);
     return instance;
   };
+
   void release(T *obj)
   {
     if (!obj)
@@ -38,6 +41,7 @@ public:
     slot->next = this->free_slot;
     this->free_slot = slot;
   };
+
   ~ObjectPool()
   {
     chunk *hchunk = this->head_chunk;
@@ -45,7 +49,7 @@ public:
     {
       for (std::size_t i = 0; i < chunk_size; ++i)
       {
-        slot *s = hchunk->slots[i];
+        slot *s = &hchunk->slots[i];
         T *obj = reinterpret_cast<T *>(&s->storage);
         obj->~T();
       }
@@ -77,10 +81,11 @@ private:
     this->head_chunk = new_chunk;
     for (std::size_t i = 0; i < chunk_size; ++i)
     {
-      slot *slot = &new_chunk[i].slots[i];
+      slot *slot = &(new_chunk->slots[i]);
       slot->next = this->free_slot;
       this->free_slot = slot;
     };
+    this->free_slot = this->head_chunk->slots;
   };
 };
 

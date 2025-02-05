@@ -69,13 +69,17 @@ int main(int argc, char *argv[])
   // BSP Init
   bsp_init(spmd_part, _argc, _argv);
   spmd_part();
-
   exit(EXIT_SUCCESS);
 }
 
 void spmd_part()
 {
-  printf("Aqki vamo\n");
+
+  // Inicializamos el ambiente BSP
+  bsp_begin(bsp_nprocs());
+
   auto sim = ParallelSimulation(END_SIM_TIME, CONFIG_PATH_FILE);
   sim.run();
+
+  bsp_end();
 }

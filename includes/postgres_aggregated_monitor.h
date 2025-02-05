@@ -4,7 +4,8 @@
 #include "glob.h"
 #include "monitor.h"
 
-class PostgresAggregatedMonitor final : public Monitor {
+class PostgresAggregatedMonitor final : public Monitor
+{
 private:
   short last_recorded_month = 0;
   std::map<std::string, std::map<int, std::map<std::string, double>>>

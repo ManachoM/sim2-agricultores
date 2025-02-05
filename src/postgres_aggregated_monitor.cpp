@@ -2,7 +2,16 @@
 
 #include "../includes/sim_config.h"
 
+#include <bsp.h>
 #include <ctime>
+#include <map>
+#include <sstream>
+
+// Funciones para enviar los logs entre procesadores
+void send_logs(
+    const std::map<int, std::map<std::string, double>> log, bsp_pid_t dest = 0
+);
+std::map<int, std::map<std::string, double>> receive_logs();
 
 std::string const insert_execution =
     ("INSERT INTO execution(execution_status_id, start_time) "
@@ -30,7 +39,23 @@ std::string const insert_aggregated_product_result =
 PostgresAggregatedMonitor::PostgresAggregatedMonitor(
     std::string const &db_url, bool _debug
 )
-    : Monitor("", _debug), _database_url(db_url) {
+    : Monitor("", _debug), _database_url(db_url)
+{
+  // Inicializamos el objeto con agregaciones de productos
+  this->agg_logs["AGRICULTOR"] = std::map<int, std::map<std::string, double>>();
+  this->agg_logs["FERIANTE"] = std::map<int, std::map<std::string, double>>();
+  this->agg_logs["CONSUMIDOR"] = std::map<int, std::map<std::string, double>>();
+
+  for (int i = 0; i < 21; ++i)
+  {
+    this->agg_logs["AGRICULTOR"][0][std::to_string(i)] = 0;
+    this->agg_logs["FERIANTE"][0][std::to_string(i)] = 0;
+    this->agg_logs["CONSUMIDOR"][0][std::to_string(i)] = 0;
+  }
+
+  if (bsp_pid() != 0)
+    return;
+
   json conf = SimConfig::get_instance()->get_config();
 
   if (this->_database_url == "")
@@ -50,21 +75,31 @@ PostgresAggregatedMonitor::PostgresAggregatedMonitor(
   this->execution_id =
       t.exec_prepared1("insert_execution", get_current_timestamp().c_str())[0]
           .as<int>();
-  for (auto it = conf.begin(); it != conf.end(); ++it) {
+  for (auto it = conf.begin(); it != conf.end(); ++it)
+  {
     if (it.key() == "DB_URL")
       continue;
 
     auto value = it.value();
     std::string str_val;
-    if (value.is_boolean()) {
+    if (value.is_boolean())
+    {
       str_val = value.get<bool>() ? "true" : "false";
-    } else if (value.is_number_integer()) {
+    }
+    else if (value.is_number_integer())
+    {
       str_val = std::to_string(value.get<int>());
-    } else if (value.is_number_float()) {
+    }
+    else if (value.is_number_float())
+    {
       str_val = std::to_string(value.get<double>());
-    } else if (value.is_string()) {
+    }
+    else if (value.is_string())
+    {
       str_val = value.get<std::string>();
-    } else {
+    }
+    else
+    {
       throw std::logic_error("Tipo de variable de configuración no soportado.\n"
       );
     }
@@ -82,20 +117,10 @@ PostgresAggregatedMonitor::PostgresAggregatedMonitor(
 
   // Commit y cerrar la conexión
   t.commit();
-
-  // Inicializamos el objeto con agregaciones de productos
-  this->agg_logs["AGRICULTOR"] = std::map<int, std::map<std::string, double>>();
-  this->agg_logs["FERIANTE"] = std::map<int, std::map<std::string, double>>();
-  this->agg_logs["CONSUMIDOR"] = std::map<int, std::map<std::string, double>>();
-
-  for (int i = 0; i < 21; ++i) {
-    this->agg_logs["AGRICULTOR"][0][std::to_string(i)] = 0;
-    this->agg_logs["FERIANTE"][0][std::to_string(i)] = 0;
-    this->agg_logs["CONSUMIDOR"][0][std::to_string(i)] = 0;
-  }
 }
 
-void PostgresAggregatedMonitor::write_duration(double time) {
+void PostgresAggregatedMonitor::write_duration(double time)
+{
   pqxx::connection conn(this->_database_url);
   conn.prepare("update_execution_duration", update_execution_duration);
   conn.prepare("update_finished_execution", update_finished_execution);
@@ -109,7 +134,8 @@ void PostgresAggregatedMonitor::write_duration(double time) {
   t.commit();
 }
 
-void PostgresAggregatedMonitor::write_log(json &log) {
+void PostgresAggregatedMonitor::write_log(json &log)
+{
   // Obtenemos el mes y el año al que pertenece el nuevo evento
   std::string year = std::to_string(int(log["time"].get<double>() / 8'760));
   std::string month = std::to_string(int(log["time"].get<double>() / 720));
@@ -119,8 +145,10 @@ void PostgresAggregatedMonitor::write_log(json &log) {
   // Si el mes es distinto al último recibido, se inicializa una nueva entrada
   // para cada producto
 
-  if (month != std::to_string(this->last_recorded_month)) {
-    for (int i = 0; i < 21; ++i) {
+  if (month != std::to_string(this->last_recorded_month))
+  {
+    for (int i = 0; i < 21; ++i)
+    {
       this->agg_logs["AGRICULTOR"][month_n][std::to_string(i)] = 0;
       this->agg_logs["FERIANTE"][month_n][std::to_string(i)] = 0;
       this->agg_logs["CONSUMIDOR"][month_n][std::to_string(i)] = 0;
@@ -131,7 +159,8 @@ void PostgresAggregatedMonitor::write_log(json &log) {
     std::cout << log.dump() << std::endl;
   // Agregamos los resultados según el tipo de agente
   if (log["agent_type"].get<std::string>() == "AGRICULTOR" &&
-      log["agent_process"].get<std::string>() == "COSECHA") {
+      log["agent_process"].get<std::string>() == "COSECHA")
+  {
     //    printf("LOGGEANDO AGRICULTOR\n");
     double cantidad = log["cantidad_cosechada"].get<double>();
     // printf("aki voi\n");
@@ -144,19 +173,25 @@ void PostgresAggregatedMonitor::write_log(json &log) {
         cantidad;
     // this->aggregated_logs["AGRICULTOR"][year][month][std::to_string(log["producto_cosechado"].get<int>())]
     // = +log["cantidad_cosechada"].get<double>();
-  } else if (log["agent_type"].get<std::string>() == "FERIANTE" &&
-             log["agent_process"].get<std::string>() ==
-                 "PROCESAR_COMPRA_AGRICULTOR") {
+  }
+  else if (log["agent_type"].get<std::string>() == "FERIANTE" &&
+           log["agent_process"].get<std::string>() ==
+               "PROCESAR_COMPRA_AGRICULTOR")
+  {
     // std::cout << log.dump() << "\n";
     // printf("LOGGEANDO FERIANTE\n");
     // auto compras = log["compras"];
     // Si el id de agricultor es -1, no se concretó una compra
-    try {
+    try
+    {
 
-      if (log["id_agricultor"].get<int>() == -1) {
+      if (log["id_agricultor"].get<int>() == -1)
+      {
         return;
       }
-    } catch (const nlohmann::detail::type_error &e) {
+    }
+    catch (const nlohmann::detail::type_error &e)
+    {
       std::cerr << log.dump(4) << '\n';
       std::cerr << e.what() << '\n';
       return;
@@ -165,15 +200,20 @@ void PostgresAggregatedMonitor::write_log(json &log) {
     std::string target_prod = std::to_string(log["target_product"].get<int>());
     double cantidad = log["target_amount"].get<double>();
     this->agg_logs["FERIANTE"][month_n][target_prod] += cantidad;
-  } else if (log["agent_type"].get<std::string>() == "CONSUMIDOR" &&
-             log["agent_process"].get<std::string>() ==
-                 "PROCESAR_COMPRA_FERIANTE") {
+  }
+  else if (log["agent_type"].get<std::string>() == "CONSUMIDOR" &&
+           log["agent_process"].get<std::string>() ==
+               "PROCESAR_COMPRA_FERIANTE")
+  {
     // auto compras = log["compras"];
     // Si el id de feriante es -1, no se concretó una compra
-    try {
+    try
+    {
       if (log["feriante_id"].get<int>() == -1)
         return;
-    } catch (const nlohmann::detail::type_error &e) {
+    }
+    catch (const nlohmann::detail::type_error &e)
+    {
       std::cerr << log.dump(4) << '\n';
       std::cerr << e.what() << '\n';
     }
@@ -184,22 +224,28 @@ void PostgresAggregatedMonitor::write_log(json &log) {
 
     // this->aggregated_logs["CONSUMIDOR"][year][month][target_prod] =
     // +it.value()["target_amount"].get<double>();
-  } else if (log["agent_type"].get<std::string>() == "CONSUMIDOR" &&
-             log["agent_process"].get<std::string>() == "COMPRA_FERIANTE") {
+  }
+  else if (log["agent_type"].get<std::string>() == "CONSUMIDOR" &&
+           log["agent_process"].get<std::string>() == "COMPRA_FERIANTE")
+  {
     // printf("Procesando nuevo evento del consumidor\n");
     // Obtenemos la lista de compras
     std::vector<json> compras = log["compras"].get<std::vector<json>>();
 
-    for (const json &compra : compras) {
+    for (const json &compra : compras)
+    {
       std::string target_prod =
           std::to_string(compra["target_product"].get<int>());
       this->agg_logs["CONSUMIDOR"][month_n][target_prod] +=
           compra["target_amount"].get<double>();
     }
-  } else if (log["agent_type"].get<std::string>() == "FERIANTE" &&
-             log["agent_process"].get<std::string>() == "COMPRA_MAYORISTA") {
+  }
+  else if (log["agent_type"].get<std::string>() == "FERIANTE" &&
+           log["agent_process"].get<std::string>() == "COMPRA_MAYORISTA")
+  {
     std::vector<json> compras = log["compras"].get<std::vector<json>>();
-    for (const json &compra : compras) {
+    for (const json &compra : compras)
+    {
       std::string target_prod =
           std::to_string(compra["target_product"].get<int>());
       double cantidad = compra["target_amount"].get<double>();
@@ -209,48 +255,274 @@ void PostgresAggregatedMonitor::write_log(json &log) {
   this->last_recorded_month = short(log["time"].get<double>() / 720);
 }
 
-void PostgresAggregatedMonitor::write_results() {
-  // Preparamos la conexión y el statement
-  pqxx::connection conn(this->_database_url);
-  conn.prepare(
-      "insert_aggregated_product_result", insert_aggregated_product_result
-  );
-
-  pqxx::work t{conn};
-  // Pasaremos por los tres primeros niveles de anidado para poder ser precisos
-  // con el mensaje en DB
-  for (auto const &[month, cantidad_por_prod] : this->agg_logs["FERIANTE"]) {
-    for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
-      t.exec_prepared0(
-          "insert_aggregated_product_result", this->execution_id,
-          "COMPRA DE FERIANTE A AGRICULTOR", month, prod_id, cantidad
-      );
+void PostgresAggregatedMonitor::write_results()
+{
+  // Si somos el procesador principal, escribimos nuestros resultados primero
+  if (bsp_pid() == 0)
+  {
+    // Preparamos la conexión y el statement
+    pqxx::connection conn(this->_database_url);
+    conn.prepare(
+        "insert_aggregated_product_result", insert_aggregated_product_result
+    );
+    pqxx::work t{conn};
+    // Primero, se escriben los logs locales
+    // Pasaremos por los tres primeros niveles de anidado para poder ser
+    // precisos con el mensaje en DB
+    for (auto const &[month, cantidad_por_prod] : this->agg_logs["FERIANTE"])
+    {
+      for (auto const &[prod_id, cantidad] : cantidad_por_prod)
+      {
+        t.exec_prepared0(
+            "insert_aggregated_product_result", this->execution_id,
+            "COMPRA DE FERIANTE A AGRICULTOR", month, prod_id, cantidad
+        );
+      }
     }
+
+    for (auto const &[month, cantidad_por_prod] : this->agg_logs["CONSUMIDOR"])
+    {
+      for (auto const &[prod_id, cantidad] : cantidad_por_prod)
+      {
+        t.exec_prepared0(
+            "insert_aggregated_product_result", this->execution_id,
+            "COMPRA DE CONSUMIDOR", month, prod_id, cantidad
+        );
+      }
+    }
+
+    for (auto const &[month, cantidad_por_prod] : this->agg_logs["AGRICULTOR"])
+    {
+      for (auto const &[prod_id, cantidad] : cantidad_por_prod)
+      {
+        t.exec_prepared0(
+            "insert_aggregated_product_result", this->execution_id,
+            "COSECHA AGRICULTOR", month, prod_id, cantidad
+        );
+      }
+    }
+    t.commit();
+  }
+  // Si no somos, enviamos nuestros logs y sincronizamos
+  else
+  {
+    send_logs(this->agg_logs["FERIANTE"]);
   }
 
-  for (auto const &[month, cantidad_por_prod] : this->agg_logs["CONSUMIDOR"]) {
-    for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
-      t.exec_prepared0(
-          "insert_aggregated_product_result", this->execution_id,
-          "COMPRA DE CONSUMIDOR", month, prod_id, cantidad
-      );
-    }
-  }
+  bsp_sync();
 
-  for (auto const &[month, cantidad_por_prod] : this->agg_logs["AGRICULTOR"]) {
-    for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
-      t.exec_prepared0(
-          "insert_aggregated_product_result", this->execution_id,
-          "COSECHA AGRICULTOR", month, prod_id, cantidad
-      );
+  // Recibimos los logs, los parseamos y los guardamos en la DB
+  if (bsp_pid() == 0)
+  {
+    // Preparamos la conexión;
+    pqxx::connection conn(this->_database_url);
+    conn.prepare(
+        "insert_aggregated_product_result", insert_aggregated_product_result
+    );
+
+    // Recibimos los mensajes
+    bsp_size_t num_messages, total_bytes;
+    bsp_qsize(&num_messages, &total_bytes);
+
+    for (bsp_size_t i = 0; i < num_messages; ++i)
+    {
+      bsp_size_t status;
+      bsp_get_tag(status, nullptr);
+      pqxx::work t{conn};
+
+      std::vector<char> buffer(status);
+      bsp_move(buffer.data(), status);
+
+      // Deserialización
+
+      std::map<int, std::map<std::string, double>> data;
+      std::istringstream iss;
+      std::string outer_token;
+      while (std::getline(iss, outer_token, ';'))
+      {
+        std::istringstream outerStream(outer_token);
+        std::string keyPart, innerData;
+        if (std::getline(outerStream, keyPart, '|') &&
+            std::getline(outerStream, innerData))
+        {
+          int outerKey = std::stoi(keyPart);
+          std::map<std::string, double> innerMap;
+
+          std::istringstream innerStream(innerData);
+          std::string innerToken;
+          while (std::getline(innerStream, innerToken, ','))
+          {
+            size_t pos = innerToken.find(":");
+            if (pos != std::string::npos)
+            {
+              std::string innerKey = innerToken.substr(0, pos);
+              double innerValue = std::stod(innerToken.substr(pos + 1));
+              innerMap[innerKey] = innerValue;
+            }
+          }
+          data[outerKey] = innerMap;
+        }
+      }
+
+      // Ahora que data tiene el log recibido, lo guardamos
+      for (auto const &[month, cantidad_por_prod] : data)
+      {
+        for (auto const &[prod_id, cantidad] : cantidad_por_prod)
+        {
+          t.exec_prepared0(
+              "insert_aggregated_product_result", this->execution_id,
+              "COMPRA DE FERIANTE A AGRICULTOR", month, prod_id, cantidad
+          );
+        }
+      }
     }
   }
-  t.commit();
+  else
+    send_logs(this->agg_logs["CONSUMIDOR"]);
+
+  bsp_sync();
+
+  // Recibimos los logs, los parseamos y los guardamos en la DB
+  if (bsp_pid() == 0)
+  {
+    // Preparamos la conexión;
+    pqxx::connection conn(this->_database_url);
+    conn.prepare(
+        "insert_aggregated_product_result", insert_aggregated_product_result
+    );
+
+    // Recibimos los mensajes
+    bsp_size_t num_messages, total_bytes;
+    bsp_qsize(&num_messages, &total_bytes);
+
+    for (bsp_size_t i = 0; i < num_messages; ++i)
+    {
+      bsp_size_t status;
+      bsp_get_tag(status, nullptr);
+      pqxx::work t{conn};
+
+      std::vector<char> buffer(status);
+      bsp_move(buffer.data(), status);
+
+      // Deserialización
+
+      std::map<int, std::map<std::string, double>> data;
+      std::istringstream iss;
+      std::string outer_token;
+      while (std::getline(iss, outer_token, ';'))
+      {
+        std::istringstream outerStream(outer_token);
+        std::string keyPart, innerData;
+        if (std::getline(outerStream, keyPart, '|') &&
+            std::getline(outerStream, innerData))
+        {
+          int outerKey = std::stoi(keyPart);
+          std::map<std::string, double> innerMap;
+
+          std::istringstream innerStream(innerData);
+          std::string innerToken;
+          while (std::getline(innerStream, innerToken, ','))
+          {
+            size_t pos = innerToken.find(":");
+            if (pos != std::string::npos)
+            {
+              std::string innerKey = innerToken.substr(0, pos);
+              double innerValue = std::stod(innerToken.substr(pos + 1));
+              innerMap[innerKey] = innerValue;
+            }
+          }
+          data[outerKey] = innerMap;
+        }
+      }
+
+      // Ahora que data tiene el log recibido, lo guardamos
+      for (auto const &[month, cantidad_por_prod] : data)
+      {
+        for (auto const &[prod_id, cantidad] : cantidad_por_prod)
+        {
+          t.exec_prepared0(
+              "insert_aggregated_product_result", this->execution_id,
+              "COMPRA DE CONSUMIDOR", month, prod_id, cantidad
+          );
+        }
+      }
+    }
+  }
+  else
+    send_logs(this->agg_logs["AGRICULTOR"]);
+
+  bsp_sync();
+  if (bsp_pid() == 0)
+  {
+    // Preparamos la conexión;
+    pqxx::connection conn(this->_database_url);
+    conn.prepare(
+        "insert_aggregated_product_result", insert_aggregated_product_result
+    );
+
+    // Recibimos los mensajes
+    bsp_size_t num_messages, total_bytes;
+    bsp_qsize(&num_messages, &total_bytes);
+
+    for (bsp_size_t i = 0; i < num_messages; ++i)
+    {
+      bsp_size_t status;
+      bsp_get_tag(status, nullptr);
+      pqxx::work t{conn};
+
+      std::vector<char> buffer(status);
+      bsp_move(buffer.data(), status);
+
+      // Deserialización
+
+      std::map<int, std::map<std::string, double>> data;
+      std::istringstream iss;
+      std::string outer_token;
+      while (std::getline(iss, outer_token, ';'))
+      {
+        std::istringstream outerStream(outer_token);
+        std::string keyPart, innerData;
+        if (std::getline(outerStream, keyPart, '|') &&
+            std::getline(outerStream, innerData))
+        {
+          int outerKey = std::stoi(keyPart);
+          std::map<std::string, double> innerMap;
+
+          std::istringstream innerStream(innerData);
+          std::string innerToken;
+          while (std::getline(innerStream, innerToken, ','))
+          {
+            size_t pos = innerToken.find(":");
+            if (pos != std::string::npos)
+            {
+              std::string innerKey = innerToken.substr(0, pos);
+              double innerValue = std::stod(innerToken.substr(pos + 1));
+              innerMap[innerKey] = innerValue;
+            }
+          }
+          data[outerKey] = innerMap;
+        }
+      }
+
+      // Ahora que data tiene el log recibido, lo guardamos
+      for (auto const &[month, cantidad_por_prod] : data)
+      {
+        for (auto const &[prod_id, cantidad] : cantidad_por_prod)
+        {
+          t.exec_prepared0(
+              "insert_aggregated_product_result", this->execution_id,
+              "COSECHA DE AGRICULTOR", month, prod_id, cantidad
+          );
+        }
+      }
+    }
+  }
 }
 
 void PostgresAggregatedMonitor::write_params(
     const std::string &key, const std::string &value
-) {
+)
+{
   pqxx::connection conn(this->_database_url);
   conn.prepare("insert_exec_param", insert_execution_params);
 
@@ -263,7 +535,8 @@ void PostgresAggregatedMonitor::write_params(
   t.commit();
 }
 
-PostgresAggregatedMonitor::~PostgresAggregatedMonitor() {
+PostgresAggregatedMonitor::~PostgresAggregatedMonitor()
+{
   pqxx::connection conn(this->_database_url);
 
   // Marcamos como fallida si la ejecución no ha terminado
@@ -291,7 +564,8 @@ PostgresAggregatedMonitor::~PostgresAggregatedMonitor() {
   // }
 }
 
-std::string PostgresAggregatedMonitor::get_current_timestamp() {
+std::string PostgresAggregatedMonitor::get_current_timestamp()
+{
   // Get current time
   auto now = std::chrono::system_clock::now();
 
@@ -306,4 +580,72 @@ std::string PostgresAggregatedMonitor::get_current_timestamp() {
   std::strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &tm);
 
   return buffer;
+}
+
+void send_logs(
+    const std::map<int, std::map<std::string, double>> log, bsp_pid_t dest
+)
+{
+  // Serializamos el mensaje
+  std::ostringstream oss;
+  for (const auto &outer : log)
+  {
+    oss << outer.first << "|";
+    for (const auto &inner : outer.second)
+    {
+      oss << inner.first << ":" << inner.second << ",";
+    }
+    oss << ";";
+  }
+  std::string msg = oss.str();
+
+  // Enviamos el mensaje usando bsp_send;
+  bsp_send(dest, nullptr, msg.data(), msg.size());
+}
+
+std::map<int, std::map<std::string, double>> receive_logs()
+{
+  bsp_size_t numMessages, totalBytes;
+  bsp_qsize(&numMessages, &totalBytes);
+
+  if (numMessages == 0)
+  {
+    return {}; // No messages received
+  }
+
+  bsp_size_t status;
+  bsp_get_tag(&status, nullptr); // Get the payload size
+
+  std::vector<char> buffer(status);
+  bsp_move(buffer.data(), status);
+  // Deserialización
+  std::map<int, std::map<std::string, double>> data;
+  std::istringstream iss;
+  std::string outer_token;
+  while (std::getline(iss, outer_token, ';'))
+  {
+    std::istringstream outerStream(outer_token);
+    std::string keyPart, innerData;
+    if (std::getline(outerStream, keyPart, '|') &&
+        std::getline(outerStream, innerData))
+    {
+      int outerKey = std::stoi(keyPart);
+      std::map<std::string, double> innerMap;
+
+      std::istringstream innerStream(innerData);
+      std::string innerToken;
+      while (std::getline(innerStream, innerToken, ','))
+      {
+        size_t pos = innerToken.find(":");
+        if (pos != std::string::npos)
+        {
+          std::string innerKey = innerToken.substr(0, pos);
+          double innerValue = std::stod(innerToken.substr(pos + 1));
+          innerMap[innerKey] = innerValue;
+        }
+      }
+      data[outerKey] = innerMap;
+    }
+  }
+  return data;
 }

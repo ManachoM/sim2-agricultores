@@ -239,13 +239,12 @@ bool check_empty_out_queues(std::unordered_map<int, std::vector<Message>> queues
 
 void ParallelSimulation::run()
 {
-  // Inicializamos el ambiente BSP
   this->nprocs = bsp_nprocs();
-
   // Inicializamos la cola de salida
   for (bsp_size_t i = 0; i < this->nprocs; ++i)
     this->out_queue[i] = std::vector<Message>();
-  bsp_begin(nprocs);
+
+  this->monitor = new PostgresAggregatedMonitor();
   this->pid = bsp_pid();
   printf("Procesador %d/%d\n", pid, nprocs);
 
@@ -516,7 +515,6 @@ void ParallelSimulation::run()
       "[PROC %d] WALL_TIME: %ld\tBSP_TIME: %lf\tSYNC_TIME: %ld[microseconds]\n",
       this->pid, t_end - t_init, bsp_time(), total_sync_time
   );
-  bsp_end();
 }
 
 void ParallelSimulation::route_event(Event *e)

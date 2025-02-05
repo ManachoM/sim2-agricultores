@@ -1,7 +1,8 @@
 #include "../includes/monitor.h"
 
 Monitor::Monitor(std::string const &_file_prefix, bool _debug)
-    : file_prefix(_file_prefix), debug_flag(_debug) {
+    : file_prefix(_file_prefix), debug_flag(_debug)
+{
   // Generamos el sim_id
   auto t = std::time(nullptr);
   auto tm = *std::localtime(&t);

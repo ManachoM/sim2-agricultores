@@ -2,6 +2,7 @@
 #define _PARALLEL_SIMULATION_H_
 
 #include "event.h"
+#include "monitor.h"
 #include "simulation.h"
 
 #include <map>
@@ -45,6 +46,7 @@ private:
   MercadoMayorista *mercado;
   void initialize_agents(MercadoMayorista *_mer);
   void route_event(Event *e);
+  Monitor *monitor;
 };
 
 #endif // !_PARALLEL_SIMULATION_H_

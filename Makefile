@@ -84,9 +84,15 @@ libs_build/libpq/lib/libpq.a:
 	# Compilar e instalar solo libpq en el directorio de destino
 	cd libs/postgresql-15.3/src/interfaces/libpq && make MAKELEVEL=0 && make install
 
+
 run_scenarios:
-	for file in $(SIM_CONFIG_FILES); do \
-    	for i in $$(seq 1 $(n)); do \
-        	mpirun -np $(NP) $(OUT) -c $$file >> out.log; \
-		done; \
+	for file in $(filter %.json,$(SIM_CONFIG_FILES)); do \
+	    base=$$(basename $$file .json); \
+	    logfile=$$base.log; \
+	    echo "Processing file: $$file" | tee -a $$logfile; \
+	    for i in $$(seq 1 15); do \
+	        mpirun -np $(NP) $(OUT) -c $$file >> $$logfile; \
+	        # :; \
+	    done; \
 	done
+

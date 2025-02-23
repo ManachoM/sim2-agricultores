@@ -50,7 +50,7 @@ private:
   std::unordered_map<int, std::vector<Consumidor *>> consumidor_dia;
   std::unordered_map<int, std::vector<Producto *>> venta_producto_mes;
   std::unordered_map<int, std::vector<Producto *>> siembra_producto_mes;
-  // TODO:  helada_nivel;
+  json helada_nivel;
   std::vector<int> sequias_nivel;
   std::vector<int> oc_nivel;
   Monitor *monitor;
@@ -80,6 +80,12 @@ public:
   void set_productos(std::unordered_map<int, Producto *> _prods);
 
   void set_agricultores(std::unordered_map<int, Agricultor *> agros);
+
+  void set_heladas_nivel(json hn);
+
+  void set_sequias_nivel(std::vector<int> sn);
+
+  void set_oc_nivel(std::vector<int> ocn);
 
   void process_event(Event *e);
 

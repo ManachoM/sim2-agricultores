@@ -3,31 +3,28 @@
 
 #include "glob.h"
 
-class Terreno
-{
-    private:
-    static int _current_id;
-    int id;
-    int cod_comuna;
-    double area;
-    short amenaza_plaga;
-    std::string comuna;
-    int id_producto_plantado;
+class Terreno {
+private:
+  static int _current_id;
+  int id;
+  int cod_comuna;
+  double area;
+  std::string comuna;
+  int id_producto_plantado;
 
 public:
+  short amenaza_plaga;
+  Terreno(int _cod, double _area, std::string _comuna, int _id_prod = -1);
 
-Terreno(int _cod, double _area, std::string _comuna, int _id_prod = -1);
+  int get_id() const;
 
-int get_id() const;
+  int get_cod_comuna() const;
 
-int get_cod_comuna() const;
+  double get_area() const;
 
-double get_area() const;
+  int get_producto() const;
 
-int get_producto() const;
-
-void set_producto_plantado(int _id_prod);
-
+  void set_producto_plantado(int _id_prod);
 };
 
 #endif // !TERRENO_H

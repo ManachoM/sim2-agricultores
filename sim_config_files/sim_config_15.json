@@ -1,0 +1,18 @@
+{
+  "out_path": "./out/",
+  "prod_file": "./inputs/prods.json",
+  "feriantes_prods_amount": 6,
+  "ferias_file": "./inputs/ferias.json",
+  "terrenos_file": "./inputs/terrenos.json",
+  "frost_file": "./inputs/frost_probs.json",
+  "oc_file": "./inputs/heatwave_levels.json",
+  "spi_file": "./inputs/spi_levels.json",
+  "debug_level": "N",
+  "consumidor_feriante_ratio": 2,
+  "output_path": "./out/sim_1",
+  "output_prefix": "sim_1",
+  "tipo_feriante": "static",
+  "tipo_consumidor": "family_budget",
+  "tipo_agricultor": "risk",
+  "DB_URL": "postgresql://postgres:secret@localhost:5432/sim-db"
+}

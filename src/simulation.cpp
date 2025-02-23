@@ -268,6 +268,22 @@ void Simulation::initialize_agents(MercadoMayorista *_mer) {
 
   std::cout << "Cantidad de agricultores " << this->agricultores.size()
             << std::endl;
+  // Si no es agricultor de riesgo, nos da lo mismo las amenazas
+  if (agricultor_type != "risk")
+    return;
+
+  // Inicializamos la info para amenazas
+
+  std::ifstream frost(config["frost_file"].get<std::string>());
+  this->env->set_heladas_nivel(json::parse(frost));
+
+  std::ifstream oc(config["oc_file"].get<std::string>());
+  json oc_json = json::parse(oc);
+  this->env->set_oc_nivel(oc_json["levels"].get<std::vector<int>>());
+
+  std::ifstream spi(config["spi_file"].get<std::string>());
+  json spi_json = json::parse(spi);
+  this->env->set_sequias_nivel(spi_json["levels"].get<std::vector<int>>());
 }
 
 Simulation::~Simulation() {

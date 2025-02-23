@@ -125,8 +125,7 @@ INSERT INTO product (
 (19, 'Frutilla', ARRAY[3, 4], ARRAY[0, 1, 2, 3, 4, 9, 10, 11], 120.0, 'kilos', 30000.0, 1050.0, 8.0, 0.62, ARRAY[1.0, 2.0, 3.0], ARRAY[1.0, 2.0, 3.0], ARRAY[2.0, 3.0, 3.0], ARRAY[2.0, 2.0, 3.0], 0.006543927734094409);
 
 
-ALTER TABLE aggregated_product_results
-ALTER TABLE
-  "aggregated_product_results"
-ADD
-  FOREIGN KEY ("product_id") REFERENCES "product" ("product_id");
+-- ALTER TABLE
+ -- "aggregated_product_results"
+--ADD
+--  FOREIGN KEY ("product_id") REFERENCES "product" ("product_id");

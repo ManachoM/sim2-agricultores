@@ -8,6 +8,10 @@
 #include "../includes/mercado_mayorista.h"
 #include "../includes/sim_config.h"
 
+#include <random>
+#include <string>
+#include <vector>
+
 Environment::Environment(FEL *_fel, Monitor *_monitor)
     : fel(_fel), monitor(_monitor) {
   // Traemos la configuración de la instancia
@@ -27,8 +31,7 @@ void Environment::set_feriantes(std::unordered_map<int, Feriante *> _feriantes
 ) {
   this->feriantes = _feriantes;
   auto fer_arr = std::vector<Feriante *>(this->feriantes.size());
-  for (auto const &[id, fer] : this->feriantes)
-  {
+  for (auto const &[id, fer] : this->feriantes) {
     fer_arr[fer->get_feriante_id()] = fer;
   }
   this->feriante_arr = fer_arr;
@@ -75,19 +78,17 @@ void Environment::set_consumidores(std::unordered_map<int, Consumidor *> _cons
   this->consumidor_dia = consumidor_dia;
 
   auto cons_arr = std::vector<Consumidor *>(this->consumidores.size());
-  for (auto const &[id, cons] : this->consumidores)
-  {
+  for (auto const &[id, cons] : this->consumidores) {
     cons_arr[cons->get_consumer_id()] = cons;
   }
   this->consumidores_arr = cons_arr;
 }
 
-void Environment::set_agricultores(std::unordered_map<int, Agricultor *> agros)
-{
+void Environment::set_agricultores(std::unordered_map<int, Agricultor *> agros
+) {
   this->agricultores = agros;
   auto agros_arr = std::vector<Agricultor *>(this->agricultores.size());
-  for (auto const &[id, agro] : this->agricultores)
-  {
+  for (auto const &[id, agro] : this->agricultores) {
     agros_arr[agro->get_agricultor_id()] = agro;
   }
   this->agricultor_arr = agros_arr;
@@ -96,8 +97,7 @@ void Environment::set_agricultores(std::unordered_map<int, Agricultor *> agros)
 void Environment::set_ferias(std::unordered_map<int, Feria *> _ferias) {
   this->ferias = _ferias;
   auto fers_arr = std::vector<Feria *>(this->ferias.size());
-  for (auto const &[id, feria] : this->ferias)
-  {
+  for (auto const &[id, feria] : this->ferias) {
     fers_arr[id] = feria;
   }
   this->feria_arr = fers_arr;
@@ -233,7 +233,33 @@ Environment::get_siembra_producto_mes() {
   return this->siembra_producto_mes;
 }
 
-int Environment::get_nivel_heladas() { return -1; }
+int Environment::get_nivel_heladas() {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> d(0.0, 1.0);
+
+  double dice = d(gen);
+  std::string m_c = std::to_string(this->get_month());
+  json helada_mes = this->helada_nivel[m_c].get<json>();
+  double month_prob = helada_mes["prob"].get<double>();
+
+  // Si no hay helada este mes, no hay amenaza
+  if (dice > month_prob)
+    return 0;
+
+  // Si hay helada, calculamos la intensidad en función de
+  // las distribuciones para el mes
+  dice = d(gen);
+
+  auto int_probs = helada_mes["prob_int"].get<std::vector<int>>();
+  int cont = 1;
+  for (auto prob : int_probs) {
+    if (dice < prob)
+      return cont;
+    cont += 1;
+  }
+  return cont;
+}
 
 int Environment::get_nivel_sequias() {
   return this->sequias_nivel.at(this->get_month());
@@ -534,4 +560,12 @@ Agricultor *Environment::get_agricultor(int agro_id) {
 
 Feria *Environment::get_feria(int feria_id) {
   return this->feria_arr[feria_id];
+}
+
+void Environment::set_heladas_nivel(json hn) { this->helada_nivel = hn; }
+
+void Environment::set_oc_nivel(std::vector<int> ocn) { this->oc_nivel = ocn; }
+
+void Environment::set_sequias_nivel(std::vector<int> sn) {
+  this->sequias_nivel = sn;
 }

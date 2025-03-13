@@ -32,6 +32,12 @@ FerianteEstatico::FerianteEstatico(
 std::vector<int> FerianteEstatico::choose_product() { return this->prods_ids; }
 
 double FerianteEstatico::purchase_amount(const int prod_id) {
+  auto prod_name = this->env->get_productos().at(prod_id)->get_nombre();
+  auto prod_amount =
+      this->env->get_productos().at(prod_id)->get_volumen_feriante();
+
+  // if (prod_name == "Sandia" || prod_name == "Sandía")
+  // exit(0);
   return this->env->get_productos().at(prod_id)->get_volumen_feriante();
 }
 

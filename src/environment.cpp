@@ -58,8 +58,8 @@ void Environment::set_consumidores(std::unordered_map<int, Consumidor *> _cons
     }
 
     double dia_feria = feria->get_next_active_time();
-    std::cout << "[CONS] - dia_feria: " << dia_feria
-              << "\tFeria a la que pertenece: " << feria->get_id() << "\n";
+    // std::cout << "[CONS] - dia_feria: " << dia_feria
+    //           << "\tFeria a la que pertenece: " << feria->get_id() << "\n";
 
     auto busqueda_entrada = consumidor_dia.find((int)dia_feria);
 
@@ -466,8 +466,8 @@ void Environment::initialize_agents(MercadoMayorista *_mer) {
     }
 
     double dia_feria = feria->get_next_active_time();
-    std::cout << "[CONS] - dia_feria: " << dia_feria
-              << "\tFeria a la que pertenece: " << feria->get_id() << "\n";
+    // std::cout << "[CONS] - dia_feria: " << dia_feria
+    //           << "\tFeria a la que pertenece: " << feria->get_id() << "\n";
 
     auto busqueda_entrada = consumidor_dia.find((int)dia_feria);
 
@@ -485,11 +485,11 @@ void Environment::initialize_agents(MercadoMayorista *_mer) {
 
   this->consumidor_dia = consumidor_dia;
 
-  std::cout << "Cantidad de días para feria: " << this->consumidor_dia.size()
-            << "\n";
+  // std::cout << "Cantidad de días para feria: " << this->consumidor_dia.size()
+  //           << "\n";
   for (auto const &[dia, fers] : this->consumidor_dia) {
-    std::cout << "Día de feria: " << dia
-              << "    Cantidad de feriantes: " << fers.size() << "\n";
+    //  std::cout << "Día de feria: " << dia
+    //         << "    Cantidad de feriantes: " << fers.size() << "\n";
   }
 
   std::string agricultor_type = config["tipo_agricultor"].get<std::string>();

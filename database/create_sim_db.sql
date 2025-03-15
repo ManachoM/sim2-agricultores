@@ -43,7 +43,8 @@ VALUES
   (0, 'REGISTRADA'),
   (1, 'EN EJECUCIÓN'),
   (2, 'TERMINADA'),
-  (3, 'ERROR');
+  (3, 'ERROR')
+ON CONFLICT DO NOTHING;
 
 COMMENT ON COLUMN "execution"."execution_time" IS 'Tiempo de ejecución medido en el mismo proceso.';
 
@@ -86,6 +87,25 @@ CREATE TABLE IF NOT EXISTS "product" (
   "prob_compra_feriante" DOUBLE PRECISION
 );
 
+CREATE TABLE IF NOT EXISTS "super_step_time_stat"(
+  "ss_stat_id" SERIAL PRIMARY KEY,
+  "execution_id" INTEGER,
+  "ss_number" INTEGER,
+  "proc_id" INTEGER,
+  "exec_time" DOUBLE PRECISION,
+  "sync_time" DOUBLE PRECISION
+  );
+
+CREATE TABLE IF NOT EXISTS "super_step_event_stat"(
+  "ss_stat_id" SERIAL PRIMARY KEY,
+  "execution_id" INTEGER,
+  "ss_number" INTEGER,
+  "proc_id" INTEGER,
+  "agent_type" VARCHAR(55),
+  "agent_process" VARCHAR(100),
+  "amount" INTEGER
+  );
+
 INSERT INTO product (
     product_id,
     nombre,
@@ -122,7 +142,8 @@ INSERT INTO product (
 (16, 'Tomate', ARRAY[7, 8], ARRAY[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 90.0, 'kilos', 61870.0, 1800.0, 6.0, 0.92, ARRAY[3.0, 3.0, 3.0], ARRAY[1.0, 2.0, 3.0], ARRAY[2.0, 3.0, 3.0], ARRAY[2.0, 2.0, 3.0], 0.007136055922990994),
 (17, 'Zanahoria', ARRAY[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], ARRAY[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 120.0, 'kilos', 31390.0, 102.0, 2.0, 0.86, ARRAY[1.0, 2.0, 2.0], ARRAY[1.0, 2.0, 3.0], ARRAY[2.0, 2.0, 3.0], ARRAY[2.0, 2.0, 3.0], 0.09795243783444108),
 (18, 'Zapallo italiano', ARRAY[0, 8, 9, 10, 11], ARRAY[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 100.0, 'unidades', 90000.0, 180.0, 4.0, 0.65, ARRAY[3.0, 3.0, 3.0], ARRAY[1.0, 2.0, 3.0], ARRAY[2.0, 2.0, 3.0], ARRAY[1.0, 2.0, 3.0], 0.045426669861010724),
-(19, 'Frutilla', ARRAY[3, 4], ARRAY[0, 1, 2, 3, 4, 9, 10, 11], 120.0, 'kilos', 30000.0, 1050.0, 8.0, 0.62, ARRAY[1.0, 2.0, 3.0], ARRAY[1.0, 2.0, 3.0], ARRAY[2.0, 3.0, 3.0], ARRAY[2.0, 2.0, 3.0], 0.006543927734094409);
+(19, 'Frutilla', ARRAY[3, 4], ARRAY[0, 1, 2, 3, 4, 9, 10, 11], 120.0, 'kilos', 30000.0, 1050.0, 8.0, 0.62, ARRAY[1.0, 2.0, 3.0], ARRAY[1.0, 2.0, 3.0], ARRAY[2.0, 3.0, 3.0], ARRAY[2.0, 2.0, 3.0], 0.006543927734094409)
+ON CONFLICT DO NOTHING;
 
 
 -- ALTER TABLE

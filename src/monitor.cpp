@@ -17,4 +17,8 @@ void Monitor::write_results() {}
 
 void Monitor::write_params(const std::string &key, const std::string &value) {}
 
+void Monitor::add_event_record(SSEventRecord e) {};
+
+void Monitor::add_time_record(SSTimeRecord e) {};
+
 Monitor::~Monitor() = default;

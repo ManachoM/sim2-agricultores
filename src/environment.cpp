@@ -32,7 +32,8 @@ void Environment::set_feriantes(std::unordered_map<int, Feriante *> _feriantes)
 {
   this->feriantes = _feriantes;
   auto fer_arr = std::vector<Feriante *>(this->feriantes.size());
-  for (auto const &[id, fer] : this->feriantes) {
+  for (auto const &[id, fer] : this->feriantes)
+  {
     fer_arr[fer->get_feriante_id()] = fer;
   }
   this->feriante_arr = fer_arr;
@@ -53,12 +54,6 @@ void Environment::set_consumidores(std::unordered_map<int, Consumidor *> _cons)
     }
     catch (const std::out_of_range &e)
     {
-      fprintf(
-          stderr,
-          "[ERROR] - El consumidor con id %d asiste a una feria que no existe "
-          "(id %d)\n",
-          el.second->get_id(), el.second->get_feria()
-      );
       continue;
     }
 
@@ -84,18 +79,20 @@ void Environment::set_consumidores(std::unordered_map<int, Consumidor *> _cons)
   this->consumidor_dia = consumidor_dia;
 
   auto cons_arr = std::vector<Consumidor *>(this->consumidores.size());
-  for (auto const &[id, cons] : this->consumidores) {
+  for (auto const &[id, cons] : this->consumidores)
+  {
     cons_arr[cons->get_consumer_id()] = cons;
   }
   this->consumidores_arr = cons_arr;
 }
 
-void Environment::set_agricultores(std::unordered_map<int, Agricultor *> agros
-) {
+void Environment::set_agricultores(std::unordered_map<int, Agricultor *> agros)
+{
   this->agricultores = agros;
   printf("Dentro de ENV::set_agris. ageros size: %d\n", agros.size());
   auto agros_arr = std::vector<Agricultor *>(this->agricultores.size());
-  for (auto const &[id, agro] : this->agricultores) {
+  for (auto const &[id, agro] : this->agricultores)
+  {
     agros_arr[agro->get_agricultor_id()] = agro;
   }
   this->agricultor_arr = agros_arr;
@@ -105,7 +102,8 @@ void Environment::set_ferias(std::unordered_map<int, Feria *> _ferias)
 {
   this->ferias = _ferias;
   auto fers_arr = std::vector<Feria *>(this->ferias.size());
-  for (auto const &[id, feria] : this->ferias) {
+  for (auto const &[id, feria] : this->ferias)
+  {
     fers_arr[id] = feria;
   }
   this->feria_arr = fers_arr;
@@ -194,12 +192,6 @@ void Environment::process_event(Event *e)
         this->consumidor_dia.find(this->get_day_week() % 7);
     if (consumidores_por_dia == this->consumidor_dia.end())
     {
-      fprintf(
-          stderr,
-          "[ERROR] - No hay consumidores que asistan a ferias ese día %d - "
-          "SIM_TIME = %lf.\n",
-          this->get_day_week() % 7, e->get_time()
-      );
       break;
     }
 
@@ -272,7 +264,8 @@ Environment::get_siembra_producto_mes()
   return this->siembra_producto_mes;
 }
 
-int Environment::get_nivel_heladas() {
+int Environment::get_nivel_heladas()
+{
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> d(0.0, 1.0);
@@ -292,7 +285,8 @@ int Environment::get_nivel_heladas() {
 
   auto int_probs = helada_mes["prob_int"].get<std::vector<int>>();
   int cont = 1;
-  for (auto prob : int_probs) {
+  for (auto prob : int_probs)
+  {
     if (dice < prob)
       return cont;
     cont += 1;
@@ -630,6 +624,7 @@ void Environment::set_heladas_nivel(json hn) { this->helada_nivel = hn; }
 
 void Environment::set_oc_nivel(std::vector<int> ocn) { this->oc_nivel = ocn; }
 
-void Environment::set_sequias_nivel(std::vector<int> sn) {
+void Environment::set_sequias_nivel(std::vector<int> sn)
+{
   this->sequias_nivel = sn;
 }

@@ -142,8 +142,12 @@ void Agricultor::process_venta_feriante_event(const Event *e)
   double quantity = inv.get_quantity();
   if (!inv.is_valid_inventory() || quantity < amount)
   {
-    // printf("aki se vendió y q pasa, cantidad disponible: %f    cantidad
-    // pedida: %f   diferencia: %f\n", quantity, amount, quantity - amount);
+    printf(
+        "aki se vendió y q pasa, agro id: %d cantidad disponible: %f    "
+        "cantidadpedida: %f "
+        "  diferencia: %f\n",
+        this->agricultor_id, quantity, amount, quantity - amount
+    );
 
     msg.insert(MESSAGE_KEYS::ERROR, -1.0);
 
@@ -163,6 +167,7 @@ void Agricultor::process_venta_feriante_event(const Event *e)
   }
 
   msg.insert(MESSAGE_KEYS::SELLER_ID, (double)this->get_agricultor_id());
+  msg.insert(MESSAGE_KEYS::ERROR, 0);
   this->fel->insert_event(
       0.0, AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::PROCESS_COMPRA_MAYORISTA,
       buyer_id, msg, nullptr

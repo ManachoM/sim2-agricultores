@@ -86,6 +86,10 @@ const double Message::find(const MESSAGE_KEYS &key) const
     return (double)this->agent_type;
   case MESSAGE_KEYS::PROCESS:
     return (double)this->process;
+  case MESSAGE_KEYS::ORIGIN_PID:
+    return (double)this->origin;
+  case MESSAGE_KEYS::DEST_PID:
+    return (double)this->dest;
   case MESSAGE_KEYS::ERROR:
     return -(double)this->error;
   default:

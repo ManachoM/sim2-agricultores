@@ -13,15 +13,22 @@ private:
   std::string get_current_timestamp();
   std::string _database_url;
   int execution_id;
+  std::vector<SSTimeRecord> time_records;
+  std::vector<SSEventRecord> event_records;
+
+  void gather_records();
 
 public:
   PostgresAggregatedMonitor(
-      std::string const &db_url = "", bool _debug = false
+      std::string const &db_url = "", bool _debug = false,
+      const int record_amount = 300
   );
   void write_log(json &log) override;
   void write_duration(double t) override;
   void write_results() override;
   void write_params(const std::string &key, const std::string &value) override;
+  void add_event_record(SSEventRecord e) override;
+  void add_time_record(SSTimeRecord e) override;
   ~PostgresAggregatedMonitor() final;
 };
 

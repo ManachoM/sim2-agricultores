@@ -1,0 +1,33 @@
+{
+  "productos": {
+    "score": -2.889047809201448,
+    "execution_time": 0.19971251487731934,
+    "iterations": 146,
+    "partitions": {
+      "5": 20
+    }
+  },
+  "ferias": {
+    "score": 2654.0,
+    "execution_time": 0.6994297504425049,
+    "iterations": 147,
+    "partitions": {
+      "1": 47,
+      "4": 39,
+      "7": 45,
+      "5": 48,
+      "6": 47,
+      "3": 39,
+      "2": 41,
+      "0": 37
+    }
+  },
+  "algorithm": {
+    "objective_function": "weighted",
+    "neighbour_function": "next_best",
+    "operator": "move",
+    "cooling_rate": 0.9,
+    "init_temp": 5000.0,
+    "restart_threshold": 1000.0
+  }
+}

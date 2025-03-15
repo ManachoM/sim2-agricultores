@@ -1,0 +1,8 @@
+{
+  "cooling_rate": 0.9,
+  "init_temp": 5000.0,
+  "restart_threshold": 1000,
+  "avg_score": 10.682812365305153,
+  "avg_iterations": 146.0,
+  "avg_execution_time": 0.3122702121734619
+}

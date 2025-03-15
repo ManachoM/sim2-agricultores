@@ -6,6 +6,8 @@
 #include "../includes/mercado_mayorista.h"
 #include "../includes/monitor.h"
 
+#include <bsp.h>
+
 int Feriante::current_feriante_id(-1);
 
 Feriante::Feriante(FEL *_fel, MercadoMayorista *_mer, int _feria_id)
@@ -74,11 +76,12 @@ void Feriante::process_init_compra()
     //     {"prod_id", (double)prod_id},
     //     {"buyer_id", (double)this->get_feriante_id()}
     // };
+
     Message msg;
     msg.insert(MESSAGE_KEYS::AMOUNT, amount);
     msg.insert(MESSAGE_KEYS::PROD_ID, (double)prod_id);
     msg.insert(MESSAGE_KEYS::BUYER_ID, (double)this->get_feriante_id());
-
+    msg.insert(MESSAGE_KEYS::ORIGIN_PID, bsp_pid());
     this->fel->insert_event(
         1.0, AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::VENTA_FERIANTE, -1, msg
     );

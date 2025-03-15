@@ -6,6 +6,8 @@
 #include "fel.h"
 #include "glob.h"
 
+#include <cstddef>
+
 class HeapFEL : public FEL
 {
 private:
@@ -34,6 +36,8 @@ public:
   double get_time() override;
 
   bool is_empty() override;
+
+  std::size_t get_size() override;
 
   std::unordered_map<int, std::unordered_map<int, int>> agent_event_type_count;
 

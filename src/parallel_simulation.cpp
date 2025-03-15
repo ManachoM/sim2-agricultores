@@ -18,206 +18,162 @@
 #include <iostream>
 #include <time.h>
 
-// Función de aiuda para cálculo de función objetivo
-// del particionador de productos
+/**
+ * @brief "BalanceTemporal" style objective function for Productos.
+ *
+ * Higher is better. Penalizes months with zero load in each partition,
+ * rewards overall load, tries to keep distribution balanced.
+ */
 double product_objective_function(
     const std::unordered_map<int, Producto *> &items,
     const std::vector<int> &sol
 )
 {
-  size_t num_items = items.size();
+  // Example parameters
   const double penalty = 0.1;
-  std::unordered_map<int, std::vector<double>> items_per_month_per_proc;
+  const int time_periods = 12; // months
 
-  // Initialize each partition with a 12-month vector (all months set to 0)
-  for (size_t i = 0; i < num_items; ++i)
+  // Partition -> monthly load
+  std::unordered_map<int, std::vector<double>> partition_load;
+  for (size_t i = 0; i < sol.size(); ++i)
   {
-    if (items_per_month_per_proc.find(sol[i]) == items_per_month_per_proc.end())
+    int part_id = sol[i];
+    if (partition_load.find(part_id) == partition_load.end())
     {
-      items_per_month_per_proc[sol[i]] = std::vector<double>(12, 0.0);
+      partition_load[part_id] = std::vector<double>(time_periods, 0.0);
     }
-
-    Producto *item = items.at(i);
-    std::vector<int> meses_venta = item->get_meses_venta();
-
-    // For each month the product is sold, increase the month's count
-    for (const auto &month : meses_venta)
+    const Producto *prod = items.at((int)i);
+    for (int month : prod->get_meses_venta())
     {
-      items_per_month_per_proc[sol[i]][month] +=
-          item->get_probabilidad_consumo();
+      if (month >= 0 && month < time_periods)
+      {
+        partition_load[part_id][month] += prod->get_probabilidad_consumo();
+      }
     }
   }
 
+  // Compute total workload & a balance measure
   double total_score = 0.0;
-
-  // For each partition, compute the partition score
-  for (const auto &[proc, items_per_month] : items_per_month_per_proc)
+  for (auto &kv : partition_load)
   {
-    double partition_score = 0.0;
-
-    // Calculate score for each month, applying penalty for months without
-    // activity
-    for (const auto &month_value : items_per_month)
+    const auto &monthly = kv.second;
+    // Each partition's sum
+    double part_sum = 0.0;
+    for (double val : monthly)
     {
-      if (month_value > 0)
+      if (val > 0.0)
       {
-        partition_score += month_value; // Add value for months with sales
+        part_sum += val;
       }
       else
       {
-        partition_score -= penalty; // Apply penalty for months without sales
+        // penalize idle month
+        part_sum -= penalty;
       }
     }
-
-    // Add the partition score to the total score
-    total_score += partition_score;
+    total_score += part_sum;
   }
 
-  return total_score; // Return the overall total score
-  /**
-  std::vector<double> centroid(12, 0.0);
+  // Optionally, incorporate a cross-partition monthly balance check
+  // (like a day-by-day coefficient of variation for each partition).
+  // This snippet simply sums up partition scores.
 
-  for (size_t i = 0; i < num_items; ++i)
-  {
-    std::vector<double> items_per_month;
-    try
-    {
-      items_per_month = items_per_month_per_proc.at(sol[i]);
-    }
-    catch (std::out_of_range &e)
-    {
-      items_per_month = std::vector<double>(12, 0.0);
-    }
-
-    Producto *item = items.at(i);
-    std::vector<int> meses_venta = item->get_meses_venta();
-
-    for (const auto &month : meses_venta)
-    {
-      items_per_month[month]++;
-    }
-
-    items_per_month_per_proc[sol[i]] = items_per_month;
-
-    for (int j = 0; j < 12; ++j)
-      centroid[j] += items_per_month[j];
-  }
-
-  for (int i = 0; i < 12; ++i)
-    centroid[i] /= (double)items_per_month_per_proc.size();
-
-  double result = 0.0;
-  for (const auto &[item, items_per_month] : items_per_month_per_proc)
-  {
-    for (int i = 0; i < 12; ++i)
-      result += abs(centroid[i] - items_per_month[i]);
-  }
-  return result; **/
+  return total_score;
 }
 
-// Función de aiuda, pero para repartir ferias
+/**
+ * @brief "Tiered" style objective function for Ferias focusing on day-balance
+ * (Temporal focal distribution) plus total workload.
+ */
 double feria_objective_function(
     const std::unordered_map<int, Feria *> &items, const std::vector<int> &sol
 )
 {
-  const int penalty = 200;
-  size_t num_ferias = items.size();
+  // Weighted components
+  const double penalty = 0.1;         // for idle days
+  const double weight_balance = 0.7;  // how important day-balance is
+  const double weight_workload = 0.3; // how important total workload is
+  const int time_periods = 7;         // days in a week
 
-  std::unordered_map<int, std::vector<double>>
-      ferias_per_proc; // Partitions of ferias
-
-  // Initialize partitions with 7-day vectors (initialized to 0)
-  for (size_t i = 0; i < num_ferias; ++i)
+  // Partition -> daily load
+  std::unordered_map<int, std::vector<double>> partition_load;
+  for (size_t i = 0; i < sol.size(); ++i)
   {
-    if (ferias_per_proc.find(sol[i]) == ferias_per_proc.end())
+    int part_id = sol[i];
+    if (partition_load.find(part_id) == partition_load.end())
     {
-      ferias_per_proc[sol[i]] = std::vector<double>(7, 0.0);
+      partition_load[part_id] = std::vector<double>(time_periods, 0.0);
     }
-
-    Feria *feria = items.at(i);
-    std::vector<int> dias_funcionamiento = feria->get_dia_funcionamiento();
-
-    // Increment counts in the 7-day vector based on dias_funcionamiento
-    for (const auto &dia : dias_funcionamiento)
+    const Feria *feria = items.at((int)i);
+    for (int d : feria->get_dia_funcionamiento())
     {
-      ferias_per_proc[sol[i]][dia] += feria->get_num_feriantes();
+      if (d >= 0 && d < time_periods)
+      {
+        partition_load[part_id][d] += feria->get_num_feriantes();
+      }
     }
   }
 
-  std::vector<double> scores;
+  // 1) Coefficient of variation across partitions for each day
+  double cv_score = 0.0;
+  double total_workload = 0.0;
 
-  // For each partition (mapped by processor or partition ID)
-  for (const auto &[proc, ferias_per_day] : ferias_per_proc)
+  // For each day, gather loads from each partition
+  for (int day = 0; day < time_periods; ++day)
   {
-    double score = 0.0;
-
-    // Compute score for this partition, applying penalties where necessary
-    for (const auto &dia_value : ferias_per_day)
+    std::vector<double> day_loads;
+    for (auto &kv : partition_load)
     {
-      if (dia_value > 0)
+      day_loads.push_back(kv.second[day]);
+      total_workload += kv.second[day];
+    }
+    // Calculate mean
+    double sum = std::accumulate(day_loads.begin(), day_loads.end(), 0.0);
+    double mean = sum / day_loads.size();
+
+    if (mean > 0.0)
+    {
+      // std dev
+      double sq_diff_sum = 0.0;
+      for (double load : day_loads)
       {
-        score += dia_value; // Add value for days with ferias
+        double diff = load - mean;
+        sq_diff_sum += diff * diff;
       }
-      else
+      double stdev = std::sqrt(sq_diff_sum / day_loads.size());
+      double cv = stdev / mean;
+      // Lower CV is better => negative
+      cv_score -= cv;
+    }
+    else
+    {
+      // no load at all => penalize
+      cv_score -= 1.0;
+    }
+  }
+  // average across the 7 days
+  cv_score /= (double)time_periods;
+
+  // 2) Penalty for idle partitions on each day
+  double idle_penalty = 0.0;
+  for (auto &kv : partition_load)
+  {
+    for (int day = 0; day < time_periods; ++day)
+    {
+      if (kv.second[day] <= 0.0)
       {
-        score -= penalty; // Apply penalty for days with no ferias
+        idle_penalty -= penalty;
       }
     }
-
-    scores.push_back(score);
   }
 
-  // Return the minimum score among all partitions
-  return *std::min_element(scores.begin(), scores.end());
-  // // En este caso, nos interesa evaluar por días de la semana
-  // std::unordered_map<int, std::vector<double>> ferias_per_day_per_proc;
-  // std::vector<double> centroid(7, 0.0);
+  // Combine final
+  double final_score = weight_balance * cv_score +
+                       weight_workload * (total_workload / 100.0) +
+                       idle_penalty;
 
-  // for (size_t i = 0; i < num_ferias; ++i)
-  // {
-  //   std::vector<double> ferias_per_day;
-  //   try
-  //   {
-  //     ferias_per_day = ferias_per_day_per_proc.at(sol[i]);
-  //   }
-  //   catch (std::out_of_range &e)
-  //   {
-  //     ferias_per_day = std::vector<double>(7, 0.0);
-  //   }
-
-  //   Feria *feria = items.at(i);
-  //   std::vector<int> dias_funcionamiento = feria->get_dia_funcionamiento();
-
-  //   // Para cada uno de los meses en que funciona la feria,
-  //   // aumentamos el contador
-  //   for (const auto &dia : dias_funcionamiento)
-  //     ferias_per_day[dia]++;
-
-  //   // Actualizamos el vector
-  //   ferias_per_day_per_proc[sol[i]] = ferias_per_day;
-
-  //   // Actualizamos el centroide
-  //   for (int j = 0; j < 7; ++j)
-  //     centroid[j] += ferias_per_day[j];
-  // }
-
-  // // Dividimos y normalizamos
-  // for (int i = 0; i < 7; ++i)
-  //   centroid[i] /= (double)ferias_per_day_per_proc.size();
-
-  // double result = 0.0;
-
-  // // Ahora, por cada entrada del procesador, acumulamos la
-  // // diferencia con respecto al centroide
-  // for (const auto &[proc, ferias_per_day] : ferias_per_day_per_proc)
-  // {
-  //   for (int i = 0; i < 7; ++i)
-  //     result += abs(centroid[i] - ferias_per_day[i]);
-  // }
-
-  // return result;
+  return final_score;
 }
-
 // ParallelSimulation::ParallelSimulation() : Simulation(){};
 
 ParallelSimulation::ParallelSimulation(
@@ -225,6 +181,7 @@ ParallelSimulation::ParallelSimulation(
 )
     : Simulation(_max_sim_time, config_path)
 {
+  this->initialize_event_handlers();
 }
 
 // Helper fuction para evaluar si todos las colas de salida están vacías
@@ -268,10 +225,6 @@ void ParallelSimulation::run()
   // Inicializamos los eventos del ambiente
   for (int i = 0; i < 7; ++i)
   {
-    // // this->fel->insert_event(
-    //     24.0 * i, AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::INICIO_FERIA, 0,
-    //     Message()
-    // );
     active_feria_dia.insert_or_assign(i, false);
   }
 
@@ -340,147 +293,52 @@ void ParallelSimulation::run()
       {"AMBIENTE_LIMPIEZA_MERCADO_MAYORISTA", 0}
   };
   int nsteps = 0;
-  int events_per_ss = 0;
-  double window_size = 48;
+  double window_size = 6;
   double next_window = this->fel->get_time() + window_size;
   long total_sync_time = 0;
   time_t t_init = time(NULL);
+  SSTimeRecord time_record;
+  SSEventRecord event_record;
 
   // Ciclo principal de simulación
   while (this->gvt <= this->max_sim_time && !fel->is_empty())
   {
 
-    std::map<std::string, int> agent_type_count = {
-        {"CONSUMIDOR", 0}, {"FERIANTE", 0}, {"AGRICULTOR", 0}, {"AMBIENTE", 0}
-    };
+    event_record.ss_number = nsteps;
+    event_record.proc_id = this->pid;
+    time_record.ss_number = nsteps;
+    time_record.proc_id = this->pid;
 
-    std::map<std::string, int> event_type_count = {
-        {"FERIANTE_COMPRA_MAYORISTA", 0},
-        {"FERIANTE_VENTA_CONSUMIDOR", 0},
-        {"FERIANTE_PROCESS_COMPRA_MAYORISTA", 0},
-        {"FERIANTE_COMPRA_MAYORISTA", 0},
-        {"CONSUMIDOR_BUSCAR_FERIANTE", 0},
-        {"CONSUMIDOR_INIT_COMPRA_FERIANTE", 0},
-        {"CONSUMIDOR_PROCESAR_COMPRA_FERIANTE", 0},
-        {"CONSUMIDOR_COMPRA_FERIANTE", 0},
-        {"AGRICULTOR_CULTIVO_TERRENO", 0},
-        {"AGRICULTOR_COSECHA", 0},
-        {"AGRICULTOR_VENTA_FERIANTE", 0},
-        {"AGRICULTOR_INVENTARIO_VENCIDO", 0}
-    };
-
-    std::map<std::string, double> event_type_time = {
-        {"FERIANTE_COMPRA_MAYORISTA", 0.0},
-        {"FERIANTE_VENTA_CONSUMIDOR", 0.0},
-        {"FERIANTE_PROCESS_COMPRA_MAYORISTA", 0.0},
-        {"FERIANTE_COMPRA_MAYORISTA", 0.0},
-        {"CONSUMIDOR_BUSCAR_FERIANTE", 0.0},
-        {"CONSUMIDOR_INIT_COMPRA_FERIANTE", 0.0},
-        {"CONSUMIDOR_PROCESAR_COMPRA_FERIANTE", 0.0},
-        {"CONSUMIDOR_COMPRA_FERIANTE", 0.0},
-        {"AGRICULTOR_CULTIVO_TERRENO", 0.0},
-        {"AGRICULTOR_COSECHA", 0.0},
-        {"AGRICULTOR_VENTA_FERIANTE", 0.0},
-        {"AGRICULTOR_INVENTARIO_VENCIDO", 0.0}
-    };
-
-    events_per_ss = 0;
+    double ss_init = bsp_time();
     while (this->fel->get_time() <= next_window)
     {
 
       current_event = fel->next_event();
       agent_type = agent_type_to_agent.at(current_event->get_type());
-      ++agent_type_count[agent_type];
-      ++event_type_count[event_type_to_type.at(current_event->get_process())];
-      ++events_per_ss;
+      ++event_record.agent_type_count[agent_type];
+      ++event_record.event_type_count[event_type_to_type
+                                          .at(current_event->get_process())];
       // Para mostrar algo por consola
       if ((current_event->event_id % 10'000'000) == 0)
         printf(
             "[PROC %d/%d] - SIM TIME: %lf\tEVENT ID: %d\n", this->pid,
             this->nprocs, fel->get_time(), current_event->event_id
         );
-      auto start = std::chrono::steady_clock::now();
       this->route_event(current_event);
-      auto end = std::chrono::steady_clock::now();
-      double duration_ms =
-          std::chrono::duration_cast<std::chrono::microseconds>(end - start)
-              .count() /
-          1000.0;
-      event_type_time[event_type_to_type.at(current_event->get_process())] +=
-          duration_ms;
       this->fel->event_pool.release(current_event);
       // delete current_event;
     }
+    double end_ss_exec = bsp_time();
     // Aumentamos el contador de super pasos
     nsteps++;
 
-    // Actualizamos los contadores globales
-    for (const auto &[agent, count] : agent_type_count)
-    {
-      agent_type_count_global[agent] += count;
-    }
-    for (const auto &[event_type, count] : event_type_count)
-    {
-      event_type_count_global[event_type] += count;
-      event_type_time_global[event_type] += event_type_time[event_type];
-    }
     // Actualizamos la próxima ventana
     next_window += window_size;
-    // Imprimimos la cantidad de eventos procesados en el SS
-    // para efectos de debug
-
-    printf(
-        "[PROC: %d] || \t- SS: %d\t- Eventos procesados: %d\n ", this->pid,
-        nsteps, events_per_ss
-    );
-
-    printf("\n[PROC: %d] || Event Timing Statistics:\n", this->pid);
-    printf("%-40s %10s\n", "Event Type", "Time (ms)");
-    printf("%s\n", std::string(50, '-').c_str());
-
-    // Print each group with its events
-    printf("\nFERIANTE Events:\n");
-    for (const auto &pair : event_type_time)
-    {
-      if (pair.first.find("FERIANTE") == 0)
-      {
-        printf(
-            "[PROC: %d] || %-40s %10.3f\n", this->pid, pair.first.c_str(),
-            pair.second
-        );
-      }
-    }
-
-    printf("\n[PROC: %d] || CONSUMIDOR Events:\n", this->pid);
-    for (const auto &pair : event_type_time)
-    {
-      if (pair.first.find("CONSUMIDOR") == 0)
-      {
-        printf(
-            "[PROC: %d] || %-40s %10.3f\n", this->pid, pair.first.c_str(),
-            pair.second
-        );
-      }
-    }
-
-    printf("\nAGRICULTOR Events:\n");
-    for (const auto &pair : event_type_time)
-    {
-      if (pair.first.find("AGRICULTOR") == 0)
-      {
-        printf(
-            "[PROC: %d] || %-40s %10.3f\n", this->pid, pair.first.c_str(),
-            pair.second
-        );
-      }
-    }
-
-    // Procesamos colas de entrada y de salida
 
     // Mandamos mensajes de salida
     for (auto &[proc, messages] : this->out_queue)
     {
-      MessageSerializer::send(messages, proc);
+      MessageSerializer::send(std::move(messages), proc);
       messages.clear();
     }
     // auto start = std::chrono::high_resolution_clock::now();
@@ -488,16 +346,19 @@ void ParallelSimulation::run()
     // Enviamos y recibimos todos los mensajes
     bsp_sync();
     stop = bsp_time();
-    // auto stop = std::chrono::high_resolution_clock::now();
-    // total_sync_time +=
-    //     std::chrono::duration_cast<std::chrono::microseconds>(stop - start)
-    //         .count();
-    total_sync_time += (stop - start);
-    std::vector<Message> incoming = MessageSerializer::receive();
-    printf("INCOMING SIZE: %ld\n", incoming.size());
-    for (auto msg : incoming)
-      this->message_handler(msg);
 
+    total_sync_time += (stop - start);
+    time_record.exec_time = (end_ss_exec - ss_init);
+    time_record.sync_time = (stop - start);
+
+    std::vector<Message> incoming = MessageSerializer::receive();
+    // printf("INCOMING SIZE: %ld\n", incoming.size());
+    for (auto msg : incoming)
+    {
+      this->message_handler(msg);
+    }
+
+    // printf("[PROC %d] || size fel %ld\n", this->pid, this->fel->get_size());
     // Si se cumple la frecuencia, actualizamos
     if ((nsteps % this->GVT_CALCULATION_FREQ) == 0)
     {
@@ -507,14 +368,20 @@ void ParallelSimulation::run()
           this->fel->get_time(), nsteps
       );
     }
+
+    this->monitor->add_event_record(event_record);
+    this->monitor->add_time_record(time_record);
   }
   time_t t_end = time(NULL);
 
   bsp_sync();
+  this->monitor->write_duration(t_end - t_init);
+  this->monitor->write_results();
   printf(
       "[PROC %d] WALL_TIME: %ld\tBSP_TIME: %lf\tSYNC_TIME: %ld[microseconds]\n",
       this->pid, t_end - t_init, bsp_time(), total_sync_time
   );
+  printf("[PROD %d] Last Event ID: %d\n", this->pid, current_event->event_id);
 }
 
 void ParallelSimulation::route_event(Event *e)
@@ -525,7 +392,7 @@ void ParallelSimulation::route_event(Event *e)
   //     e->get_type(), e->get_process()
   // );
   // Manejamos cada evento según su tipo
-  switch (e->get_type())
+  /**switch (e->get_type())
   {
   case AGENT_TYPE::AMBIENTE:
   {
@@ -584,9 +451,8 @@ void ParallelSimulation::route_event(Event *e)
         {
           agro = this->agricultor_arr[agr_id];
           Inventario inv = agro->get_inventory_by_id(prod_id);
-          // Si el agricultor no tiene inventario válido, seguimos hasta
-          // encontrar
-          if (!inv.is_valid_inventory() || amount < inv.get_quantity())
+          // Si el agricultor no tiene inventario válido o cantidad insuficiente, seguimos buscando
+          if (!inv.is_valid_inventory() || inv.get_quantity() < amount)
             continue;
 
           // Si efectivamente tiene, dejamos que procese la compra
@@ -662,7 +528,8 @@ void ParallelSimulation::route_event(Event *e)
     Agent *caller = e->get_caller_ptr();
     caller->process_event(e);
   }
-  }
+  }**/
+  event_handlers.handle(this, e);
 }
 
 void ParallelSimulation::message_handler(Message &msg)
@@ -725,30 +592,32 @@ void ParallelSimulation::read_ferias()
     );
 
     std::unordered_map<int, std::vector<Feria *>> ferias_per_proc;
-    ferias_per_proc = feria_partitioner.partition_items(this->nprocs);
+    ferias_per_proc = feria_partitioner.partition_items(
+        this->nprocs, 0, 1, 2000, 1e-5, 0.99, true
+    );
 
     // Generamos un arreglo equivalente, pero solo con los IDs
     // (mejor para el envío de mensajes)
 
     std::unordered_map<int, std::vector<int>> ferias_id_per_proc;
-    std::cout << "Ferias per proc: \n";
+    // std::cout << "Ferias per proc: \n";
     for (auto const &[proc, ferias] : ferias_per_proc)
     {
       ferias_id_per_proc[proc] = std::vector<int>(ferias.size(), 0);
-      std::cout << "PROC: " << proc << "\t";
+      //   std::cout << "PROC: " << proc << "\t";
       for (size_t i = 0; i < ferias.size(); ++i)
       {
-        std::cout << ferias[i]->get_id() << " ";
+        //     std::cout << ferias[i]->get_id() << " ";
         ferias_id_per_proc[proc].at(i) = ferias[i]->get_id();
       }
-      std::cout << std::endl;
+      //   std::cout << std::endl;
     }
 
     // Mandamos los mensajes
-
+    int tag = 0;
     for (int i = 0; i < this->nprocs; ++i)
       bsp_send(
-          i, nullptr, ferias_id_per_proc[i].data(),
+          i, &tag, ferias_id_per_proc[i].data(),
           ferias_id_per_proc[i].size() * sizeof(int)
       );
   }
@@ -850,14 +719,18 @@ void ParallelSimulation::read_products()
         this->productos, product_objective_function
     );
     std::unordered_map<int, std::vector<Producto *>> prods_por_proc;
-    prods_por_proc = product_partitioner.partition_items(this->nprocs);
+    prods_por_proc = product_partitioner.partition_items(
+        this->nprocs, 0, 2, 2000, 1e-5, 0.98, true
+    );
     this->prods_per_proc = prods_por_proc;
     std::cout << "Prods por proc:\n";
     for (auto const &[proc, prods] : prods_por_proc)
     {
       std::cout << "PROC: " << proc << "\t";
       for (auto const prod : prods)
-        std::cout << prod->get_id() << " ";
+      {
+        std::cout << prod->get_id() << " (" << prod->get_nombre() << "), ";
+      }
       std::cout << "\n";
     }
     // Ahora que tenemos qué productos van en qué procesador,
@@ -1029,7 +902,6 @@ void ParallelSimulation::read_terrenos()
     output = output + "TERR_ID: " + std::to_string(id) + "-" +
              "PROD_ID: " + std::to_string(terr->get_producto()) + "\t";
   }
-  printf("%s\n", output.c_str());
   bsp_sync();
 }
 
@@ -1091,6 +963,23 @@ void ParallelSimulation::initialize_agents(MercadoMayorista *_mer)
 
   std::cout << "Cantidad de agricultores " << this->agricultores.size()
             << std::endl;
+
+  // Si no es agricultor de riesgo, nos da lo mismo las amenazas
+  if (agricultor_type != "risk")
+    return;
+
+  // Inicializamos la info para amenazas
+
+  std::ifstream frost(config["frost_file"].get<std::string>());
+  this->env->set_heladas_nivel(json::parse(frost));
+
+  std::ifstream oc(config["oc_file"].get<std::string>());
+  json oc_json = json::parse(oc);
+  this->env->set_oc_nivel(oc_json["levels"].get<std::vector<int>>());
+
+  std::ifstream spi(config["spi_file"].get<std::string>());
+  json spi_json = json::parse(spi);
+  this->env->set_sequias_nivel(spi_json["levels"].get<std::vector<int>>());
 }
 
 void ParallelSimulation::update_gvt()
@@ -1120,6 +1009,355 @@ void ParallelSimulation::update_gvt()
   }
   printf("NUEVO GVT: %lf\n", this->gvt);
   this->gvt = lvt;
+}
+
+void ParallelSimulation::initialize_event_handlers()
+{
+  // AMBIENTE Events
+  event_handlers.register_handler(
+      AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::INICIO_FERIA,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        // Environment events are always processed locally
+        sim->env->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::FIN_FERIA,
+      [](ParallelSimulation *sim, Event *e) { sim->env->process_event(e); }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::CALCULO_PRECIOS,
+      [](ParallelSimulation *sim, Event *e) { sim->env->process_event(e); }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::LIMPIEZA_MERCADO_MAYORISTA,
+      [](ParallelSimulation *sim, Event *e) { sim->env->process_event(e); }
+  );
+
+  // AGRICULTOR Events
+  event_handlers.register_handler(
+      AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::CULTIVO_TERRENO,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        // Standard agricultor event - process locally
+        Agricultor *agr = sim->agricultor_arr.at(e->get_caller_id());
+        agr->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::COSECHA,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        // Check if we need to route to a different processor
+        Message msg = e->get_message();
+        msg.insert(MESSAGE_KEYS::ORIGIN_PID, (double)sim->get_pid());
+        int new_prod_id = sim->agricultor_arr.at(e->get_caller_id())
+                              ->get_terreno()
+                              ->get_producto();
+        msg.insert(MESSAGE_KEYS::AGENT_ID, e->get_caller_id());
+        msg.insert(MESSAGE_KEYS::AGENT_TYPE, AGENT_TYPE::AGRICULTOR);
+        msg.insert(MESSAGE_KEYS::PROCESS, EVENTOS_AGRICULTOR::COSECHA);
+        int target_proc = sim->proc_per_prod.at(new_prod_id);
+        if (target_proc != sim->pid)
+        {
+          // Send to the processor that handles this product
+          sim->out_queue[target_proc].push_back(msg);
+        }
+        else
+        {
+          // Process locally
+          Agricultor *agr = sim->agricultor_arr[e->get_caller_id()];
+          agr->process_event(e);
+        }
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::VENTA_FERIANTE,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        // Handle feriante purchasing from agricultor
+        Message msg = e->get_message();
+        int prod_id = (int)msg.find(MESSAGE_KEYS::PROD_ID);
+        
+        // Get product name for debugging
+        std::string prod_name = "unknown";
+        try {
+          Producto* producto = sim->productos.at(prod_id);
+          if (producto) {
+            prod_name = producto->get_nombre();
+          }
+        } catch (const std::exception& e) {
+          // Handle error silently
+        }
+        
+        // Debug problematic products
+        bool is_problematic = (prod_name == "Ajo" || prod_name == "Alcachofa" || 
+                              prod_name == "Arveja Verde" || prod_name == "Choclo" || 
+                              prod_name == "Frutilla" || prod_name == "Haba" || 
+                              prod_name == "Pepino ensalada" || prod_name == "Tomate");
+        
+        if (is_problematic) {
+          printf("[DEBUG] Processing VENTA_FERIANTE for problematic product %d (%s)\n", 
+                 prod_id, prod_name.c_str());
+        }
+        
+        int target_proc = sim->proc_per_prod.at(prod_id);
+
+        if (target_proc == sim->pid)
+        {
+          // Local processing
+          double amount = msg.find(MESSAGE_KEYS::AMOUNT);
+          // Get available agricultores for this product
+          std::vector<int> agros_id =
+              sim->mercado->get_agricultor_por_prod(prod_id);
+              
+          if (is_problematic) {
+            printf("[DEBUG] Product %d (%s) - Found %zu agricultores with inventory\n", 
+                   prod_id, prod_name.c_str(), agros_id.size());
+          }
+
+          // Find an agricultor with sufficient inventory
+          Agricultor *agro;
+          bool found_valid_inventory = false;
+          
+          for (const auto &agr_id : agros_id)
+          {
+            agro = sim->agricultor_arr[agr_id];
+            Inventario inv = agro->get_inventory_by_id(prod_id);
+            double quantity = inv.get_quantity();
+            
+            if (is_problematic) {
+              printf("[DEBUG] Product %d (%s) - Agricultor %d inventory: valid=%d, quantity=%.2f, needed=%.2f\n",
+                     prod_id, prod_name.c_str(), agr_id, inv.is_valid_inventory(), quantity, amount);
+            }
+            
+            // Skip if inventory is invalid or insufficient
+            if (!inv.is_valid_inventory() || quantity < amount)
+              continue;
+              
+            // Found a suitable agricultor, process the sale
+            if (is_problematic) {
+              printf("[DEBUG] Product %d (%s) - Found valid inventory, processing sale\n", 
+                     prod_id, prod_name.c_str());
+            }
+            
+            found_valid_inventory = true;
+            agro->process_event(e);
+            return;
+          }
+          
+          if (is_problematic && !found_valid_inventory) {
+            printf("[DEBUG] Product %d (%s) - NO VALID INVENTORY FOUND\n", 
+                   prod_id, prod_name.c_str());
+          }
+          
+          return;
+        }
+        else
+        {
+          // Route to appropriate processor
+          msg.insert(MESSAGE_KEYS::ORIGIN_PID, (double)sim->pid);
+          
+          if (is_problematic) {
+            printf("[DEBUG] Product %d (%s) - Routing to processor %d from %d\n", 
+                   prod_id, prod_name.c_str(), target_proc, sim->pid);
+          }
+          
+          auto origin_pid = msg.find(MESSAGE_KEYS::ORIGIN_PID);
+          msg.insert(MESSAGE_KEYS::AGENT_TYPE, AGENT_TYPE::FERIANTE);
+          msg.insert(
+              MESSAGE_KEYS::PROCESS, EVENTOS_FERIANTE::PROCESS_COMPRA_MAYORISTA
+          );
+          sim->out_queue[target_proc].push_back(msg);
+        }
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::INVENTARIO_VENCIDO,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        // Standard event - process locally
+        Agricultor *agr = sim->agricultor_arr.at(e->get_caller_id());
+        agr->process_event(e);
+      }
+  );
+
+  // FERIANTE Events
+  event_handlers.register_handler(
+      AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::COMPRA_MAYORISTA,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        Message msg = e->get_message();
+        msg.insert(MESSAGE_KEYS::ORIGIN_PID, sim->pid);
+        // Standard feriante event - process locally
+        int feriante_id = e->get_caller_id();
+        sim->feriante_arr.at(feriante_id)->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::VENTA_CONSUMIDOR,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        // Standard feriante event - process locally
+        int feriante_id = e->get_caller_id();
+        sim->feriante_arr.at(feriante_id)->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::PROCESS_COMPRA_MAYORISTA,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        // Complex case - may need routing to another processor
+        Message msg = e->get_message();
+        int origin_pid = (int)msg.find(MESSAGE_KEYS::ORIGIN_PID);
+        // Check if this message is from another processor
+        if (origin_pid != sim->pid && origin_pid != -1)
+        {
+          int prod_id = (int)msg.find(MESSAGE_KEYS::PROD_ID);
+          auto seller = (int)msg.find(MESSAGE_KEYS::SELLER_ID);
+          auto buery = (int)msg.find(MESSAGE_KEYS::BUYER_ID);
+          auto error = msg.find(MESSAGE_KEYS::ERROR);
+          int target_proc = sim->proc_per_prod.at(prod_id);
+          // if (origin_pid < 0)
+          // printf(
+          //     "ORIGIN PID EN PROCESS_COMPRA_MAYORISTA: %lf BUYER_ID: %d "
+          //     "SELLER_ID: %d PROD_ID: %d\n",
+          //    msg.find(MESSAGE_KEYS::ORIGIN_PID), buery, seller, prod_id
+          //  );
+          sim->out_queue[origin_pid].push_back(msg);
+        }
+        else
+        {
+          // Process locally
+          int agent_id = (int)msg.find(MESSAGE_KEYS::AGENT_ID);
+          auto seller = (int)msg.find(MESSAGE_KEYS::SELLER_ID);
+          auto error = msg.find(MESSAGE_KEYS::ERROR);
+          // printf(
+          //     "Procesando respuesta exitosa de compra de feriante! "
+          //     "SELLER_ID: %d ERROR: %lf\n",
+          //     seller, error
+          //);
+          Feriante *fer = sim->feriante_arr.at(agent_id);
+          fer->process_event(e);
+        }
+      }
+  );
+
+  // CONSUMIDOR Events
+  event_handlers.register_handler(
+      AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::BUSCAR_FERIANTE,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        // Consumidor events are always local
+        Agent *caller = e->get_caller_ptr();
+        caller->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::INIT_COMPRA_FERIANTE,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        Agent *caller = e->get_caller_ptr();
+        caller->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::PROCESAR_COMPRA_FERIANTE,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        Agent *caller = e->get_caller_ptr();
+        caller->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::COMPRA_FERIANTE,
+      [](ParallelSimulation *sim, Event *e)
+      {
+        Agent *caller = e->get_caller_ptr();
+        caller->process_event(e);
+      }
+  );
+
+  // Default handler for any unregistered event types
+  event_handlers.set_default_handler(
+      [](ParallelSimulation *sim, Event *e)
+      {
+        int agent_type = e->get_type();
+        int caller_id = e->get_caller_id();
+
+        // Fall back to the standard event processing based on agent type
+        switch (agent_type)
+        {
+        case AGENT_TYPE::AMBIENTE:
+          sim->env->process_event(e);
+          break;
+
+        case AGENT_TYPE::AGRICULTOR:
+        {
+          if (caller_id >= 0 && caller_id < sim->agricultor_arr.size())
+          {
+            Agricultor *agr = sim->agricultor_arr.at(caller_id);
+            agr->process_event(e);
+          }
+          else
+          {
+            printf("Warning: Invalid agricultor ID %d\n", caller_id);
+          }
+          break;
+        }
+
+        case AGENT_TYPE::FERIANTE:
+        {
+          if (caller_id >= 0 && caller_id < sim->feriante_arr.size())
+          {
+            Feriante *fer = sim->feriante_arr.at(caller_id);
+            fer->process_event(e);
+          }
+          else
+          {
+            printf("Warning: Invalid feriante ID %d\n", caller_id);
+          }
+          break;
+        }
+
+        case AGENT_TYPE::CONSUMIDOR:
+        {
+          // Try to use caller_ptr first for safety
+          Agent *caller = e->get_caller_ptr();
+          if (caller)
+          {
+            caller->process_event(e);
+          }
+          else if (caller_id >= 0 && caller_id < sim->consumidores_arr.size())
+          {
+            Consumidor *con = sim->consumidores_arr.at(caller_id);
+            con->process_event(e);
+          }
+          else
+          {
+            printf("Warning: Invalid consumidor ID %d\n", caller_id);
+          }
+          break;
+        }
+
+        default:
+          printf("Warning: Unknown agent type %d\n", agent_type);
+          break;
+        }
+      }
+  );
 }
 
 ParallelSimulation::~ParallelSimulation() { printf("Eliminando...\n"); }

@@ -28,7 +28,10 @@ double END_SIM_TIME = 13'800;
 void spmd_part();
 int main(int argc, char *argv[])
 {
-
+  bool a = false;
+  printf("%lf\n", -(double)a);
+  std::cout << std::boolalpha;
+  std::cout << (-(double)a == -1) << "\n";
   // For parameter parsing
   int opt;
   SimConfig *sim_config;

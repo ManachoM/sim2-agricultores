@@ -1,0 +1,9 @@
+{
+  "objective_function": "weighted",
+  "neighbour_function": "next_best",
+  "operator": "move",
+  "composite_score": 0.9987232684328121,
+  "norm_score_mean": 1.0,
+  "iter_90pct_mean": 26.666666666666668,
+  "mean_cv_mean": 0.0
+}

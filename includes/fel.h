@@ -6,6 +6,8 @@
 #include "message.h"
 #include "object_pool.h"
 
+#include <cstddef>
+
 class FEL
 {
 public:
@@ -19,6 +21,8 @@ public:
   virtual double get_time() = 0;
 
   virtual bool is_empty() = 0;
+
+  virtual std::size_t get_size() = 0;
 
   int num_venta_feriante = 0;
 

@@ -1,5 +1,8 @@
 #include "../includes/heap_fel.h"
 
+#include <cstddef>
+#include <iterator>
+
 HeapFEL::HeapFEL()
 {
   // // Inicializamos los mapas para conteo -- TODO: Revisar con menos tuto
@@ -102,6 +105,8 @@ Event *HeapFEL::next_event()
 
 double HeapFEL::get_time() { return this->clock; }
 
+std::size_t HeapFEL::get_size() { return this->pq.size(); }
+
 bool HeapFEL::is_empty() { return this->pq.empty(); }
 
-HeapFEL::~HeapFEL(){};
+HeapFEL::~HeapFEL() {};

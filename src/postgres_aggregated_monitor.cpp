@@ -3,13 +3,17 @@
 #include "../includes/sim_config.h"
 
 #include <bsp.h>
+#include <cstdio>
 #include <ctime>
 #include <map>
 #include <sstream>
+#include <string>
+#include <unistd.h>
 
 // Funciones para enviar los logs entre procesadores
 void send_logs(
-    const std::map<int, std::map<std::string, double>> log, bsp_pid_t dest = 0
+    const std::map<int, std::map<std::string, double>> log, bsp_pid_t dest,
+    int tag = 0
 );
 std::map<int, std::map<std::string, double>> receive_logs();
 
@@ -36,11 +40,22 @@ std::string const insert_aggregated_product_result =
     "INSERT INTO aggregated_product_results (execution_id, process, time, "
     "product_id, value) VALUES ($1, $2, $3, $4, $5)";
 
+std::string const insert_time_record =
+    "INSERT INTO super_step_time_stat (execution_id, ss_number, proc_id, "
+    "exec_time, "
+    "sync_time) VALUES ($1, $2, $3, $4, $5)";
+
+std::string const insert_event_record =
+    "INSERT INTO super_step_event_stat (execution_id, ss_number, proc_id, "
+    "agent_type, agent_process, amount) VALUES ($1, $2, $3, $4, $5, $6)";
+
 PostgresAggregatedMonitor::PostgresAggregatedMonitor(
-    std::string const &db_url, bool _debug
+    std::string const &db_url, bool _debug, const int record_amount
 )
     : Monitor("", _debug), _database_url(db_url)
 {
+  this->event_records.reserve(record_amount);
+  this->time_records.reserve(record_amount);
   // Inicializamos el objeto con agregaciones de productos
   this->agg_logs["AGRICULTOR"] = std::map<int, std::map<std::string, double>>();
   this->agg_logs["FERIANTE"] = std::map<int, std::map<std::string, double>>();
@@ -53,74 +68,122 @@ PostgresAggregatedMonitor::PostgresAggregatedMonitor(
     this->agg_logs["CONSUMIDOR"][0][std::to_string(i)] = 0;
   }
 
-  if (bsp_pid() != 0)
-    return;
-
   json conf = SimConfig::get_instance()->get_config();
 
   if (this->_database_url == "")
     this->_database_url = conf["DB_URL"].get<std::string>();
+  printf("%s\n", this->_database_url.c_str());
+  // Set the tag size to sizeof(int) to allow for message type identification
+  int tag_size = sizeof(int);
+  bsp_set_tagsize(&tag_size);
 
-  // Generamos la conexión
-  pqxx::connection conn(this->_database_url);
-
-  // Preparamos las queries
-  conn.prepare("insert_execution", insert_execution);
-  conn.prepare("insert_exec_param", insert_execution_params);
-
-  // Registramos la ejecución y sus parámetros
-  pqxx::work t{conn};
-  std::string now = get_current_timestamp().c_str();
-
-  this->execution_id =
-      t.exec_prepared1("insert_execution", get_current_timestamp().c_str())[0]
-          .as<int>();
-  for (auto it = conf.begin(); it != conf.end(); ++it)
+  bsp_sync();
+  if (bsp_pid() == 0)
   {
-    if (it.key() == "DB_URL")
-      continue;
+    // Generamos la conexión
+    pqxx::connection conn(this->_database_url);
 
-    auto value = it.value();
-    std::string str_val;
-    if (value.is_boolean())
+    // Preparamos las queries
+    conn.prepare("insert_execution", insert_execution);
+    conn.prepare("insert_exec_param", insert_execution_params);
+
+    // Registramos la ejecución y sus parámetros
+    pqxx::work t{conn};
+    std::string now = get_current_timestamp().c_str();
+
+    this->execution_id =
+        t.exec_prepared1("insert_execution", get_current_timestamp().c_str())[0]
+            .as<int>();
+    for (auto it = conf.begin(); it != conf.end(); ++it)
     {
-      str_val = value.get<bool>() ? "true" : "false";
+      if (it.key() == "DB_URL")
+        continue;
+
+      auto value = it.value();
+      std::string str_val;
+      if (value.is_boolean())
+      {
+        str_val = value.get<bool>() ? "true" : "false";
+      }
+      else if (value.is_number_integer())
+      {
+        str_val = std::to_string(value.get<int>());
+      }
+      else if (value.is_number_float())
+      {
+        str_val = std::to_string(value.get<double>());
+      }
+      else if (value.is_string())
+      {
+        str_val = value.get<std::string>();
+      }
+      else
+      {
+        throw std::logic_error(
+            "Tipo de variable de configuración no soportado.\n"
+        );
+      }
+
+      t.exec_prepared0(
+          "insert_exec_param", this->execution_id, it.key().c_str(),
+          str_val.c_str()
+      );
     }
-    else if (value.is_number_integer())
+    // Guardamos el nombre del archivo de config
+    t.exec_prepared0(
+        "insert_exec_param", this->execution_id, "sim_config_file",
+        SimConfig::get_instance()->get_config_file_path()
+    );
+
+    // Commit y cerrar la conexión
+    t.commit();
+
+    // ahora mandamos el execution_id a todos los otros procs
+    int nprocs = bsp_nprocs();
+    int value = this->execution_id;
+    int tag = 0; // Tag for execution_id message
+    for (int i = 1; i < nprocs; ++i)
     {
-      str_val = std::to_string(value.get<int>());
+      bsp_send(i, &tag, &value, sizeof(int));
     }
-    else if (value.is_number_float())
+  }
+  bsp_sync();
+  if (bsp_pid() != 0)
+  {
+    // Each non-root process checks its message queue.
+    bsp_nprocs_t nmsgs;
+    bsp_size_t totalPayload;
+    bsp_qsize(&nmsgs, &totalPayload);
+    if (nmsgs > 0 && totalPayload == sizeof(int))
     {
-      str_val = std::to_string(value.get<double>());
-    }
-    else if (value.is_string())
-    {
-      str_val = value.get<std::string>();
+      int received_value = 0;
+      bsp_move(&received_value, sizeof(int));
+      this->execution_id = received_value;
     }
     else
     {
-      throw std::logic_error("Tipo de variable de configuración no soportado.\n"
-      );
+      printf("Process %d: No message received.\n", bsp_pid());
     }
-
-    t.exec_prepared0(
-        "insert_exec_param", this->execution_id, it.key().c_str(),
-        str_val.c_str()
-    );
   }
-  // Guardamos el nombre del archivo de config
-  t.exec_prepared0(
-      "insert_exec_param", this->execution_id, "sim_config_file",
-      SimConfig::get_instance()->get_config_file_path()
-  );
+  printf("Execution id %d\n", this->execution_id);
+  bsp_sync();
+}
 
-  // Commit y cerrar la conexión
-  t.commit();
+void PostgresAggregatedMonitor::add_event_record(SSEventRecord e)
+{
+  this->event_records.push_back(e);
+}
+
+void PostgresAggregatedMonitor::add_time_record(SSTimeRecord e)
+{
+  this->time_records.push_back(e);
 }
 
 void PostgresAggregatedMonitor::write_duration(double time)
 {
+  if (bsp_pid() != 0)
+    return;
+  printf("on write_duration %s\n", this->_database_url.c_str());
   pqxx::connection conn(this->_database_url);
   conn.prepare("update_execution_duration", update_execution_duration);
   conn.prepare("update_finished_execution", update_finished_execution);
@@ -196,7 +259,11 @@ void PostgresAggregatedMonitor::write_log(json &log)
       std::cerr << e.what() << '\n';
       return;
     }
-
+    // printf(
+    //     "Registrando compra a agricultor ID Agro: %d ID Prod: %d Amount:
+    //     %lf\n", log["id_agricultor"].get<int>(),
+    //     log["target_product"].get<int>(), log["target_amount"].get<double>()
+    //);
     std::string target_prod = std::to_string(log["target_product"].get<int>());
     double cantidad = log["target_amount"].get<double>();
     this->agg_logs["FERIANTE"][month_n][target_prod] += cantidad;
@@ -257,6 +324,11 @@ void PostgresAggregatedMonitor::write_log(json &log)
 
 void PostgresAggregatedMonitor::write_results()
 {
+  // Definimos constantes para los tipos de proceso para evitar inconsistencias
+  const std::string PROCESS_FERIANTE = "COMPRA DE FERIANTE A AGRICULTOR";
+  const std::string PROCESS_CONSUMIDOR = "COMPRA DE CONSUMIDOR";
+  const std::string PROCESS_AGRICULTOR = "COSECHA AGRICULTOR";
+
   // Si somos el procesador principal, escribimos nuestros resultados primero
   if (bsp_pid() == 0)
   {
@@ -275,7 +347,7 @@ void PostgresAggregatedMonitor::write_results()
       {
         t.exec_prepared0(
             "insert_aggregated_product_result", this->execution_id,
-            "COMPRA DE FERIANTE A AGRICULTOR", month, prod_id, cantidad
+            PROCESS_FERIANTE, month, prod_id, cantidad
         );
       }
     }
@@ -286,7 +358,7 @@ void PostgresAggregatedMonitor::write_results()
       {
         t.exec_prepared0(
             "insert_aggregated_product_result", this->execution_id,
-            "COMPRA DE CONSUMIDOR", month, prod_id, cantidad
+            PROCESS_CONSUMIDOR, month, prod_id, cantidad
         );
       }
     }
@@ -297,16 +369,59 @@ void PostgresAggregatedMonitor::write_results()
       {
         t.exec_prepared0(
             "insert_aggregated_product_result", this->execution_id,
-            "COSECHA AGRICULTOR", month, prod_id, cantidad
+            PROCESS_AGRICULTOR, month, prod_id, cantidad
         );
       }
     }
     t.commit();
   }
-  // Si no somos, enviamos nuestros logs y sincronizamos
-  else
+
+  // Estructura para almacenar datos a enviar a proceso 0
+  struct AgentLogData
   {
-    send_logs(this->agg_logs["FERIANTE"]);
+    std::string agent_type;
+    std::map<int, std::map<std::string, double>> log_data;
+  };
+
+  // Recolectamos todos los datos de todos los procesadores
+  std::vector<AgentLogData> logs_to_send;
+
+  // Si no somos el procesador 0, enviamos todos nuestros logs
+  if (bsp_pid() != 0)
+  {
+    // Agregamos cada tipo de agente a nuestra colección para enviar
+    if (!this->agg_logs["FERIANTE"].empty())
+    {
+      logs_to_send.push_back({"FERIANTE", this->agg_logs["FERIANTE"]});
+    }
+
+    if (!this->agg_logs["CONSUMIDOR"].empty())
+    {
+      logs_to_send.push_back({"CONSUMIDOR", this->agg_logs["CONSUMIDOR"]});
+    }
+
+    if (!this->agg_logs["AGRICULTOR"].empty())
+    {
+      logs_to_send.push_back({"AGRICULTOR", this->agg_logs["AGRICULTOR"]});
+    }
+
+    // Enviamos todos los logs en un solo paso, con una etiqueta con el tipo de
+    // agente
+    for (const auto &log_data : logs_to_send)
+    {
+      // Creamos una etiqueta con el tipo de agente (FERIANTE, CONSUMIDOR,
+      // AGRICULTOR)
+      int agent_type_tag = 0;
+      if (log_data.agent_type == "FERIANTE")
+        agent_type_tag = 1;
+      else if (log_data.agent_type == "CONSUMIDOR")
+        agent_type_tag = 2;
+      else if (log_data.agent_type == "AGRICULTOR")
+        agent_type_tag = 3;
+
+      // Enviamos el log con la etiqueta correspondiente
+      send_logs(log_data.log_data, 0, agent_type_tag);
+    }
   }
 
   bsp_sync();
@@ -314,7 +429,7 @@ void PostgresAggregatedMonitor::write_results()
   // Recibimos los logs, los parseamos y los guardamos en la DB
   if (bsp_pid() == 0)
   {
-    // Preparamos la conexión;
+    // Preparamos la conexión una sola vez para toda la operación
     pqxx::connection conn(this->_database_url);
     conn.prepare(
         "insert_aggregated_product_result", insert_aggregated_product_result
@@ -324,19 +439,32 @@ void PostgresAggregatedMonitor::write_results()
     bsp_size_t num_messages, total_bytes;
     bsp_qsize(&num_messages, &total_bytes);
 
+    // Preparamos una sola transacción para toda la operación
+    pqxx::work t{conn};
+
     for (bsp_size_t i = 0; i < num_messages; ++i)
     {
-      bsp_size_t status;
-      bsp_get_tag(status, nullptr);
-      pqxx::work t{conn};
+      bsp_size_t status, tag;
+      bsp_get_tag(&status, &tag);
+
+      // Determinamos el tipo de proceso basado en la etiqueta recibida
+      std::string process_type;
+      if (tag == 1)
+        process_type = PROCESS_FERIANTE;
+      else if (tag == 2)
+        process_type = PROCESS_CONSUMIDOR;
+      else if (tag == 3)
+        process_type = PROCESS_AGRICULTOR;
+      else
+        continue; // Ignoramos mensajes con etiquetas desconocidas
 
       std::vector<char> buffer(status);
       bsp_move(buffer.data(), status);
 
       // Deserialización
-
       std::map<int, std::map<std::string, double>> data;
-      std::istringstream iss;
+      std::string bufferStr(buffer.begin(), buffer.end());
+      std::istringstream iss(bufferStr);
       std::string outer_token;
       while (std::getline(iss, outer_token, ';'))
       {
@@ -364,159 +492,73 @@ void PostgresAggregatedMonitor::write_results()
         }
       }
 
-      // Ahora que data tiene el log recibido, lo guardamos
+      // Ahora que data tiene el log recibido, lo guardamos con el tipo de
+      // proceso correcto
       for (auto const &[month, cantidad_por_prod] : data)
       {
         for (auto const &[prod_id, cantidad] : cantidad_por_prod)
         {
           t.exec_prepared0(
               "insert_aggregated_product_result", this->execution_id,
-              "COMPRA DE FERIANTE A AGRICULTOR", month, prod_id, cantidad
+              process_type, month, prod_id, cantidad
           );
         }
       }
     }
+
+    // Commit de todos los inserts en una sola transacción
+    t.commit();
   }
-  else
-    send_logs(this->agg_logs["CONSUMIDOR"]);
 
   bsp_sync();
 
-  // Recibimos los logs, los parseamos y los guardamos en la DB
-  if (bsp_pid() == 0)
+  // this->gather_records();
+
+  /// if (bsp_pid() == 0)
+  //{
+
+  // Ahora guardamos los registros de cada SS
+  // Esto genera una conexión por LP
+  // OJO!!!!👀
+  pqxx::connection conn(this->_database_url);
+  conn.prepare("insert_event_record", insert_event_record);
+
+  conn.prepare("insert_time_record", insert_time_record);
+
+  // Primero por los de tiempo, que son los más sencillos
+  pqxx::work t{conn};
+  for (auto event : this->time_records)
   {
-    // Preparamos la conexión;
-    pqxx::connection conn(this->_database_url);
-    conn.prepare(
-        "insert_aggregated_product_result", insert_aggregated_product_result
+    t.exec_prepared0(
+        "insert_time_record", this->execution_id, event.ss_number,
+        event.proc_id, event.exec_time, event.sync_time
     );
-
-    // Recibimos los mensajes
-    bsp_size_t num_messages, total_bytes;
-    bsp_qsize(&num_messages, &total_bytes);
-
-    for (bsp_size_t i = 0; i < num_messages; ++i)
-    {
-      bsp_size_t status;
-      bsp_get_tag(status, nullptr);
-      pqxx::work t{conn};
-
-      std::vector<char> buffer(status);
-      bsp_move(buffer.data(), status);
-
-      // Deserialización
-
-      std::map<int, std::map<std::string, double>> data;
-      std::istringstream iss;
-      std::string outer_token;
-      while (std::getline(iss, outer_token, ';'))
-      {
-        std::istringstream outerStream(outer_token);
-        std::string keyPart, innerData;
-        if (std::getline(outerStream, keyPart, '|') &&
-            std::getline(outerStream, innerData))
-        {
-          int outerKey = std::stoi(keyPart);
-          std::map<std::string, double> innerMap;
-
-          std::istringstream innerStream(innerData);
-          std::string innerToken;
-          while (std::getline(innerStream, innerToken, ','))
-          {
-            size_t pos = innerToken.find(":");
-            if (pos != std::string::npos)
-            {
-              std::string innerKey = innerToken.substr(0, pos);
-              double innerValue = std::stod(innerToken.substr(pos + 1));
-              innerMap[innerKey] = innerValue;
-            }
-          }
-          data[outerKey] = innerMap;
-        }
-      }
-
-      // Ahora que data tiene el log recibido, lo guardamos
-      for (auto const &[month, cantidad_por_prod] : data)
-      {
-        for (auto const &[prod_id, cantidad] : cantidad_por_prod)
-        {
-          t.exec_prepared0(
-              "insert_aggregated_product_result", this->execution_id,
-              "COMPRA DE CONSUMIDOR", month, prod_id, cantidad
-          );
-        }
-      }
-    }
   }
-  else
-    send_logs(this->agg_logs["AGRICULTOR"]);
+  t.commit();
 
+  // Ahora vamos con los de evento
+  for (auto event : this->event_records)
+  {
+    for (auto event_type_record : event.event_type_count)
+    {
+      t.exec_prepared0(
+          "insert_event_record", this->execution_id, event.ss_number,
+          event.proc_id, "", event_type_record.first, event_type_record.second
+      );
+    }
+
+    for (auto agent_type_record : event.agent_type_count)
+    {
+      t.exec_prepared0(
+          "insert_event_record", this->execution_id, event.ss_number,
+          event.proc_id, agent_type_record.first, "", agent_type_record.second
+      );
+    }
+
+    t.commit();
+  }
+  //}
   bsp_sync();
-  if (bsp_pid() == 0)
-  {
-    // Preparamos la conexión;
-    pqxx::connection conn(this->_database_url);
-    conn.prepare(
-        "insert_aggregated_product_result", insert_aggregated_product_result
-    );
-
-    // Recibimos los mensajes
-    bsp_size_t num_messages, total_bytes;
-    bsp_qsize(&num_messages, &total_bytes);
-
-    for (bsp_size_t i = 0; i < num_messages; ++i)
-    {
-      bsp_size_t status;
-      bsp_get_tag(status, nullptr);
-      pqxx::work t{conn};
-
-      std::vector<char> buffer(status);
-      bsp_move(buffer.data(), status);
-
-      // Deserialización
-
-      std::map<int, std::map<std::string, double>> data;
-      std::istringstream iss;
-      std::string outer_token;
-      while (std::getline(iss, outer_token, ';'))
-      {
-        std::istringstream outerStream(outer_token);
-        std::string keyPart, innerData;
-        if (std::getline(outerStream, keyPart, '|') &&
-            std::getline(outerStream, innerData))
-        {
-          int outerKey = std::stoi(keyPart);
-          std::map<std::string, double> innerMap;
-
-          std::istringstream innerStream(innerData);
-          std::string innerToken;
-          while (std::getline(innerStream, innerToken, ','))
-          {
-            size_t pos = innerToken.find(":");
-            if (pos != std::string::npos)
-            {
-              std::string innerKey = innerToken.substr(0, pos);
-              double innerValue = std::stod(innerToken.substr(pos + 1));
-              innerMap[innerKey] = innerValue;
-            }
-          }
-          data[outerKey] = innerMap;
-        }
-      }
-
-      // Ahora que data tiene el log recibido, lo guardamos
-      for (auto const &[month, cantidad_por_prod] : data)
-      {
-        for (auto const &[prod_id, cantidad] : cantidad_por_prod)
-        {
-          t.exec_prepared0(
-              "insert_aggregated_product_result", this->execution_id,
-              "COSECHA DE AGRICULTOR", month, prod_id, cantidad
-          );
-        }
-      }
-    }
-  }
 }
 
 void PostgresAggregatedMonitor::write_params(
@@ -583,7 +625,8 @@ std::string PostgresAggregatedMonitor::get_current_timestamp()
 }
 
 void send_logs(
-    const std::map<int, std::map<std::string, double>> log, bsp_pid_t dest
+    const std::map<int, std::map<std::string, double>> log, bsp_pid_t dest,
+    int tag = 0
 )
 {
   // Serializamos el mensaje
@@ -599,8 +642,8 @@ void send_logs(
   }
   std::string msg = oss.str();
 
-  // Enviamos el mensaje usando bsp_send;
-  bsp_send(dest, nullptr, msg.data(), msg.size());
+  // Enviamos el mensaje usando bsp_send con el tag proporcionado
+  bsp_send(dest, &tag, msg.data(), msg.size());
 }
 
 std::map<int, std::map<std::string, double>> receive_logs()
@@ -613,14 +656,15 @@ std::map<int, std::map<std::string, double>> receive_logs()
     return {}; // No messages received
   }
 
-  bsp_size_t status;
-  bsp_get_tag(&status, nullptr); // Get the payload size
+  bsp_size_t status, tag;
+  bsp_get_tag(&status, &tag); // Get the payload size
 
   std::vector<char> buffer(status);
   bsp_move(buffer.data(), status);
   // Deserialización
   std::map<int, std::map<std::string, double>> data;
-  std::istringstream iss;
+  std::string bufferStr(buffer.begin(), buffer.end());
+  std::istringstream iss(bufferStr);
   std::string outer_token;
   while (std::getline(iss, outer_token, ';'))
   {
@@ -648,4 +692,107 @@ std::map<int, std::map<std::string, double>> receive_logs()
     }
   }
   return data;
+}
+
+void PostgresAggregatedMonitor::gather_records()
+{
+  // Tag size already set in constructor to sizeof(int)
+  bsp_sync();
+
+  int pid = bsp_pid();
+  printf("entrando a gather_records\n");
+  // Non-root processors send their records to process 0.
+  if (pid != 0)
+  {
+    // --- Send time records ---
+    int timeCount = time_records.size();
+    // Tag '1' identifies time record messages.
+    int tag = 1;
+    if (timeCount > 0)
+      bsp_send(0, &tag, time_records.data(), timeCount * sizeof(SSTimeRecord));
+    printf("%d mandando time_records\n", pid);
+    // --- Send event records ---
+    int eventCount = event_records.size();
+    // Tag '2' identifies event record messages.
+    tag = 2;
+    if (eventCount > 0)
+      bsp_send(
+          0, &tag, event_records.data(), eventCount * sizeof(SSEventRecord)
+      );
+
+    printf("%d mandando event_records\n", pid);
+  }
+  bsp_sync();
+
+  // Processor 0 receives the messages from all other processors.
+  if (pid == 0)
+  {
+
+    printf("%d empezando a recibir\n", pid);
+    bsp_nprocs_t numMsgs;
+    bsp_size_t totalPayload;
+    bsp_qsize(&numMsgs, &totalPayload);
+    // Loop over all received messages.
+    printf("numMsgs %d parseando mensajes\n", numMsgs);
+    for (bsp_nprocs_t i = 0; i < numMsgs; i++)
+    {
+      bsp_size_t payloadSize;
+      int receivedTag;
+      // Retrieve the tag and payload size from the next message.
+      bsp_get_tag(&payloadSize, &receivedTag);
+      printf("payloadSize %d tag %d\n", payloadSize, receivedTag);
+      // Only process nonempty messages.
+      if (payloadSize > 0)
+      {
+        if (receivedTag == 1)
+        {
+          // Message contains time records.
+          int numRecords = payloadSize / sizeof(SSTimeRecord);
+          // Allocate a temporary buffer to receive the records.
+          SSTimeRecord *tmp = (SSTimeRecord *)std::malloc(payloadSize);
+          if (!tmp)
+            bsp_abort("Memory allocation failed for time records\n");
+          bsp_move(tmp, payloadSize);
+          // Merge received records into our own vector.
+          for (int j = 0; j < numRecords; j++)
+            this->time_records.push_back(tmp[j]);
+          std::free(tmp);
+        }
+        else if (receivedTag == 2)
+        {
+          // Message contains event records.
+          int numRecords = payloadSize / sizeof(SSEventRecord);
+          // SSEventRecord *tmp = (SSEventRecord *)std::malloc(payloadSize);
+          std::vector<SSEventRecord> tmp(numRecords);
+          std::vector<char> buffer(payloadSize);
+
+          if (buffer.size() != payloadSize)
+            bsp_abort("Buffer allocation failed for time records");
+
+          // Move the payload into the buffer.
+          bsp_move(buffer.data(), payloadSize);
+          // if (!tmp)
+          // bsp_abort("Memory allocation failed for event records\n");
+          // bsp_move(tmp.data(), payloadSize);
+          printf(
+              "recibiendo SSEventRecords num_records %d tamaño de "
+              "SSEventRecord %d payloadSize %d\n",
+              numRecords, (int)sizeof(SSEventRecord), payloadSize
+          );
+
+          // Reinterpret the buffer as an array of SSTimeRecord.
+          SSEventRecord *recs =
+              reinterpret_cast<SSEventRecord *>(buffer.data());
+          for (int j = 0; j < numRecords; j++)
+          {
+
+            printf("j: %d num_records %d\n", j, numRecords);
+            this->event_records.push_back(recs[j]);
+          }
+        }
+        // If other tag values are used, they can be handled here.
+      }
+    }
+  }
+  bsp_sync();
 }

@@ -1096,16 +1096,6 @@ void ParallelSimulation::initialize_event_handlers()
           // Handle error silently
         }
         
-        // Debug problematic products
-        bool is_problematic = (prod_name == "Ajo" || prod_name == "Alcachofa" || 
-                              prod_name == "Arveja Verde" || prod_name == "Choclo" || 
-                              prod_name == "Frutilla" || prod_name == "Haba" || 
-                              prod_name == "Pepino ensalada" || prod_name == "Tomate");
-        
-        if (is_problematic) {
-          printf("[DEBUG] Processing VENTA_FERIANTE for problematic product %d (%s)\n", 
-                 prod_id, prod_name.c_str());
-        }
         
         int target_proc = sim->proc_per_prod.at(prod_id);
 
@@ -1117,12 +1107,7 @@ void ParallelSimulation::initialize_event_handlers()
           std::vector<int> agros_id =
               sim->mercado->get_agricultor_por_prod(prod_id);
               
-          if (is_problematic) {
-            printf("[DEBUG] Product %d (%s) - Found %zu agricultores with inventory\n", 
-                   prod_id, prod_name.c_str(), agros_id.size());
-          }
-
-          // Find an agricultor with sufficient inventory
+                 // Find an agricultor with sufficient inventory
           Agricultor *agro;
           bool found_valid_inventory = false;
           
@@ -1132,31 +1117,18 @@ void ParallelSimulation::initialize_event_handlers()
             Inventario inv = agro->get_inventory_by_id(prod_id);
             double quantity = inv.get_quantity();
             
-            if (is_problematic) {
-              printf("[DEBUG] Product %d (%s) - Agricultor %d inventory: valid=%d, quantity=%.2f, needed=%.2f\n",
-                     prod_id, prod_name.c_str(), agr_id, inv.is_valid_inventory(), quantity, amount);
-            }
-            
+           
             // Skip if inventory is invalid or insufficient
             if (!inv.is_valid_inventory() || quantity < amount)
               continue;
               
-            // Found a suitable agricultor, process the sale
-            if (is_problematic) {
-              printf("[DEBUG] Product %d (%s) - Found valid inventory, processing sale\n", 
-                     prod_id, prod_name.c_str());
-            }
-            
+                   
             found_valid_inventory = true;
             agro->process_event(e);
             return;
           }
           
-          if (is_problematic && !found_valid_inventory) {
-            printf("[DEBUG] Product %d (%s) - NO VALID INVENTORY FOUND\n", 
-                   prod_id, prod_name.c_str());
-          }
-          
+         
           return;
         }
         else
@@ -1164,10 +1136,6 @@ void ParallelSimulation::initialize_event_handlers()
           // Route to appropriate processor
           msg.insert(MESSAGE_KEYS::ORIGIN_PID, (double)sim->pid);
           
-          if (is_problematic) {
-            printf("[DEBUG] Product %d (%s) - Routing to processor %d from %d\n", 
-                   prod_id, prod_name.c_str(), target_proc, sim->pid);
-          }
           
           auto origin_pid = msg.find(MESSAGE_KEYS::ORIGIN_PID);
           msg.insert(MESSAGE_KEYS::AGENT_TYPE, AGENT_TYPE::FERIANTE);

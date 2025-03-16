@@ -1,6 +1,6 @@
 {
   "out_path": "./out/",
-  "prod_file": "./inputs/prods.json",
+  "prod_file": "./inputs/prods_calibrated.json",
   "feriantes_prods_amount": 6,
   "ferias_file": "./inputs/ferias.json",
   "terrenos_file": "./inputs/terrenos.json",

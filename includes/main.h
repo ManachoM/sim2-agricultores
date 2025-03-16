@@ -12,4 +12,9 @@
 #include "postgres_aggregated_monitor.h"
 #include "sim_config.h"
 
+// Global variables
+extern std::string CONFIG_PATH_FILE;
+extern double END_SIM_TIME;
+extern double WINDOW_SIZE;
+
 #endif // !MAIN_H

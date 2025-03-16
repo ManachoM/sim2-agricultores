@@ -4,16 +4,20 @@
 
 #include <bsp.h>
 #include <cstdio>
+#include <cstdlib>
 #include <ctime>
+#include <fstream>
+#include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
 #include <unistd.h>
+#include <vector>
 
 // Funciones para enviar los logs entre procesadores
 void send_logs(
     const std::map<int, std::map<std::string, double>> log, bsp_pid_t dest,
-    int tag = 0
+    int tag
 );
 std::map<int, std::map<std::string, double>> receive_logs();
 
@@ -73,8 +77,9 @@ PostgresAggregatedMonitor::PostgresAggregatedMonitor(
   if (this->_database_url == "")
     this->_database_url = conf["DB_URL"].get<std::string>();
   printf("%s\n", this->_database_url.c_str());
-  // Set the tag size to sizeof(int) to allow for message type identification
-  int tag_size = sizeof(int);
+  // Set tag size to 0 for compatibility with initialize_agents
+  // This is important because ParallelSimulation wasn't designed to handle tags
+  int tag_size = 0;
   bsp_set_tagsize(&tag_size);
 
   bsp_sync();
@@ -329,235 +334,260 @@ void PostgresAggregatedMonitor::write_results()
   const std::string PROCESS_CONSUMIDOR = "COMPRA DE CONSUMIDOR";
   const std::string PROCESS_AGRICULTOR = "COSECHA AGRICULTOR";
 
-  // Si somos el procesador principal, escribimos nuestros resultados primero
-  if (bsp_pid() == 0)
-  {
-    // Preparamos la conexión y el statement
-    pqxx::connection conn(this->_database_url);
-    conn.prepare(
-        "insert_aggregated_product_result", insert_aggregated_product_result
-    );
-    pqxx::work t{conn};
-    // Primero, se escriben los logs locales
-    // Pasaremos por los tres primeros niveles de anidado para poder ser
-    // precisos con el mensaje en DB
-    for (auto const &[month, cantidad_por_prod] : this->agg_logs["FERIANTE"])
-    {
-      for (auto const &[prod_id, cantidad] : cantidad_por_prod)
-      {
-        t.exec_prepared0(
-            "insert_aggregated_product_result", this->execution_id,
-            PROCESS_FERIANTE, month, prod_id, cantidad
-        );
-      }
-    }
-
-    for (auto const &[month, cantidad_por_prod] : this->agg_logs["CONSUMIDOR"])
-    {
-      for (auto const &[prod_id, cantidad] : cantidad_por_prod)
-      {
-        t.exec_prepared0(
-            "insert_aggregated_product_result", this->execution_id,
-            PROCESS_CONSUMIDOR, month, prod_id, cantidad
-        );
-      }
-    }
-
-    for (auto const &[month, cantidad_por_prod] : this->agg_logs["AGRICULTOR"])
-    {
-      for (auto const &[prod_id, cantidad] : cantidad_por_prod)
-      {
-        t.exec_prepared0(
-            "insert_aggregated_product_result", this->execution_id,
-            PROCESS_AGRICULTOR, month, prod_id, cantidad
-        );
-      }
-    }
-    t.commit();
+  int pid = bsp_pid();
+  int nprocs = bsp_nprocs();
+  
+  // Create temporary file with processor-specific results
+  std::string temp_file = "/tmp/sim_results_proc_" + std::to_string(pid) + ".dat";
+  std::ofstream out_file(temp_file, std::ios::binary);
+  
+  if (!out_file) {
+    std::cerr << "Error creating temporary file on processor " << pid << std::endl;
+    return;
   }
-
-  // Estructura para almacenar datos a enviar a proceso 0
-  struct AgentLogData
-  {
-    std::string agent_type;
-    std::map<int, std::map<std::string, double>> log_data;
-  };
-
-  // Recolectamos todos los datos de todos los procesadores
-  std::vector<AgentLogData> logs_to_send;
-
-  // Si no somos el procesador 0, enviamos todos nuestros logs
-  if (bsp_pid() != 0)
-  {
-    // Agregamos cada tipo de agente a nuestra colección para enviar
-    if (!this->agg_logs["FERIANTE"].empty())
-    {
-      logs_to_send.push_back({"FERIANTE", this->agg_logs["FERIANTE"]});
-    }
-
-    if (!this->agg_logs["CONSUMIDOR"].empty())
-    {
-      logs_to_send.push_back({"CONSUMIDOR", this->agg_logs["CONSUMIDOR"]});
-    }
-
-    if (!this->agg_logs["AGRICULTOR"].empty())
-    {
-      logs_to_send.push_back({"AGRICULTOR", this->agg_logs["AGRICULTOR"]});
-    }
-
-    // Enviamos todos los logs en un solo paso, con una etiqueta con el tipo de
-    // agente
-    for (const auto &log_data : logs_to_send)
-    {
-      // Creamos una etiqueta con el tipo de agente (FERIANTE, CONSUMIDOR,
-      // AGRICULTOR)
-      int agent_type_tag = 0;
-      if (log_data.agent_type == "FERIANTE")
-        agent_type_tag = 1;
-      else if (log_data.agent_type == "CONSUMIDOR")
-        agent_type_tag = 2;
-      else if (log_data.agent_type == "AGRICULTOR")
-        agent_type_tag = 3;
-
-      // Enviamos el log con la etiqueta correspondiente
-      send_logs(log_data.log_data, 0, agent_type_tag);
+  
+  // Add a header line with processor info for debugging
+  out_file << "# Results from processor " << pid << " of " << nprocs << "\n";
+  
+  // Write all data types to the file in a structured format
+  // Format: AGENT_TYPE|MONTH|PROD_ID|QUANTITY
+  
+  // Write FERIANTE data
+  for (auto const &[month, cantidad_por_prod] : this->agg_logs["FERIANTE"]) {
+    for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
+      if (cantidad > 0) { // Only write non-zero values
+        out_file << "FERIANTE|" << month << "|" << prod_id << "|" << cantidad << "\n";
+      }
     }
   }
-
+  
+  // Write CONSUMIDOR data
+  for (auto const &[month, cantidad_por_prod] : this->agg_logs["CONSUMIDOR"]) {
+    for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
+      if (cantidad > 0) { // Only write non-zero values
+        out_file << "CONSUMIDOR|" << month << "|" << prod_id << "|" << cantidad << "\n";
+      }
+    }
+  }
+  
+  // Write AGRICULTOR data
+  for (auto const &[month, cantidad_por_prod] : this->agg_logs["AGRICULTOR"]) {
+    for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
+      if (cantidad > 0) { // Only write non-zero values
+        out_file << "AGRICULTOR|" << month << "|" << prod_id << "|" << cantidad << "\n";
+      }
+    }
+  }
+  
+  // Write time records in the format TIME|SS_NUMBER|PROC_ID|EXEC_TIME|SYNC_TIME
+  for (auto const &event : this->time_records) {
+    out_file << "TIME|" << event.ss_number << "|" << event.proc_id << "|" 
+             << event.exec_time << "|" << event.sync_time << "\n";
+  }
+  
+  // Write event records in the format EVENT|SS_NUMBER|PROC_ID|AGENT_TYPE|EVENT_TYPE|COUNT
+  for (auto const &event : this->event_records) {
+    // Write event type counts
+    for (auto const &[event_type, count] : event.event_type_count) {
+      out_file << "EVENT|" << event.ss_number << "|" << event.proc_id << "||" 
+               << event_type << "|" << count << "\n";
+    }
+    
+    // Write agent type counts
+    for (auto const &[agent_type, count] : event.agent_type_count) {
+      out_file << "EVENT|" << event.ss_number << "|" << event.proc_id << "|" 
+               << agent_type << "||" << count << "\n";
+    }
+  }
+  
+  out_file.close();
+  
+  // Synchronize to ensure all processors have written their files
   bsp_sync();
-
-  // Recibimos los logs, los parseamos y los guardamos en la DB
-  if (bsp_pid() == 0)
-  {
-    // Preparamos la conexión una sola vez para toda la operación
-    pqxx::connection conn(this->_database_url);
-    conn.prepare(
-        "insert_aggregated_product_result", insert_aggregated_product_result
-    );
-
-    // Recibimos los mensajes
-    bsp_size_t num_messages, total_bytes;
-    bsp_qsize(&num_messages, &total_bytes);
-
-    // Preparamos una sola transacción para toda la operación
-    pqxx::work t{conn};
-
-    for (bsp_size_t i = 0; i < num_messages; ++i)
-    {
-      bsp_size_t status, tag;
-      bsp_get_tag(&status, &tag);
-
-      // Determinamos el tipo de proceso basado en la etiqueta recibida
-      std::string process_type;
-      if (tag == 1)
-        process_type = PROCESS_FERIANTE;
-      else if (tag == 2)
-        process_type = PROCESS_CONSUMIDOR;
-      else if (tag == 3)
-        process_type = PROCESS_AGRICULTOR;
-      else
-        continue; // Ignoramos mensajes con etiquetas desconocidas
-
-      std::vector<char> buffer(status);
-      bsp_move(buffer.data(), status);
-
-      // Deserialización
-      std::map<int, std::map<std::string, double>> data;
-      std::string bufferStr(buffer.begin(), buffer.end());
-      std::istringstream iss(bufferStr);
-      std::string outer_token;
-      while (std::getline(iss, outer_token, ';'))
-      {
-        std::istringstream outerStream(outer_token);
-        std::string keyPart, innerData;
-        if (std::getline(outerStream, keyPart, '|') &&
-            std::getline(outerStream, innerData))
-        {
-          int outerKey = std::stoi(keyPart);
-          std::map<std::string, double> innerMap;
-
-          std::istringstream innerStream(innerData);
-          std::string innerToken;
-          while (std::getline(innerStream, innerToken, ','))
-          {
-            size_t pos = innerToken.find(":");
-            if (pos != std::string::npos)
-            {
-              std::string innerKey = innerToken.substr(0, pos);
-              double innerValue = std::stod(innerToken.substr(pos + 1));
-              innerMap[innerKey] = innerValue;
-            }
-          }
-          data[outerKey] = innerMap;
+  
+  // Only processor 0 handles database operations
+  if (pid == 0) {
+    printf("Processor 0: Collecting data from all temporary files\n");
+    
+    // Maps to collect all data efficiently
+    std::map<std::string, std::map<int, std::map<std::string, double>>> all_agent_data;
+    std::vector<SSTimeRecord> all_time_records;
+    std::vector<std::pair<int, std::pair<std::string, std::string>>> all_event_records;
+    
+    // Initialize agent data structure
+    all_agent_data["FERIANTE"] = std::map<int, std::map<std::string, double>>();
+    all_agent_data["CONSUMIDOR"] = std::map<int, std::map<std::string, double>>();
+    all_agent_data["AGRICULTOR"] = std::map<int, std::map<std::string, double>>();
+    
+    // Process files from all processors
+    for (int proc = 0; proc < nprocs; proc++) {
+      std::string file_path = "/tmp/sim_results_proc_" + std::to_string(proc) + ".dat";
+      std::ifstream in_file(file_path);
+      
+      if (!in_file) {
+        std::cerr << "Warning: Could not open temporary file from processor " << proc << std::endl;
+        continue;
+      }
+      
+      std::string line;
+      while (std::getline(in_file, line)) {
+        std::istringstream iss(line);
+        std::string record_type, field1, field2, field3, field4, field5;
+        
+        // Parse the first part to determine record type
+        size_t pos = line.find('|');
+        if (pos == std::string::npos) continue;
+        
+        record_type = line.substr(0, pos);
+        std::string rest = line.substr(pos + 1);
+        
+        if (record_type == "FERIANTE" || record_type == "CONSUMIDOR" || record_type == "AGRICULTOR") {
+          // Parse agent data: AGENT_TYPE|MONTH|PROD_ID|QUANTITY
+          std::istringstream fields(rest);
+          std::getline(fields, field1, '|'); // month
+          std::getline(fields, field2, '|'); // prod_id
+          std::getline(fields, field3, '|'); // quantity
+          
+          int month = std::stoi(field1);
+          std::string prod_id = field2;
+          double cantidad = std::stod(field3);
+          
+          // Add to the aggregated data structure
+          all_agent_data[record_type][month][prod_id] += cantidad;
+        }
+        else if (record_type == "TIME") {
+          // Parse time record: TIME|SS_NUMBER|PROC_ID|EXEC_TIME|SYNC_TIME
+          std::istringstream fields(rest);
+          std::getline(fields, field1, '|'); // ss_number
+          std::getline(fields, field2, '|'); // proc_id
+          std::getline(fields, field3, '|'); // exec_time
+          std::getline(fields, field4, '|'); // sync_time
+          
+          SSTimeRecord record;
+          record.ss_number = std::stoi(field1);
+          record.proc_id = std::stoi(field2);
+          record.exec_time = std::stod(field3);
+          record.sync_time = std::stod(field4);
+          
+          all_time_records.push_back(record);
+        }
+        else if (record_type == "EVENT") {
+          // Parse event record: EVENT|SS_NUMBER|PROC_ID|AGENT_TYPE|EVENT_TYPE|COUNT
+          std::istringstream fields(rest);
+          std::getline(fields, field1, '|'); // ss_number
+          std::getline(fields, field2, '|'); // proc_id
+          std::getline(fields, field3, '|'); // agent_type
+          std::getline(fields, field4, '|'); // event_type
+          std::getline(fields, field5, '|'); // count
+          
+          int ss_number = std::stoi(field1);
+          int count = std::stoi(field5);
+          
+          // Store ss_number, agent_type, event_type, count
+          all_event_records.push_back({ss_number, {field3, field4}});
         }
       }
-
-      // Ahora que data tiene el log recibido, lo guardamos con el tipo de
-      // proceso correcto
-      for (auto const &[month, cantidad_por_prod] : data)
-      {
-        for (auto const &[prod_id, cantidad] : cantidad_por_prod)
-        {
+      
+      in_file.close();
+      // Remove temporary file after processing
+      std::remove(file_path.c_str());
+    }
+    
+    // Now write everything to the database in a single transaction
+    printf("Processor 0: Writing all collected data to database\n");
+    try {
+      pqxx::connection conn(this->_database_url);
+      
+      // Prepare all statements once
+      conn.prepare("insert_aggregated_product_result", insert_aggregated_product_result);
+      conn.prepare("insert_time_record", insert_time_record);
+      conn.prepare("insert_event_record", insert_event_record);
+      
+      // Single transaction for all data
+      pqxx::work t{conn};
+      
+      // Write agent data
+      for (auto const &[month, cantidad_por_prod] : all_agent_data["FERIANTE"]) {
+        for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
           t.exec_prepared0(
               "insert_aggregated_product_result", this->execution_id,
-              process_type, month, prod_id, cantidad
+              PROCESS_FERIANTE, month, prod_id, cantidad
           );
         }
       }
+      
+      for (auto const &[month, cantidad_por_prod] : all_agent_data["CONSUMIDOR"]) {
+        for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
+          t.exec_prepared0(
+              "insert_aggregated_product_result", this->execution_id,
+              PROCESS_CONSUMIDOR, month, prod_id, cantidad
+          );
+        }
+      }
+      
+      for (auto const &[month, cantidad_por_prod] : all_agent_data["AGRICULTOR"]) {
+        for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
+          t.exec_prepared0(
+              "insert_aggregated_product_result", this->execution_id,
+              PROCESS_AGRICULTOR, month, prod_id, cantidad
+          );
+        }
+      }
+      
+      // Write time records
+      for (auto const &event : all_time_records) {
+        t.exec_prepared0(
+            "insert_time_record", this->execution_id, event.ss_number,
+            event.proc_id, event.exec_time, event.sync_time
+        );
+      }
+      
+      // Write event records - group by ss_number for batching
+      std::map<int, std::map<std::string, int>> event_type_counts;
+      std::map<int, std::map<std::string, int>> agent_type_counts;
+      
+      for (auto const &[ss_number, type_pair] : all_event_records) {
+        const auto &[agent_type, event_type] = type_pair;
+        
+        if (!agent_type.empty() && event_type.empty()) {
+          // This is an agent type count
+          agent_type_counts[ss_number][agent_type]++;
+        }
+        else if (agent_type.empty() && !event_type.empty()) {
+          // This is an event type count
+          event_type_counts[ss_number][event_type]++;
+        }
+      }
+      
+      // Insert agent type counts
+      for (auto const &[ss_number, counts] : agent_type_counts) {
+        for (auto const &[agent_type, count] : counts) {
+          t.exec_prepared0(
+              "insert_event_record", this->execution_id, ss_number,
+              0, agent_type, "", count
+          );
+        }
+      }
+      
+      // Insert event type counts
+      for (auto const &[ss_number, counts] : event_type_counts) {
+        for (auto const &[event_type, count] : counts) {
+          t.exec_prepared0(
+              "insert_event_record", this->execution_id, ss_number,
+              0, "", event_type, count
+          );
+        }
+      }
+      
+      // Commit all data in a single transaction
+      t.commit();
+      printf("Processor 0: Database write complete\n");
     }
-
-    // Commit de todos los inserts en una sola transacción
-    t.commit();
-  }
-
-  bsp_sync();
-
-  // this->gather_records();
-
-  /// if (bsp_pid() == 0)
-  //{
-
-  // Ahora guardamos los registros de cada SS
-  // Esto genera una conexión por LP
-  // OJO!!!!👀
-  pqxx::connection conn(this->_database_url);
-  conn.prepare("insert_event_record", insert_event_record);
-
-  conn.prepare("insert_time_record", insert_time_record);
-
-  // Primero por los de tiempo, que son los más sencillos
-  pqxx::work t{conn};
-  for (auto event : this->time_records)
-  {
-    t.exec_prepared0(
-        "insert_time_record", this->execution_id, event.ss_number,
-        event.proc_id, event.exec_time, event.sync_time
-    );
-  }
-  t.commit();
-
-  // Ahora vamos con los de evento
-  for (auto event : this->event_records)
-  {
-    for (auto event_type_record : event.event_type_count)
-    {
-      t.exec_prepared0(
-          "insert_event_record", this->execution_id, event.ss_number,
-          event.proc_id, "", event_type_record.first, event_type_record.second
-      );
+    catch (const std::exception &e) {
+      std::cerr << "Database error: " << e.what() << std::endl;
     }
-
-    for (auto agent_type_record : event.agent_type_count)
-    {
-      t.exec_prepared0(
-          "insert_event_record", this->execution_id, event.ss_number,
-          event.proc_id, agent_type_record.first, "", agent_type_record.second
-      );
-    }
-
-    t.commit();
   }
-  //}
+  
   bsp_sync();
 }
 
@@ -565,6 +595,11 @@ void PostgresAggregatedMonitor::write_params(
     const std::string &key, const std::string &value
 )
 {
+  // Only processor 0 should write to the database
+  if (bsp_pid() != 0) {
+    return;
+  }
+  
   pqxx::connection conn(this->_database_url);
   conn.prepare("insert_exec_param", insert_execution_params);
 
@@ -624,9 +659,10 @@ std::string PostgresAggregatedMonitor::get_current_timestamp()
   return buffer;
 }
 
+// This function is now deprecated - use temporary files instead
 void send_logs(
     const std::map<int, std::map<std::string, double>> log, bsp_pid_t dest,
-    int tag = 0
+    int tag
 )
 {
   // Serializamos el mensaje
@@ -646,6 +682,7 @@ void send_logs(
   bsp_send(dest, &tag, msg.data(), msg.size());
 }
 
+// This function is now deprecated - use temporary files instead
 std::map<int, std::map<std::string, double>> receive_logs()
 {
   bsp_size_t numMessages, totalBytes;
@@ -655,12 +692,17 @@ std::map<int, std::map<std::string, double>> receive_logs()
   {
     return {}; // No messages received
   }
-
+  
   bsp_size_t status, tag;
-  bsp_get_tag(&status, &tag); // Get the payload size
+  bsp_get_tag(&status, &tag); // Get the payload size and tag
+
+  if (status == 0) {
+    return {}; // Empty message
+  }
 
   std::vector<char> buffer(status);
   bsp_move(buffer.data(), status);
+  
   // Deserialización
   std::map<int, std::map<std::string, double>> data;
   std::string bufferStr(buffer.begin(), buffer.end());
@@ -696,103 +738,9 @@ std::map<int, std::map<std::string, double>> receive_logs()
 
 void PostgresAggregatedMonitor::gather_records()
 {
-  // Tag size already set in constructor to sizeof(int)
-  bsp_sync();
-
-  int pid = bsp_pid();
-  printf("entrando a gather_records\n");
-  // Non-root processors send their records to process 0.
-  if (pid != 0)
-  {
-    // --- Send time records ---
-    int timeCount = time_records.size();
-    // Tag '1' identifies time record messages.
-    int tag = 1;
-    if (timeCount > 0)
-      bsp_send(0, &tag, time_records.data(), timeCount * sizeof(SSTimeRecord));
-    printf("%d mandando time_records\n", pid);
-    // --- Send event records ---
-    int eventCount = event_records.size();
-    // Tag '2' identifies event record messages.
-    tag = 2;
-    if (eventCount > 0)
-      bsp_send(
-          0, &tag, event_records.data(), eventCount * sizeof(SSEventRecord)
-      );
-
-    printf("%d mandando event_records\n", pid);
-  }
-  bsp_sync();
-
-  // Processor 0 receives the messages from all other processors.
-  if (pid == 0)
-  {
-
-    printf("%d empezando a recibir\n", pid);
-    bsp_nprocs_t numMsgs;
-    bsp_size_t totalPayload;
-    bsp_qsize(&numMsgs, &totalPayload);
-    // Loop over all received messages.
-    printf("numMsgs %d parseando mensajes\n", numMsgs);
-    for (bsp_nprocs_t i = 0; i < numMsgs; i++)
-    {
-      bsp_size_t payloadSize;
-      int receivedTag;
-      // Retrieve the tag and payload size from the next message.
-      bsp_get_tag(&payloadSize, &receivedTag);
-      printf("payloadSize %d tag %d\n", payloadSize, receivedTag);
-      // Only process nonempty messages.
-      if (payloadSize > 0)
-      {
-        if (receivedTag == 1)
-        {
-          // Message contains time records.
-          int numRecords = payloadSize / sizeof(SSTimeRecord);
-          // Allocate a temporary buffer to receive the records.
-          SSTimeRecord *tmp = (SSTimeRecord *)std::malloc(payloadSize);
-          if (!tmp)
-            bsp_abort("Memory allocation failed for time records\n");
-          bsp_move(tmp, payloadSize);
-          // Merge received records into our own vector.
-          for (int j = 0; j < numRecords; j++)
-            this->time_records.push_back(tmp[j]);
-          std::free(tmp);
-        }
-        else if (receivedTag == 2)
-        {
-          // Message contains event records.
-          int numRecords = payloadSize / sizeof(SSEventRecord);
-          // SSEventRecord *tmp = (SSEventRecord *)std::malloc(payloadSize);
-          std::vector<SSEventRecord> tmp(numRecords);
-          std::vector<char> buffer(payloadSize);
-
-          if (buffer.size() != payloadSize)
-            bsp_abort("Buffer allocation failed for time records");
-
-          // Move the payload into the buffer.
-          bsp_move(buffer.data(), payloadSize);
-          // if (!tmp)
-          // bsp_abort("Memory allocation failed for event records\n");
-          // bsp_move(tmp.data(), payloadSize);
-          printf(
-              "recibiendo SSEventRecords num_records %d tamaño de "
-              "SSEventRecord %d payloadSize %d\n",
-              numRecords, (int)sizeof(SSEventRecord), payloadSize
-          );
-
-          // Reinterpret the buffer as an array of SSTimeRecord.
-          SSEventRecord *recs =
-              reinterpret_cast<SSEventRecord *>(buffer.data());
-          for (int j = 0; j < numRecords; j++)
-          {
-
-            printf("j: %d num_records %d\n", j, numRecords);
-            this->event_records.push_back(recs[j]);
-          }
-        }
-        // If other tag values are used, they can be handled here.
-      }
-    }
-  }
-  bsp_sync();
+  // This method is now deprecated - use the file-based approach in write_results instead
+  printf("Note: gather_records is deprecated and now redirects to write_results\n");
+  
+  // Just call write_results which handles all gathering now
+  write_results();
 }

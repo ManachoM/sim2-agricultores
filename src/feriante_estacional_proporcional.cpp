@@ -30,24 +30,25 @@ std::vector<int> FerianteEstacionalProporcional::choose_product()
   std::vector<Producto *> prods =
       this->env->get_venta_producto_mes().find(this->env->get_month())->second;
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-
-  std::uniform_real_distribution<double> d(0.0, 1.0);
+  // Use the class instance's random generator which was properly seeded
+  // in the constructor with a processor-specific and feriante-specific seed
+  // This maintains the exact same logic as the main branch but ensures consistent
+  // behavior across processors by using the class's predetermined random sequence
 
   for (auto prod : prods)
   {
-    // Generate random value
-    double random_value = d(gen);
+    // Generate random value using the class member's generator and distribution
+    double random_value = this->dist(this->gen);
     double prob_consumo = prod->get_probabilidad_consumo();
-    
-    // FIX: Products with higher probability should be MORE likely to be selected
-    // Original inverted logic: if (random_value < prob_consumo) continue;
-    // Correct logic: if random_value is less than prob_consumo, SELECT the product
-    if (random_value <= prob_consumo) 
+
+    // FIX: Products with higher probability should be MORE likely to be
+    // selected Original inverted logic: if (random_value < prob_consumo)
+    // continue; Correct logic: if random_value is less than prob_consumo,
+    // SELECT the product
+    if (random_value <= prob_consumo)
     {
       prods_seleccionados.push_back(prod->get_id());
-      
+
       if ((int)prods_seleccionados.size() >= this->prod_amount)
         break;
     }

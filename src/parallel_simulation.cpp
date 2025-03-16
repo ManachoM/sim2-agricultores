@@ -5,6 +5,7 @@
 #include "../includes/consumidor_factory.h"
 #include "../includes/event.h"
 #include "../includes/feriante_factory.h"
+#include "../includes/main.h"
 #include "../includes/mercado_mayorista.h"
 #include "../includes/message_serializer.h"
 #include "../includes/product_partitioner.h"
@@ -293,10 +294,11 @@ void ParallelSimulation::run()
       {"AMBIENTE_LIMPIEZA_MERCADO_MAYORISTA", 0}
   };
   int nsteps = 0;
-  double window_size = 6;
+  double window_size = WINDOW_SIZE;
   double next_window = this->fel->get_time() + window_size;
   long total_sync_time = 0;
   time_t t_init = time(NULL);
+  auto bsp_init = bsp_time();
   SSTimeRecord time_record;
   SSEventRecord event_record;
 
@@ -373,13 +375,14 @@ void ParallelSimulation::run()
     this->monitor->add_time_record(time_record);
   }
   time_t t_end = time(NULL);
+  auto bsp_end = bsp_time();
 
   bsp_sync();
-  this->monitor->write_duration(t_end - t_init);
+  this->monitor->write_duration(bsp_end - bsp_init);
   this->monitor->write_results();
   printf(
       "[PROC %d] WALL_TIME: %ld\tBSP_TIME: %lf\tSYNC_TIME: %ld[microseconds]\n",
-      this->pid, t_end - t_init, bsp_time(), total_sync_time
+      this->pid, t_end - t_init, bsp_end - bsp_init, total_sync_time
   );
   printf("[PROD %d] Last Event ID: %d\n", this->pid, current_event->event_id);
 }
@@ -451,9 +454,9 @@ void ParallelSimulation::route_event(Event *e)
         {
           agro = this->agricultor_arr[agr_id];
           Inventario inv = agro->get_inventory_by_id(prod_id);
-          // Si el agricultor no tiene inventario válido o cantidad insuficiente, seguimos buscando
-          if (!inv.is_valid_inventory() || inv.get_quantity() < amount)
-            continue;
+          // Si el agricultor no tiene inventario válido o cantidad
+  insuficiente, seguimos buscando if (!inv.is_valid_inventory() ||
+  inv.get_quantity() < amount) continue;
 
           // Si efectivamente tiene, dejamos que procese la compra
           agro->process_event(e);
@@ -1084,19 +1087,22 @@ void ParallelSimulation::initialize_event_handlers()
         // Handle feriante purchasing from agricultor
         Message msg = e->get_message();
         int prod_id = (int)msg.find(MESSAGE_KEYS::PROD_ID);
-        
+
         // Get product name for debugging
         std::string prod_name = "unknown";
-        try {
-          Producto* producto = sim->productos.at(prod_id);
-          if (producto) {
+        try
+        {
+          Producto *producto = sim->productos.at(prod_id);
+          if (producto)
+          {
             prod_name = producto->get_nombre();
           }
-        } catch (const std::exception& e) {
+        }
+        catch (const std::exception &e)
+        {
           // Handle error silently
         }
-        
-        
+
         int target_proc = sim->proc_per_prod.at(prod_id);
 
         if (target_proc == sim->pid)
@@ -1106,37 +1112,33 @@ void ParallelSimulation::initialize_event_handlers()
           // Get available agricultores for this product
           std::vector<int> agros_id =
               sim->mercado->get_agricultor_por_prod(prod_id);
-              
-                 // Find an agricultor with sufficient inventory
+
+          // Find an agricultor with sufficient inventory
           Agricultor *agro;
           bool found_valid_inventory = false;
-          
+
           for (const auto &agr_id : agros_id)
           {
             agro = sim->agricultor_arr[agr_id];
             Inventario inv = agro->get_inventory_by_id(prod_id);
             double quantity = inv.get_quantity();
-            
-           
+
             // Skip if inventory is invalid or insufficient
             if (!inv.is_valid_inventory() || quantity < amount)
               continue;
-              
-                   
+
             found_valid_inventory = true;
             agro->process_event(e);
             return;
           }
-          
-         
+
           return;
         }
         else
         {
           // Route to appropriate processor
           msg.insert(MESSAGE_KEYS::ORIGIN_PID, (double)sim->pid);
-          
-          
+
           auto origin_pid = msg.find(MESSAGE_KEYS::ORIGIN_PID);
           msg.insert(MESSAGE_KEYS::AGENT_TYPE, AGENT_TYPE::FERIANTE);
           msg.insert(

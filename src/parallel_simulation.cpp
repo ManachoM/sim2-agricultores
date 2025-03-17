@@ -14,10 +14,29 @@
 
 #include <bsp.h>
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <sys/types.h>
 #include <time.h>
+#include <unordered_set>
+
+inline uint64_t pack_keys(uint16_t agent_id, uint16_t prod_id, uint16_t proc_id)
+{
+  return (static_cast<uint64_t>(agent_id) << 32) |
+         (static_cast<uint64_t>(prod_id) << 16) |
+         (static_cast<uint64_t>(proc_id));
+}
+
+inline void unpack_keys(
+    uint64_t packed, uint16_t &agent_id, uint16_t &prod_id, uint16_t &proc_id
+)
+{
+  agent_id = static_cast<uint16_t>((packed >> 32) & 0xFFFF);
+  prod_id = static_cast<uint16_t>((packed >> 16) & 0xFFFF);
+  proc_id = static_cast<uint16_t>(packed & 0xFFFF);
+}
 
 /**
  * @brief "BalanceTemporal" style objective function for Productos.
@@ -183,6 +202,7 @@ ParallelSimulation::ParallelSimulation(
     : Simulation(_max_sim_time, config_path)
 {
   this->initialize_event_handlers();
+  // Bayesian estimator will be properly initialized in run() after nprocs is known
 }
 
 // Helper fuction para evaluar si todos las colas de salida están vacías
@@ -201,7 +221,7 @@ void ParallelSimulation::run()
   // Inicializamos la cola de salida
   for (bsp_size_t i = 0; i < this->nprocs; ++i)
     this->out_queue[i] = std::vector<Message>();
-
+    
   this->monitor = new PostgresAggregatedMonitor();
   this->pid = bsp_pid();
   printf("Procesador %d/%d\n", pid, nprocs);
@@ -209,6 +229,11 @@ void ParallelSimulation::run()
   // Leemos los archivos de entrada e inicializamos
   // objetos de contexto
   this->read_products();
+  
+  // Initialize Bayesian estimator now that we know nprocs and have read products
+  // Maximum product ID is based on productos size
+  int max_product_id = this->productos.size() > 0 ? this->productos.size() - 1 : 1000;
+  this->be = BayessianEstimator(max_product_id, this->nprocs - 1);
   this->env->set_productos(this->productos);
   this->read_ferias();
   this->env->set_ferias(this->ferias);
@@ -312,6 +337,38 @@ void ParallelSimulation::run()
     time_record.proc_id = this->pid;
 
     double ss_init = bsp_time();
+    std::map<std::string, int> event_type_count = {
+        {"FERIANTE_COMPRA_MAYORISTA", 0},
+        {"FERIANTE_VENTA_CONSUMIDOR", 0},
+        {"FERIANTE_PROCESS_COMPRA_MAYORISTA", 0},
+        {"FERIANTE_COMPRA_MAYORISTA", 0},
+        {"CONSUMIDOR_BUSCAR_FERIANTE", 0},
+        {"CONSUMIDOR_INIT_COMPRA_FERIANTE", 0},
+        {"CONSUMIDOR_PROCESAR_COMPRA_FERIANTE", 0},
+        {"CONSUMIDOR_COMPRA_FERIANTE", 0},
+        {"AGRICULTOR_CULTIVO_TERRENO", 0},
+        {"AGRICULTOR_COSECHA", 0},
+        {"AGRICULTOR_VENTA_FERIANTE", 0},
+        {"AGRICULTOR_INVENTARIO_VENCIDO", 0}
+    };
+
+    std::map<std::string, double> event_type_time = {
+        {"FERIANTE_COMPRA_MAYORISTA", 0.0},
+        {"FERIANTE_VENTA_CONSUMIDOR", 0.0},
+        {"FERIANTE_PROCESS_COMPRA_MAYORISTA", 0.0},
+        {"FERIANTE_COMPRA_MAYORISTA", 0.0},
+        {"CONSUMIDOR_BUSCAR_FERIANTE", 0.0},
+        {"CONSUMIDOR_INIT_COMPRA_FERIANTE", 0.0},
+        {"CONSUMIDOR_PROCESAR_COMPRA_FERIANTE", 0.0},
+        {"CONSUMIDOR_COMPRA_FERIANTE", 0.0},
+        {"AGRICULTOR_CULTIVO_TERRENO", 0.0},
+        {"AGRICULTOR_COSECHA", 0.0},
+        {"AGRICULTOR_VENTA_FERIANTE", 0.0},
+        {"AGRICULTOR_INVENTARIO_VENCIDO", 0.0}
+    };
+
+    std::unordered_set<uint64_t> peticiones_compra;
+    peticiones_compra.reserve(100'000);
     while (this->fel->get_time() <= next_window)
     {
 
@@ -343,6 +400,7 @@ void ParallelSimulation::run()
       MessageSerializer::send(std::move(messages), proc);
       messages.clear();
     }
+    
     // auto start = std::chrono::high_resolution_clock::now();
     start = bsp_time();
     // Enviamos y recibimos todos los mensajes
@@ -364,6 +422,30 @@ void ParallelSimulation::run()
     // Si se cumple la frecuencia, actualizamos
     if ((nsteps % this->GVT_CALCULATION_FREQ) == 0)
     {
+      // Process all pending purchase attempts that never received a response
+      std::vector<uint64_t> processed_keys;
+      
+      for (uint64_t const key : this->solicitudes_compra)
+      {
+        uint16_t agent_id, prod_id, proc_id;
+        unpack_keys(key, agent_id, prod_id, proc_id);
+        
+        // If no response received by this barrier, assume failure and update Bayesian estimator
+        this->be.update(false, prod_id, proc_id);
+        
+        // Mark key for removal
+        processed_keys.push_back(key);
+      }
+      
+      // Remove processed keys from solicitudes_compra
+      for (uint64_t key : processed_keys) {
+        this->solicitudes_compra.erase(key);
+      }
+      
+      // Force decay of statistics at the GVT boundary to ensure
+      // recent events have more weight in predictions
+      this->be.force_decay();
+
       this->update_gvt();
       printf(
           "[PROC %d] || GVT: %lf - LVT: %lf - SS: %d \n", this->pid, this->gvt,
@@ -467,9 +549,16 @@ void ParallelSimulation::route_event(Event *e)
       {
         // Si el target_proc no es aquí, significa que
         // el procesador de origen somos nosotros y estamos mandando a comprar
-        // afuera Así que necesitamos setear el ORIGIN_PID para poder manejarlo
+        // afuera.
+        // Así que necesitamos setear el ORIGIN_PID para poder manejarlo
         msg.insert(MESSAGE_KEYS::ORIGIN_PID, (double)this->pid);
         this->out_queue[target_proc].push_back(msg);
+        // Guardamos el mensaje de salida
+        u_int64_t msg_key = pack_keys(
+            uint16_t(e->get_caller_id()), uint16_t(prod_id),
+            uint16_t(target_proc)
+        );
+        this->solicitudes_compra.insert(msg_key);
       }
       return;
     }
@@ -495,6 +584,7 @@ void ParallelSimulation::route_event(Event *e)
     {
       Message msg = e->get_message();
       int origin_pid = (int)msg.find(MESSAGE_KEYS::ORIGIN_PID);
+      int prod_id = (int)msg.find(MESSAGE_KEYS::PROD_ID);
       // Si el ORIGIN_PID es distinto a nuestro pid actual
       // significa que la solicitud original de compra viene desde otro
       // procesador Así que lo insertamos en la cola de salida.
@@ -502,7 +592,6 @@ void ParallelSimulation::route_event(Event *e)
       // Si efectivamente calzan, simplemente procesamos evento
       if (origin_pid != this->pid && origin_pid != -1)
       {
-        int prod_id = (int)msg.find(MESSAGE_KEYS::PROD_ID);
         int target_proc = this->proc_per_prod.at(prod_id);
         this->out_queue[target_proc].push_back(msg); // TODO: Revisar
       }
@@ -511,6 +600,13 @@ void ParallelSimulation::route_event(Event *e)
         int agent_id = (int)msg.find(MESSAGE_KEYS::AGENT_ID);
         Feriante *fer = this->feriante_arr.at(agent_id);
         fer->process_event(e);
+        // Actualizamos las solicitudes pendientes.
+        uint64_t msg_key = pack_keys(
+            uint16_t(agent_id), uint16_t(msg.find(MESSAGE_KEYS::PROD_ID)),
+            uint16_t(origin_pid)
+        );
+        this->solicitudes_compra.erase(msg_key);
+        this->be.update(true, prod_id, origin_pid);
       }
 
       return;
@@ -1014,6 +1110,7 @@ void ParallelSimulation::update_gvt()
   this->gvt = lvt;
 }
 
+
 void ParallelSimulation::initialize_event_handlers()
 {
   // AMBIENTE Events
@@ -1136,14 +1233,22 @@ void ParallelSimulation::initialize_event_handlers()
         }
         else
         {
+          // Foreign processor - calculate success probability using Bayesian estimator
+          double success_prob = sim->be.predict(prod_id, target_proc);
+          int buyer_id = (int)msg.find(MESSAGE_KEYS::BUYER_ID);
+          
           // Route to appropriate processor
           msg.insert(MESSAGE_KEYS::ORIGIN_PID, (double)sim->pid);
-
-          auto origin_pid = msg.find(MESSAGE_KEYS::ORIGIN_PID);
           msg.insert(MESSAGE_KEYS::AGENT_TYPE, AGENT_TYPE::FERIANTE);
           msg.insert(
               MESSAGE_KEYS::PROCESS, EVENTOS_FERIANTE::PROCESS_COMPRA_MAYORISTA
           );
+          
+          // Record the request for tracking, regardless of prediction
+          uint64_t key = pack_keys(uint16_t(buyer_id), uint16_t(prod_id), uint16_t(target_proc));
+          sim->solicitudes_compra.insert(key);
+          
+          // Send the message to target processor
           sim->out_queue[target_proc].push_back(msg);
         }
       }
@@ -1189,33 +1294,30 @@ void ParallelSimulation::initialize_event_handlers()
         // Complex case - may need routing to another processor
         Message msg = e->get_message();
         int origin_pid = (int)msg.find(MESSAGE_KEYS::ORIGIN_PID);
+        
         // Check if this message is from another processor
         if (origin_pid != sim->pid && origin_pid != -1)
         {
           int prod_id = (int)msg.find(MESSAGE_KEYS::PROD_ID);
-          auto seller = (int)msg.find(MESSAGE_KEYS::SELLER_ID);
-          auto buery = (int)msg.find(MESSAGE_KEYS::BUYER_ID);
-          auto error = msg.find(MESSAGE_KEYS::ERROR);
-          int target_proc = sim->proc_per_prod.at(prod_id);
-          // if (origin_pid < 0)
-          // printf(
-          //     "ORIGIN PID EN PROCESS_COMPRA_MAYORISTA: %lf BUYER_ID: %d "
-          //     "SELLER_ID: %d PROD_ID: %d\n",
-          //    msg.find(MESSAGE_KEYS::ORIGIN_PID), buery, seller, prod_id
-          //  );
+          int buyer_id = (int)msg.find(MESSAGE_KEYS::BUYER_ID);
+          bool success = (msg.find(MESSAGE_KEYS::ERROR) == 0.0); // No error means success
+          
+          // Only update Bayesian estimator if this is a response to a tracked request
+          uint64_t key = pack_keys(uint16_t(buyer_id), uint16_t(prod_id), uint16_t(origin_pid));
+          if (sim->solicitudes_compra.find(key) != sim->solicitudes_compra.end()) {
+            // Update the estimator with actual outcome
+            sim->be.update(success, prod_id, origin_pid);
+            // Remove from tracking set since it's been handled
+            sim->solicitudes_compra.erase(key);
+          }
+          
+          // Forward the message to the originating processor
           sim->out_queue[origin_pid].push_back(msg);
         }
         else
         {
           // Process locally
           int agent_id = (int)msg.find(MESSAGE_KEYS::AGENT_ID);
-          auto seller = (int)msg.find(MESSAGE_KEYS::SELLER_ID);
-          auto error = msg.find(MESSAGE_KEYS::ERROR);
-          // printf(
-          //     "Procesando respuesta exitosa de compra de feriante! "
-          //     "SELLER_ID: %d ERROR: %lf\n",
-          //     seller, error
-          //);
           Feriante *fer = sim->feriante_arr.at(agent_id);
           fer->process_event(e);
         }

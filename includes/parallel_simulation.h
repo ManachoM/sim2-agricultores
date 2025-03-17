@@ -1,6 +1,7 @@
 #ifndef _PARALLEL_SIMULATION_H_
 #define _PARALLEL_SIMULATION_H_
 
+#include "bayessian_estimator.h"
 #include "event.h"
 #include "event_handler.h"
 #include "message_batcher.h"
@@ -8,6 +9,7 @@
 #include "simulation.h"
 
 #include <map>
+#include <unordered_set>
 
 class Message;
 class Producto;
@@ -58,6 +60,9 @@ private:
   Monitor *monitor;
   EventHandlerSystem event_handlers;
   MessageBatcher message_batcher;
+  std::unordered_set<uint64_t> solicitudes_compra;
+  BayessianEstimator be =
+      BayessianEstimator(100, 100); // Basura pq después se sobrescribe
 };
 
 #endif // !_PARALLEL_SIMULATION_H_

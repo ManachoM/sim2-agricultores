@@ -37,6 +37,8 @@ $(BIN) $(OBJ):
 init_db:
 	psql postgresql://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME) -tc "SELECT 1 FROM pg_database WHERE datname = 'sim-db'" | grep -q 1|| psql postgresql://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME) -c 'create database "sim-db";'
 	psql postgresql://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/sim-db -f ./database/create_sim_db.sql
+	# Apply proc_id column addition script
+	psql postgresql://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/sim-db -f ./database/add_proc_id_column.sql
 
 
 clean:
@@ -91,8 +93,7 @@ run_scenarios:
 	    logfile=$$base.log; \
 	    echo "Processing file: $$file" | tee -a $$logfile; \
 	    for i in $$(seq 1 15); do \
-	        mpirun -np $(NP) $(OUT) -c $$file >> $$logfile; \
-	        # :; \
+	        mpirun -np $(NP) $(OUT) -c $$file >> logs/$$logfile; \
 	    done; \
 	done
 

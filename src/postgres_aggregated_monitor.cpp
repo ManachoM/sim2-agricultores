@@ -42,7 +42,7 @@ std::string const update_failed_execution =
 
 std::string const insert_aggregated_product_result =
     "INSERT INTO aggregated_product_results (execution_id, process, time, "
-    "product_id, value) VALUES ($1, $2, $3, $4, $5)";
+    "product_id, value, proc_id) VALUES ($1, $2, $3, $4, $5, $6)";
 
 std::string const insert_time_record =
     "INSERT INTO super_step_time_stat (execution_id, ss_number, proc_id, "
@@ -134,17 +134,31 @@ PostgresAggregatedMonitor::PostgresAggregatedMonitor(
           str_val.c_str()
       );
     }
+    
     // Guardamos el nombre del archivo de config
     t.exec_prepared0(
         "insert_exec_param", this->execution_id, "sim_config_file",
         SimConfig::get_instance()->get_config_file_path()
+    );
+    
+    // Save number of processors - make explicit call to bsp_nprocs()
+    int nprocs = bsp_nprocs();
+    t.exec_prepared0(
+        "insert_exec_param", this->execution_id, "num_processors",
+        std::to_string(nprocs).c_str()
+    );
+    
+    // Save BSP window size from global variable
+    extern double WINDOW_SIZE; // Defined in main.h
+    t.exec_prepared0(
+        "insert_exec_param", this->execution_id, "window_size",
+        std::to_string(WINDOW_SIZE).c_str()
     );
 
     // Commit y cerrar la conexión
     t.commit();
 
     // ahora mandamos el execution_id a todos los otros procs
-    int nprocs = bsp_nprocs();
     int value = this->execution_id;
     int tag = 0; // Tag for execution_id message
     for (int i = 1; i < nprocs; ++i)
@@ -337,68 +351,75 @@ void PostgresAggregatedMonitor::write_results()
   int pid = bsp_pid();
   int nprocs = bsp_nprocs();
   
+  // Print minimal diagnostic info
+  if (pid == 0) {
+    printf("\nStarting write_results() on processor %d\n", pid);
+  }
+  
   // Create temporary file with processor-specific results
   std::string temp_file = "/tmp/sim_results_proc_" + std::to_string(pid) + ".dat";
-  std::ofstream out_file(temp_file, std::ios::binary);
+  std::ofstream out_file(temp_file);
   
   if (!out_file) {
     std::cerr << "Error creating temporary file on processor " << pid << std::endl;
     return;
   }
   
-  // Add a header line with processor info for debugging
-  out_file << "# Results from processor " << pid << " of " << nprocs << "\n";
-  
-  // Write all data types to the file in a structured format
-  // Format: AGENT_TYPE|MONTH|PROD_ID|QUANTITY
-  
-  // Write FERIANTE data
+  // Write FERIANTE data - only non-zero values
   for (auto const &[month, cantidad_por_prod] : this->agg_logs["FERIANTE"]) {
     for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
-      if (cantidad > 0) { // Only write non-zero values
-        out_file << "FERIANTE|" << month << "|" << prod_id << "|" << cantidad << "\n";
+      if (cantidad > 0) {
+        out_file << "FERIANTE|" << month << "|" << prod_id << "|" << cantidad << "|" << pid << "\n";
       }
     }
   }
   
-  // Write CONSUMIDOR data
+  // Write CONSUMIDOR data - only non-zero values
   for (auto const &[month, cantidad_por_prod] : this->agg_logs["CONSUMIDOR"]) {
     for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
-      if (cantidad > 0) { // Only write non-zero values
-        out_file << "CONSUMIDOR|" << month << "|" << prod_id << "|" << cantidad << "\n";
+      if (cantidad > 0) {
+        out_file << "CONSUMIDOR|" << month << "|" << prod_id << "|" << cantidad << "|" << pid << "\n";
       }
     }
   }
   
-  // Write AGRICULTOR data
+  // Write AGRICULTOR data - only non-zero values
   for (auto const &[month, cantidad_por_prod] : this->agg_logs["AGRICULTOR"]) {
     for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
-      if (cantidad > 0) { // Only write non-zero values
-        out_file << "AGRICULTOR|" << month << "|" << prod_id << "|" << cantidad << "\n";
+      if (cantidad > 0) {
+        out_file << "AGRICULTOR|" << month << "|" << prod_id << "|" << cantidad << "|" << pid << "\n";
       }
     }
   }
   
-  // Write time records in the format TIME|SS_NUMBER|PROC_ID|EXEC_TIME|SYNC_TIME
+  // Write time records - more efficient format
   for (auto const &event : this->time_records) {
     out_file << "TIME|" << event.ss_number << "|" << event.proc_id << "|" 
              << event.exec_time << "|" << event.sync_time << "\n";
   }
   
-  // Write event records in the format EVENT|SS_NUMBER|PROC_ID|AGENT_TYPE|EVENT_TYPE|COUNT
+  // Clear time records to free memory
+  this->time_records.clear();
+  
+  // Write event records - simpler approach
   for (auto const &event : this->event_records) {
-    // Write event type counts
     for (auto const &[event_type, count] : event.event_type_count) {
-      out_file << "EVENT|" << event.ss_number << "|" << event.proc_id << "||" 
-               << event_type << "|" << count << "\n";
+      if (count > 0) {
+        out_file << "EVENT|" << event.ss_number << "|" << event.proc_id << "|EVENT_TYPE|" 
+                 << event_type << "|" << count << "\n";
+      }
     }
     
-    // Write agent type counts
     for (auto const &[agent_type, count] : event.agent_type_count) {
-      out_file << "EVENT|" << event.ss_number << "|" << event.proc_id << "|" 
-               << agent_type << "||" << count << "\n";
+      if (count > 0) {
+        out_file << "EVENT|" << event.ss_number << "|" << event.proc_id << "|AGENT_TYPE|" 
+                 << agent_type << "|" << count << "\n";
+      }
     }
   }
+  
+  // Clear event records to free memory
+  this->event_records.clear();
   
   out_file.close();
   
@@ -407,180 +428,153 @@ void PostgresAggregatedMonitor::write_results()
   
   // Only processor 0 handles database operations
   if (pid == 0) {
-    printf("Processor 0: Collecting data from all temporary files\n");
-    
-    // Maps to collect all data efficiently
-    std::map<std::string, std::map<int, std::map<std::string, double>>> all_agent_data;
-    std::vector<SSTimeRecord> all_time_records;
-    std::vector<std::pair<int, std::pair<std::string, std::string>>> all_event_records;
-    
-    // Initialize agent data structure
-    all_agent_data["FERIANTE"] = std::map<int, std::map<std::string, double>>();
-    all_agent_data["CONSUMIDOR"] = std::map<int, std::map<std::string, double>>();
-    all_agent_data["AGRICULTOR"] = std::map<int, std::map<std::string, double>>();
-    
-    // Process files from all processors
-    for (int proc = 0; proc < nprocs; proc++) {
-      std::string file_path = "/tmp/sim_results_proc_" + std::to_string(proc) + ".dat";
-      std::ifstream in_file(file_path);
-      
-      if (!in_file) {
-        std::cerr << "Warning: Could not open temporary file from processor " << proc << std::endl;
-        continue;
-      }
-      
-      std::string line;
-      while (std::getline(in_file, line)) {
-        std::istringstream iss(line);
-        std::string record_type, field1, field2, field3, field4, field5;
-        
-        // Parse the first part to determine record type
-        size_t pos = line.find('|');
-        if (pos == std::string::npos) continue;
-        
-        record_type = line.substr(0, pos);
-        std::string rest = line.substr(pos + 1);
-        
-        if (record_type == "FERIANTE" || record_type == "CONSUMIDOR" || record_type == "AGRICULTOR") {
-          // Parse agent data: AGENT_TYPE|MONTH|PROD_ID|QUANTITY
-          std::istringstream fields(rest);
-          std::getline(fields, field1, '|'); // month
-          std::getline(fields, field2, '|'); // prod_id
-          std::getline(fields, field3, '|'); // quantity
-          
-          int month = std::stoi(field1);
-          std::string prod_id = field2;
-          double cantidad = std::stod(field3);
-          
-          // Add to the aggregated data structure
-          all_agent_data[record_type][month][prod_id] += cantidad;
-        }
-        else if (record_type == "TIME") {
-          // Parse time record: TIME|SS_NUMBER|PROC_ID|EXEC_TIME|SYNC_TIME
-          std::istringstream fields(rest);
-          std::getline(fields, field1, '|'); // ss_number
-          std::getline(fields, field2, '|'); // proc_id
-          std::getline(fields, field3, '|'); // exec_time
-          std::getline(fields, field4, '|'); // sync_time
-          
-          SSTimeRecord record;
-          record.ss_number = std::stoi(field1);
-          record.proc_id = std::stoi(field2);
-          record.exec_time = std::stod(field3);
-          record.sync_time = std::stod(field4);
-          
-          all_time_records.push_back(record);
-        }
-        else if (record_type == "EVENT") {
-          // Parse event record: EVENT|SS_NUMBER|PROC_ID|AGENT_TYPE|EVENT_TYPE|COUNT
-          std::istringstream fields(rest);
-          std::getline(fields, field1, '|'); // ss_number
-          std::getline(fields, field2, '|'); // proc_id
-          std::getline(fields, field3, '|'); // agent_type
-          std::getline(fields, field4, '|'); // event_type
-          std::getline(fields, field5, '|'); // count
-          
-          int ss_number = std::stoi(field1);
-          int count = std::stoi(field5);
-          
-          // Store ss_number, agent_type, event_type, count
-          all_event_records.push_back({ss_number, {field3, field4}});
-        }
-      }
-      
-      in_file.close();
-      // Remove temporary file after processing
-      std::remove(file_path.c_str());
-    }
-    
-    // Now write everything to the database in a single transaction
-    printf("Processor 0: Writing all collected data to database\n");
+    printf("Processor 0: Processing data from temporary files\n");
     try {
       pqxx::connection conn(this->_database_url);
-      
-      // Prepare all statements once
       conn.prepare("insert_aggregated_product_result", insert_aggregated_product_result);
       conn.prepare("insert_time_record", insert_time_record);
       conn.prepare("insert_event_record", insert_event_record);
       
-      // Single transaction for all data
-      pqxx::work t{conn};
-      
-      // Write agent data
-      for (auto const &[month, cantidad_por_prod] : all_agent_data["FERIANTE"]) {
-        for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
-          t.exec_prepared0(
-              "insert_aggregated_product_result", this->execution_id,
-              PROCESS_FERIANTE, month, prod_id, cantidad
-          );
-        }
-      }
-      
-      for (auto const &[month, cantidad_por_prod] : all_agent_data["CONSUMIDOR"]) {
-        for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
-          t.exec_prepared0(
-              "insert_aggregated_product_result", this->execution_id,
-              PROCESS_CONSUMIDOR, month, prod_id, cantidad
-          );
-        }
-      }
-      
-      for (auto const &[month, cantidad_por_prod] : all_agent_data["AGRICULTOR"]) {
-        for (auto const &[prod_id, cantidad] : cantidad_por_prod) {
-          t.exec_prepared0(
-              "insert_aggregated_product_result", this->execution_id,
-              PROCESS_AGRICULTOR, month, prod_id, cantidad
-          );
-        }
-      }
-      
-      // Write time records
-      for (auto const &event : all_time_records) {
-        t.exec_prepared0(
-            "insert_time_record", this->execution_id, event.ss_number,
-            event.proc_id, event.exec_time, event.sync_time
-        );
-      }
-      
-      // Write event records - group by ss_number for batching
-      std::map<int, std::map<std::string, int>> event_type_counts;
-      std::map<int, std::map<std::string, int>> agent_type_counts;
-      
-      for (auto const &[ss_number, type_pair] : all_event_records) {
-        const auto &[agent_type, event_type] = type_pair;
+      // Process files directly without loading everything into memory
+      for (int proc = 0; proc < nprocs; proc++) {
+        std::string file_path = "/tmp/sim_results_proc_" + std::to_string(proc) + ".dat";
+        std::ifstream in_file(file_path);
         
-        if (!agent_type.empty() && event_type.empty()) {
-          // This is an agent type count
-          agent_type_counts[ss_number][agent_type]++;
+        if (!in_file) {
+          std::cerr << "Warning: Could not open temporary file from processor " << proc << std::endl;
+          continue;
         }
-        else if (agent_type.empty() && !event_type.empty()) {
-          // This is an event type count
-          event_type_counts[ss_number][event_type]++;
+        
+        printf("Processing data from processor %d\n", proc);
+        std::string line;
+        int line_count = 0;
+        const int BATCH_SIZE = 1000;
+        std::vector<std::string> agent_batch;
+        std::vector<std::string> time_batch;
+        std::vector<std::string> event_batch;
+        
+        auto process_batches = [&]() {
+          if (!agent_batch.empty() || !time_batch.empty() || !event_batch.empty()) {
+            // Create a new transaction for each batch
+            pqxx::work t{conn};
+            
+            // Process agent data batch
+            for (const auto& data : agent_batch) {
+              std::istringstream iss(data);
+              std::string agent_type, month_str, prod_id, quantity, source_proc;
+              
+              std::getline(iss, agent_type, '|');
+              std::getline(iss, month_str, '|');
+              std::getline(iss, prod_id, '|');
+              std::getline(iss, quantity, '|');
+              std::getline(iss, source_proc, '|');
+              
+              int month = std::stoi(month_str);
+              double cantidad = std::stod(quantity);
+              int proc_id = std::stoi(source_proc);
+              
+              std::string process_type;
+              if (agent_type == "FERIANTE") process_type = PROCESS_FERIANTE;
+              else if (agent_type == "CONSUMIDOR") process_type = PROCESS_CONSUMIDOR;
+              else process_type = PROCESS_AGRICULTOR;
+              
+              // Insert directly with proc_id
+              t.exec_prepared0(
+                  "insert_aggregated_product_result", this->execution_id,
+                  process_type, month, prod_id, cantidad, proc_id
+              );
+            }
+            
+            // Process time record batch
+            for (const auto& data : time_batch) {
+              std::istringstream iss(data);
+              std::string ss_number, proc_id, exec_time, sync_time;
+              
+              std::getline(iss, ss_number, '|');
+              std::getline(iss, proc_id, '|');
+              std::getline(iss, exec_time, '|');
+              std::getline(iss, sync_time, '|');
+              
+              t.exec_prepared0(
+                  "insert_time_record", this->execution_id, std::stoi(ss_number),
+                  std::stoi(proc_id), std::stod(exec_time), std::stod(sync_time)
+              );
+            }
+            
+            // Process event record batch
+            for (const auto& data : event_batch) {
+              std::istringstream iss(data);
+              std::string ss_number, proc_id, type_cat, type_name, count;
+              
+              std::getline(iss, ss_number, '|');
+              std::getline(iss, proc_id, '|');
+              std::getline(iss, type_cat, '|');
+              std::getline(iss, type_name, '|');
+              std::getline(iss, count, '|');
+              
+              std::string agent_type = "";
+              std::string event_type = "";
+              
+              if (type_cat == "AGENT_TYPE") {
+                  agent_type = type_name;
+              } else {
+                  event_type = type_name;
+              }
+              
+              t.exec_prepared0(
+                  "insert_event_record", this->execution_id, std::stoi(ss_number),
+                  std::stoi(proc_id), agent_type, event_type, std::stoi(count)
+              );
+            }
+            
+            // Commit this batch
+            t.commit();
+            
+            // Clear batches
+            agent_batch.clear();
+            time_batch.clear();
+            event_batch.clear();
+          }
+        };
+        
+        while (std::getline(in_file, line)) {
+          if (line.empty() || line[0] == '#') continue;
+          
+          size_t pos = line.find('|');
+          if (pos == std::string::npos) continue;
+          
+          std::string record_type = line.substr(0, pos);
+          std::string rest = line.substr(pos + 1);
+          
+          if (record_type == "FERIANTE" || record_type == "CONSUMIDOR" || record_type == "AGRICULTOR") {
+            agent_batch.push_back(record_type + "|" + rest);
+            line_count++;
+          }
+          else if (record_type == "TIME") {
+            time_batch.push_back(rest);
+            line_count++;
+          }
+          else if (record_type == "EVENT") {
+            event_batch.push_back(rest);
+            line_count++;
+          }
+          
+          // Process in batches to avoid memory buildup
+          if (line_count >= BATCH_SIZE) {
+            process_batches();
+            line_count = 0;
+          }
         }
+        
+        // Process any remaining records
+        process_batches();
+        
+        in_file.close();
+        
+        // Remove temporary file after processing
+        std::remove(file_path.c_str());
       }
       
-      // Insert agent type counts
-      for (auto const &[ss_number, counts] : agent_type_counts) {
-        for (auto const &[agent_type, count] : counts) {
-          t.exec_prepared0(
-              "insert_event_record", this->execution_id, ss_number,
-              0, agent_type, "", count
-          );
-        }
-      }
-      
-      // Insert event type counts
-      for (auto const &[ss_number, counts] : event_type_counts) {
-        for (auto const &[event_type, count] : counts) {
-          t.exec_prepared0(
-              "insert_event_record", this->execution_id, ss_number,
-              0, "", event_type, count
-          );
-        }
-      }
-      
-      // Commit all data in a single transaction
-      t.commit();
       printf("Processor 0: Database write complete\n");
     }
     catch (const std::exception &e) {

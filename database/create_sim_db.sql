@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS "aggregated_product_results" (
   "time_granularity" varchar,
   "time" integer,
   "product_id" integer,
-  "value" DOUBLE PRECISION
+  "value" DOUBLE PRECISION,
+  "proc_id" integer DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS "execution_status" (

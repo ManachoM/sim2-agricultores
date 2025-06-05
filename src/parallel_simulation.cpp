@@ -202,7 +202,8 @@ ParallelSimulation::ParallelSimulation(
     : Simulation(_max_sim_time, config_path)
 {
   this->initialize_event_handlers();
-  // Bayesian estimator will be properly initialized in run() after nprocs is known
+  // Bayesian estimator will be properly initialized in run() after nprocs is
+  // known
 }
 
 // Helper fuction para evaluar si todos las colas de salida están vacías
@@ -221,7 +222,7 @@ void ParallelSimulation::run()
   // Inicializamos la cola de salida
   for (bsp_size_t i = 0; i < this->nprocs; ++i)
     this->out_queue[i] = std::vector<Message>();
-    
+
   this->monitor = new PostgresAggregatedMonitor();
   this->pid = bsp_pid();
   printf("Procesador %d/%d\n", pid, nprocs);
@@ -229,10 +230,11 @@ void ParallelSimulation::run()
   // Leemos los archivos de entrada e inicializamos
   // objetos de contexto
   this->read_products();
-  
-  // Initialize Bayesian estimator now that we know nprocs and have read products
-  // Maximum product ID is based on productos size
-  int max_product_id = this->productos.size() > 0 ? this->productos.size() - 1 : 1000;
+
+  // Initialize Bayesian estimator now that we know nprocs and have read
+  // products Maximum product ID is based on productos size
+  int max_product_id =
+      this->productos.size() > 0 ? this->productos.size() - 1 : 1000;
   this->be = BayessianEstimator(max_product_id, this->nprocs - 1);
   this->env->set_productos(this->productos);
   this->read_ferias();
@@ -400,7 +402,7 @@ void ParallelSimulation::run()
       MessageSerializer::send(std::move(messages), proc);
       messages.clear();
     }
-    
+
     // auto start = std::chrono::high_resolution_clock::now();
     start = bsp_time();
     // Enviamos y recibimos todos los mensajes
@@ -424,24 +426,26 @@ void ParallelSimulation::run()
     {
       // Process all pending purchase attempts that never received a response
       std::vector<uint64_t> processed_keys;
-      
+
       for (uint64_t const key : this->solicitudes_compra)
       {
         uint16_t agent_id, prod_id, proc_id;
         unpack_keys(key, agent_id, prod_id, proc_id);
-        
-        // If no response received by this barrier, assume failure and update Bayesian estimator
+
+        // If no response received by this barrier, assume failure and update
+        // Bayesian estimator
         this->be.update(false, prod_id, proc_id);
-        
+
         // Mark key for removal
         processed_keys.push_back(key);
       }
-      
+
       // Remove processed keys from solicitudes_compra
-      for (uint64_t key : processed_keys) {
+      for (uint64_t key : processed_keys)
+      {
         this->solicitudes_compra.erase(key);
       }
-      
+
       // Force decay of statistics at the GVT boundary to ensure
       // recent events have more weight in predictions
       this->be.force_decay();
@@ -1110,7 +1114,6 @@ void ParallelSimulation::update_gvt()
   this->gvt = lvt;
 }
 
-
 void ParallelSimulation::initialize_event_handlers()
 {
   // AMBIENTE Events
@@ -1233,21 +1236,24 @@ void ParallelSimulation::initialize_event_handlers()
         }
         else
         {
-          // Foreign processor - calculate success probability using Bayesian estimator
+          // Foreign processor - calculate success probability using Bayesian
+          // estimator
           double success_prob = sim->be.predict(prod_id, target_proc);
           int buyer_id = (int)msg.find(MESSAGE_KEYS::BUYER_ID);
-          
+
           // Route to appropriate processor
           msg.insert(MESSAGE_KEYS::ORIGIN_PID, (double)sim->pid);
           msg.insert(MESSAGE_KEYS::AGENT_TYPE, AGENT_TYPE::FERIANTE);
           msg.insert(
               MESSAGE_KEYS::PROCESS, EVENTOS_FERIANTE::PROCESS_COMPRA_MAYORISTA
           );
-          
+
           // Record the request for tracking, regardless of prediction
-          uint64_t key = pack_keys(uint16_t(buyer_id), uint16_t(prod_id), uint16_t(target_proc));
+          uint64_t key = pack_keys(
+              uint16_t(buyer_id), uint16_t(prod_id), uint16_t(target_proc)
+          );
           sim->solicitudes_compra.insert(key);
-          
+
           // Send the message to target processor
           sim->out_queue[target_proc].push_back(msg);
         }
@@ -1294,23 +1300,29 @@ void ParallelSimulation::initialize_event_handlers()
         // Complex case - may need routing to another processor
         Message msg = e->get_message();
         int origin_pid = (int)msg.find(MESSAGE_KEYS::ORIGIN_PID);
-        
+
         // Check if this message is from another processor
         if (origin_pid != sim->pid && origin_pid != -1)
         {
           int prod_id = (int)msg.find(MESSAGE_KEYS::PROD_ID);
           int buyer_id = (int)msg.find(MESSAGE_KEYS::BUYER_ID);
-          bool success = (msg.find(MESSAGE_KEYS::ERROR) == 0.0); // No error means success
-          
-          // Only update Bayesian estimator if this is a response to a tracked request
-          uint64_t key = pack_keys(uint16_t(buyer_id), uint16_t(prod_id), uint16_t(origin_pid));
-          if (sim->solicitudes_compra.find(key) != sim->solicitudes_compra.end()) {
+          bool success =
+              (msg.find(MESSAGE_KEYS::ERROR) == 0.0); // No error means success
+
+          // Only update Bayesian estimator if this is a response to a tracked
+          // request
+          uint64_t key = pack_keys(
+              uint16_t(buyer_id), uint16_t(prod_id), uint16_t(origin_pid)
+          );
+          if (sim->solicitudes_compra.find(key) !=
+              sim->solicitudes_compra.end())
+          {
             // Update the estimator with actual outcome
             sim->be.update(success, prod_id, origin_pid);
             // Remove from tracking set since it's been handled
             sim->solicitudes_compra.erase(key);
           }
-          
+
           // Forward the message to the originating processor
           sim->out_queue[origin_pid].push_back(msg);
         }

@@ -11,7 +11,7 @@ Agricultor::Agricultor(FEL *_fel, Terreno *_terr, MercadoMayorista *_mer)
       mercado(_mer) {
   this->fel->insert_event(
       0.0, AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::CULTIVO_TERRENO,
-      this->get_id(), Message(), this
+      this->get_agricultor_id(), Message(), this
   );
 }
 
@@ -64,7 +64,7 @@ void Agricultor::process_cultivo_event(const Event *e, json &log) {
   // Insertamos la cosecha
   this->fel->insert_event(
       prod_elegido->get_dias_cosecha() * 24.0, AGENT_TYPE::AGRICULTOR,
-      EVENTOS_AGRICULTOR::COSECHA, this->get_id(), Message(), this
+      EVENTOS_AGRICULTOR::COSECHA, this->get_agricultor_id(), Message(), this
   );
 }
 
@@ -92,7 +92,7 @@ void Agricultor::process_cosecha_event(const Event *e, json &log) {
 
   this->fel->insert_event(
       24.0, AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::CULTIVO_TERRENO,
-      this->get_id(), Message(), this
+      this->get_agricultor_id(), Message(), this
   );
 }
 

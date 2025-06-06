@@ -49,8 +49,8 @@ bool Feria::is_active() {
 void Feria::initialize_feria() {
   for (auto const &[fer_id, fer_ptr] : this->feriantes)
     this->fel->insert_event(
-        1.0, AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::COMPRA_MAYORISTA, fer_id,
-        Message(), fer_ptr
+        1.0, AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::INIT_COMPRA_MAYORISTA,
+        fer_ptr->get_feriante_id(), Message(), fer_ptr
     );
 }
 

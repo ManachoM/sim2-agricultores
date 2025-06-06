@@ -1,6 +1,7 @@
 #ifndef _SIMULATION_H_
 #define _SIMULATION_H_
 
+#include "event_handler.h"
 #include "feria.h"
 #include "glob.h"
 #include "heap_fel.h"
@@ -26,6 +27,7 @@ private:
   FEL *fel = new HeapFEL();
   Environment *env;
   Monitor *monitor = new PostgresAggregatedMonitor();
+  EventHandlerSystem event_handlers;
 
   std::vector<Consumidor *> consumidores_arr;
   std::vector<Feriante *> feriante_arr;
@@ -39,10 +41,13 @@ private:
   std::unordered_map<int, Producto *> productos;
   std::unordered_map<int, Terreno *> terrenos;
 
+  MercadoMayorista *mercado;
+
   void read_products();
   void read_ferias();
   void read_terrenos();
   void initialize_agents(MercadoMayorista *mercado);
+  void initialize_event_handlers();
 };
 
 #endif // !_SIMULATION_H_

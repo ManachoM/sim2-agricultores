@@ -182,8 +182,8 @@ void Environment::process_event(Event *e) {
 
       this->fel->insert_event(
           purchase_time, AGENT_TYPE::CONSUMIDOR,
-          EVENTOS_CONSUMIDOR::COMPRA_FERIANTE, consumidor->get_id(), Message(),
-          consumidor
+          EVENTOS_CONSUMIDOR::COMPRA_FERIANTE, consumidor->get_consumer_id(),
+          Message(), consumidor
       );
     }
     break;

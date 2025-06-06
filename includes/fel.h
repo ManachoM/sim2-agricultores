@@ -4,6 +4,7 @@
 #include "event.h"
 #include "glob.h"
 #include "message.h"
+#include "object_pool.h"
 
 class FEL {
 public:
@@ -17,6 +18,8 @@ public:
   virtual double get_time() = 0;
 
   virtual bool is_empty() = 0;
+
+  ObjectPool<Event> event_pool;
 };
 
 #endif // !FEL_H

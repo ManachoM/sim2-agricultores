@@ -1,4 +1,5 @@
 #include "../includes/consumidor.h"
+
 #include "../includes/environment.h"
 #include "../includes/feria.h"
 #include "../includes/monitor.h"
@@ -56,10 +57,12 @@ void Consumidor::process_init_compra() {
     std::map<std::string, double> content = {
         {"amount", amount},
         {"prod_id", (double)prod_id},
-        {"buyer_id", (double)this->get_consumer_id()}};
-    this->fel->insert_event(purchase_time, AGENT_TYPE::FERIANTE,
-                            EVENTOS_FERIANTE::VENTA_CONSUMIDOR, fer->get_id(),
-                            Message(content), fer);
+        {"buyer_id", (double)this->get_consumer_id()}
+    };
+    this->fel->insert_event(
+        purchase_time, AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::VENTA_CONSUMIDOR,
+        fer->get_feriante_id(), Message(content), fer
+    );
   }
 }
 
@@ -86,9 +89,10 @@ void Consumidor::process_resp_feriante(const Event *e, json &log) {
       log["feriante_id"] = -1;
       return;
     }
-    this->fel->insert_event(0.0, AGENT_TYPE::FERIANTE,
-                            EVENTOS_FERIANTE::VENTA_CONSUMIDOR,
-                            new_fer->get_id(), msg, new_fer);
+    this->fel->insert_event(
+        0.0, AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::VENTA_CONSUMIDOR,
+        new_fer->get_feriante_id(), msg, new_fer
+    );
 
     log["feriante_id"] = -1;
     return;

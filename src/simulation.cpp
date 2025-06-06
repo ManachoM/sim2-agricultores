@@ -11,11 +11,14 @@
 #include "../includes/postgres_aggregated_monitor.h"
 #include "../includes/sim_config.h"
 
+#include <cstdio>
+
 Simulation::Simulation(
     const double _max_sim_time, const std::string &_config_path
 )
     : max_sim_time(_max_sim_time), conf_path(_config_path) {
   this->env = new Environment(this->fel, this->monitor);
+  this->initialize_event_handlers();
 }
 
 void Simulation::run() {
@@ -28,14 +31,14 @@ void Simulation::run() {
   this->read_terrenos();
 
   auto mercado = new MercadoMayorista(this->env);
-
+  this->mercado = mercado;
   this->initialize_agents(mercado);
 
   // Pasamos al ambiente las nuevas estructuras de datos
   this->env->set_consumidores(this->consumidores);
   this->env->set_feriantes(this->feriantes);
   this->env->set_agricultores(this->agricultores);
-  mercado->reset_index();
+  this->mercado->reset_index();
 
   // Inicializamos los eventos del ambiente
   for (int i = 1; i < 7; ++i) {
@@ -62,11 +65,12 @@ void Simulation::run() {
     if ((current_event->event_id % 1'000'000) == 0)
       std::cout << "SIM TIME: " << current_event->get_time()
                 << "\n EVENT ID: " << current_event->event_id << "\n";
-
+    /*
     caller = current_event->get_caller_ptr();
     if (caller != nullptr) {
       caller->process_event(current_event);
-      delete current_event;
+      // delete current_event;
+      this->fel->event_pool.release(current_event);
       continue;
     }
     switch (current_event->get_type()) {
@@ -91,7 +95,10 @@ void Simulation::run() {
     }
 
     caller->process_event(current_event);
-    delete current_event;
+    */
+    this->event_handlers.handle(this, current_event);
+    this->fel->event_pool.release(current_event);
+    // delete current_event;
   }
 
   auto end_time = std::chrono::high_resolution_clock::now();
@@ -284,6 +291,211 @@ void Simulation::initialize_agents(MercadoMayorista *_mer) {
   std::ifstream spi(config["spi_file"].get<std::string>());
   json spi_json = json::parse(spi);
   this->env->set_sequias_nivel(spi_json["levels"].get<std::vector<int>>());
+
+  printf(
+      "Consu array: %ld - Ferr array: %ld - Agr Array: %ld\n",
+      consumidores_arr.size(), feriante_arr.size(), agricultor_arr.size()
+  );
+}
+
+void Simulation::initialize_event_handlers() {
+  printf("Inicializando event handlers...\n");
+  // AMBIENTE Events
+  event_handlers.register_handler(
+      AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::INICIO_FERIA,
+      [](Simulation *sim, Event *e) {
+        // Environment events are always processed locally
+        sim->env->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::FIN_FERIA,
+      [](Simulation *sim, Event *e) { sim->env->process_event(e); }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::CALCULO_PRECIOS,
+      [](Simulation *sim, Event *e) { sim->env->process_event(e); }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AMBIENTE, EVENTOS_AMBIENTE::LIMPIEZA_MERCADO_MAYORISTA,
+      [](Simulation *sim, Event *e) { sim->env->process_event(e); }
+  );
+
+  // AGRICULTOR Events
+  event_handlers.register_handler(
+      AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::CULTIVO_TERRENO,
+      [](Simulation *sim, Event *e) {
+        // Standard agricultor event - process locally
+        Agricultor *agr = sim->agricultor_arr.at(e->get_caller_id());
+        agr->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::COSECHA,
+      [](Simulation *sim, Event *e) {
+        Agricultor *agr = sim->agricultor_arr[e->get_caller_id()];
+        agr->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::VENTA_FERIANTE,
+      [](Simulation *sim, Event *e) {
+        Message msg = e->get_message();
+        int prod_id = (int)msg.msg.at("prod_id");
+        int amount = (int)msg.msg.at("amount");
+
+        // Get available agricultores for this product
+        std::vector<int> agros_id =
+            sim->mercado->get_agricultor_por_prod(prod_id);
+
+        // Find an agricultor with sufficient inventory
+        Agricultor *agro;
+        bool found_valid_inventory = false;
+
+        for (const auto &agr_id : agros_id) {
+          agro = sim->agricultor_arr[agr_id];
+          Inventario inv = agro->get_inventory_by_id(prod_id);
+          double quantity = inv.get_quantity();
+
+          // Skip if inventory is invalid or insufficient
+          if (!inv.is_valid_inventory() || quantity < amount)
+            continue;
+
+          found_valid_inventory = true;
+          agro->process_event(e);
+          return;
+        }
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::AGRICULTOR, EVENTOS_AGRICULTOR::INVENTARIO_VENCIDO,
+      [](Simulation *sim, Event *e) {
+        // Standard event - process locally
+        Agricultor *agr = sim->agricultor_arr.at(e->get_caller_id());
+        agr->process_event(e);
+      }
+  );
+
+  // FERIANTE Events
+  event_handlers.register_handler(
+      AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::COMPRA_MAYORISTA,
+      [](Simulation *sim, Event *e) {
+        Message msg = e->get_message();
+        // Standard feriante event - process locally
+        int feriante_id = e->get_caller_id();
+        sim->feriante_arr.at(feriante_id)->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::VENTA_CONSUMIDOR,
+      [](Simulation *sim, Event *e) {
+        // Standard feriante event - process locally
+        int feriante_id = e->get_caller_id();
+        sim->feriante_arr.at(feriante_id)->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::FERIANTE, EVENTOS_FERIANTE::PROCESS_COMPRA_MAYORISTA,
+      [](Simulation *sim, Event *e) {
+        int agent_id = e->get_caller_id();
+        Feriante *fer = sim->feriante_arr.at(agent_id);
+        fer->process_event(e);
+      }
+  );
+
+  // CONSUMIDOR Events
+  event_handlers.register_handler(
+      AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::BUSCAR_FERIANTE,
+      [](Simulation *sim, Event *e) {
+        // Consumidor events are always local
+        Agent *caller = e->get_caller_ptr();
+        caller->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::INIT_COMPRA_FERIANTE,
+      [](Simulation *sim, Event *e) {
+        Agent *caller = e->get_caller_ptr();
+        caller->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::PROCESAR_COMPRA_FERIANTE,
+      [](Simulation *sim, Event *e) {
+        Agent *caller = e->get_caller_ptr();
+        caller->process_event(e);
+      }
+  );
+
+  event_handlers.register_handler(
+      AGENT_TYPE::CONSUMIDOR, EVENTOS_CONSUMIDOR::COMPRA_FERIANTE,
+      [](Simulation *sim, Event *e) {
+        Agent *caller = e->get_caller_ptr();
+        caller->process_event(e);
+      }
+  );
+
+  // Default handler for any unregistered event types
+  event_handlers.set_default_handler([](Simulation *sim, Event *e) {
+    int agent_type = e->get_type();
+    int caller_id = e->get_caller_id();
+
+    // Fall back to the standard event processing based on agent type
+    switch (agent_type) {
+    case AGENT_TYPE::AMBIENTE:
+      sim->env->process_event(e);
+      break;
+
+    case AGENT_TYPE::AGRICULTOR: {
+      if (caller_id >= 0 && caller_id < sim->agricultor_arr.size()) {
+        Agricultor *agr = sim->agricultor_arr.at(caller_id);
+        agr->process_event(e);
+      } else {
+        printf("Warning: Invalid agricultor ID %d\n", caller_id);
+      }
+      break;
+    }
+
+    case AGENT_TYPE::FERIANTE: {
+      if (caller_id >= 0 && caller_id < sim->feriante_arr.size()) {
+        Feriante *fer = sim->feriante_arr.at(caller_id);
+        fer->process_event(e);
+      } else {
+        printf("Warning: Invalid feriante ID %d\n", caller_id);
+      }
+      break;
+    }
+
+    case AGENT_TYPE::CONSUMIDOR: {
+      // Try to use caller_ptr first for safety
+      Agent *caller = e->get_caller_ptr();
+      if (caller) {
+        caller->process_event(e);
+      } else if (caller_id >= 0 && caller_id < sim->consumidores_arr.size()) {
+        Consumidor *con = sim->consumidores_arr.at(caller_id);
+        con->process_event(e);
+      } else {
+        printf("Warning: Invalid consumidor ID %d\n", caller_id);
+      }
+      break;
+    }
+
+    default:
+      printf("Warning: Unknown agent type %d\n", agent_type);
+      break;
+    }
+  });
+  printf("Event handlers inicializados!\n");
 }
 
 Simulation::~Simulation() {

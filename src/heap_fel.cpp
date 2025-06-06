@@ -6,9 +6,16 @@ void HeapFEL::insert_event(
     double _time, int _agent_type, int _proc, int _caller_id, Message _msg,
     Agent *_caller_ptr
 ) {
+  /*
   Event *e = new Event(
       _time + this->clock, _agent_type, _proc, _caller_id, _msg, _caller_ptr
   );
+  */
+
+  Event *e = this->event_pool.alloc(
+      _time + this->clock, _agent_type, _proc, _caller_id, _msg, _caller_ptr
+  );
+
   this->pq.push(e);
 }
 
@@ -27,4 +34,4 @@ double HeapFEL::get_time() { return this->clock; }
 
 bool HeapFEL::is_empty() { return this->pq.empty(); }
 
-HeapFEL::~HeapFEL(){};
+HeapFEL::~HeapFEL() {};

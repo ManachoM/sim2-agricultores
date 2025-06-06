@@ -499,6 +499,7 @@ void Simulation::initialize_event_handlers() {
 }
 
 Simulation::~Simulation() {
+  printf("Borrando maps...\n");
   for (const auto &pair : this->consumidores)
     delete pair.second;
   for (const auto &pair : this->ferias)
@@ -510,11 +511,14 @@ Simulation::~Simulation() {
   for (const auto &pair : this->productos)
     delete pair.second;
 
+  printf("Borrando arreglos...\n");
   this->feria_arr.resize(0);
   this->consumidores_arr.resize(0);
   this->feriante_arr.resize(0);
   this->agricultor_arr.resize(0);
   // delete this->monitor;
   // delete this->env;
+
+  printf("Borrando FEL...\n");
   delete this->fel;
 }

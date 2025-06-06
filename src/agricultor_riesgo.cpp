@@ -9,7 +9,8 @@ AgricultorRiesgo::AgricultorRiesgo(
     : Agricultor(_fel, _terr, _mer) {
 
   std::random_device rd;
-  std::mt19937 gen(rd());
+  unsigned int seed = rd() + get_agricultor_id() * 10;
+  gen = std::mt19937(seed);
 
   std::uniform_real_distribution<> dist(0.0, 1.0);
 
@@ -19,6 +20,7 @@ AgricultorRiesgo::AgricultorRiesgo(
 }
 
 const int AgricultorRiesgo::choose_product() {
+  /*
   auto prod_mes = this->env->get_siembra_producto_mes();
   auto lista_prods = prod_mes.find(this->env->get_month());
   Producto *prod_elegido;
@@ -40,6 +42,59 @@ const int AgricultorRiesgo::choose_product() {
   std::sort(scores.begin(), scores.end(), [](const auto &a, const auto &b) {
     return a.second < b.second;
   });
+  // elegir el que tenga precio mayor
+  //
+  std::vector<std::pair<int, double>> safest_three;
+  for (const auto &p : scores) {
+    safest_three.push_back(p);
+    if (safest_three.size() == 3)
+      break;
+  }
+
+  // Now, select the candidate with the highest score according to
+  // evaluateCandidate
+  auto bestCandidate = std::max_element(
+      safest_three.begin(), safest_three.end(),
+      [this](const std::pair<int, double> &a, const std::pair<int, double> &b) {
+        return env->get_productos().at(a.first)->get_precios_mes().at(
+                   env->get_month()
+               ) <
+               env->get_productos().at(b.first)->get_precios_mes().at(
+                   env->get_month()
+               );
+      }
+  );
+  if (bestCandidate == safest_three.end())
+    return safest_three.at(0).first;
+
+  return bestCandidate->first;
+  */
+  if (this->current_month == this->env->get_month())
+    return this->best_candidate;
+
+  this->current_month = this->env->get_month();
+  auto prod_mes = this->env->get_siembra_producto_mes();
+  auto lista_prods = prod_mes.find(this->env->get_month());
+
+  if (this->seguro) {
+    Producto *prod_elegido = (*select_randomly(
+        lista_prods->second.begin(), lista_prods->second.end()
+    ));
+    return prod_elegido->get_id();
+  }
+
+  // Tomar tres con riesgo mejor
+  auto scores = std::vector<std::pair<int, double>>();
+
+  for (Producto *prod : lista_prods->second) {
+    scores.push_back(
+        {prod->get_id(), calc_riesgo(prod, this->env, this->get_terreno())}
+    );
+  }
+  std::sort(scores.begin(), scores.end(), [](const auto &a, const auto &b) {
+    return a.second < b.second;
+  });
+
   // elegir el que tenga precio mayor
   //
   std::vector<std::pair<int, double>> safest_three;

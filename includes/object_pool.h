@@ -44,8 +44,11 @@ public:
 
   ~ObjectPool() {
     chunk *hchunk = this->head_chunk;
+
+    printf("Borrando ObjectPool...\n");
     while (hchunk) {
       for (std::size_t i = 0; i < chunk_size; ++i) {
+
         slot *s = &hchunk->slots[i];
         T *obj = reinterpret_cast<T *>(&s->storage);
         obj->~T();

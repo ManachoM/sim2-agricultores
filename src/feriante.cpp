@@ -163,8 +163,11 @@ void Feriante::process_compra_mayorista(const Event *e, json &log) {
       Inventario inv = agro->get_inventory_by_id(prod_id);
       double q = inv.get_quantity();
       // Si no tiene inventario o no es válido
-      if (!inv.is_valid_inventory() || q < amount)
+      if (!inv.is_valid_inventory() || q < amount) {
+
+        this->mercado->update_index(agro->get_agricultor_id(), prod_id, false);
         continue;
+      }
 
       this->inventario.insert(
           {prod_id, Inventario(e->get_time(), 0.0, prod_id, amount)}

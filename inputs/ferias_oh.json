@@ -1,0 +1,1150 @@
+[
+    {
+        "cod_comuna": "745",
+        "comuna": "Rancagua",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 80
+    },
+    {
+        "cod_comuna": "747",
+        "comuna": "Rancagua",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 36
+    },
+    {
+        "cod_comuna": "748",
+        "comuna": "Rancagua",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 102
+    },
+    {
+        "cod_comuna": "749",
+        "comuna": "Rancagua",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 220
+    },
+    {
+        "cod_comuna": "750",
+        "comuna": "Rancagua",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 30
+    },
+    {
+        "cod_comuna": "751",
+        "comuna": "Rancagua",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 34
+    },
+    {
+        "cod_comuna": "752",
+        "comuna": "Rancagua",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 34
+    },
+    {
+        "cod_comuna": "753",
+        "comuna": "Rancagua",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 62
+    },
+    {
+        "cod_comuna": "754",
+        "comuna": "Rancagua",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 36
+    },
+    {
+        "cod_comuna": "755",
+        "comuna": "Rancagua",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 54
+    },
+    {
+        "cod_comuna": "756",
+        "comuna": "Rancagua",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 132
+    },
+    {
+        "cod_comuna": "757",
+        "comuna": "Rancagua",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 230
+    },
+    {
+        "cod_comuna": "758",
+        "comuna": "Rancagua",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 59
+    },
+    {
+        "cod_comuna": "759",
+        "comuna": "Rancagua",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 47
+    },
+    {
+        "cod_comuna": "760",
+        "comuna": "Rancagua",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 213
+    },
+    {
+        "cod_comuna": "761",
+        "comuna": "Rancagua",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 101
+    },
+    {
+        "cod_comuna": "762",
+        "comuna": "Rancagua",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 100
+    },
+    {
+        "cod_comuna": "763",
+        "comuna": "Rancagua",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 24
+    },
+    {
+        "cod_comuna": "764",
+        "comuna": "Rancagua",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 49
+    },
+    {
+        "cod_comuna": "765",
+        "comuna": "Rancagua",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 23
+    },
+    {
+        "cod_comuna": "767",
+        "comuna": "Rancagua",
+        "dias": [
+            2
+        ],
+        "cantidad_puestos": 215
+    },
+    {
+        "cod_comuna": "768",
+        "comuna": "Rancagua",
+        "dias": [
+            2
+        ],
+        "cantidad_puestos": 35
+    },
+    {
+        "cod_comuna": "769",
+        "comuna": "Rancagua",
+        "dias": [
+            2
+        ],
+        "cantidad_puestos": 94
+    },
+    {
+        "cod_comuna": "770",
+        "comuna": "Codegua",
+        "dias": [
+            2
+        ],
+        "cantidad_puestos": 60
+    },
+    {
+        "cod_comuna": "771",
+        "comuna": "Codegua",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 100
+    },
+    {
+        "cod_comuna": "772",
+        "comuna": "Coinco",
+        "dias": [
+            3,
+            6
+        ],
+        "cantidad_puestos": 25
+    },
+    {
+        "cod_comuna": "772",
+        "comuna": "Coinco",
+        "dias": [
+            3,
+            6
+        ],
+        "cantidad_puestos": 25
+    },
+    {
+        "cod_comuna": "773",
+        "comuna": "Coinco",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 8
+    },
+    {
+        "cod_comuna": "774",
+        "comuna": "Coinco",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 12
+    },
+    {
+        "cod_comuna": "775",
+        "comuna": "Coltauco",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 59
+    },
+    {
+        "cod_comuna": "776",
+        "comuna": "Coltauco",
+        "dias": [
+            2
+        ],
+        "cantidad_puestos": 4
+    },
+    {
+        "cod_comuna": "777",
+        "comuna": "Coltauco",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 37
+    },
+    {
+        "cod_comuna": "778",
+        "comuna": "Coltauco",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 30
+    },
+    {
+        "cod_comuna": "779",
+        "comuna": "Coltauco",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 105
+    },
+    {
+        "cod_comuna": "780",
+        "comuna": "Coltauco",
+        "dias": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        "cantidad_puestos": 9
+    },
+    {
+        "cod_comuna": "780",
+        "comuna": "Coltauco",
+        "dias": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        "cantidad_puestos": 9
+    },
+    {
+        "cod_comuna": "780",
+        "comuna": "Coltauco",
+        "dias": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        "cantidad_puestos": 9
+    },
+    {
+        "cod_comuna": "780",
+        "comuna": "Coltauco",
+        "dias": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        "cantidad_puestos": 9
+    },
+    {
+        "cod_comuna": "780",
+        "comuna": "Coltauco",
+        "dias": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        "cantidad_puestos": 9
+    },
+    {
+        "cod_comuna": "780",
+        "comuna": "Coltauco",
+        "dias": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        "cantidad_puestos": 9
+    },
+    {
+        "cod_comuna": "780",
+        "comuna": "Coltauco",
+        "dias": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        "cantidad_puestos": 9
+    },
+    {
+        "cod_comuna": "781",
+        "comuna": "Do\u00f1ihue",
+        "dias": [
+            1,
+            4,
+            5
+        ],
+        "cantidad_puestos": 19
+    },
+    {
+        "cod_comuna": "781",
+        "comuna": "Do\u00f1ihue",
+        "dias": [
+            1,
+            4,
+            5
+        ],
+        "cantidad_puestos": 19
+    },
+    {
+        "cod_comuna": "781",
+        "comuna": "Do\u00f1ihue",
+        "dias": [
+            1,
+            4,
+            5
+        ],
+        "cantidad_puestos": 19
+    },
+    {
+        "cod_comuna": "782",
+        "comuna": "Do\u00f1ihue",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 18
+    },
+    {
+        "cod_comuna": "783",
+        "comuna": "Do\u00f1ihue",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 47
+    },
+    {
+        "cod_comuna": "784",
+        "comuna": "Do\u00f1ihue",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 47
+    },
+    {
+        "cod_comuna": "785",
+        "comuna": "Do\u00f1ihue",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 28
+    },
+    {
+        "cod_comuna": "786",
+        "comuna": "Do\u00f1ihue",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 363
+    },
+    {
+        "cod_comuna": "787",
+        "comuna": "Graneros",
+        "dias": [
+            2
+        ],
+        "cantidad_puestos": 121
+    },
+    {
+        "cod_comuna": "788",
+        "comuna": "Graneros",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 16
+    },
+    {
+        "cod_comuna": "789",
+        "comuna": "Graneros",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 49
+    },
+    {
+        "cod_comuna": "790",
+        "comuna": "Graneros",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 20
+    },
+    {
+        "cod_comuna": "791",
+        "comuna": "Graneros",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 68
+    },
+    {
+        "cod_comuna": "792",
+        "comuna": "Graneros",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 12
+    },
+    {
+        "cod_comuna": "793",
+        "comuna": "Graneros",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 267
+    },
+    {
+        "cod_comuna": "794",
+        "comuna": "Graneros",
+        "dias": [
+            4,
+            5,
+            6
+        ],
+        "cantidad_puestos": 9
+    },
+    {
+        "cod_comuna": "794",
+        "comuna": "Graneros",
+        "dias": [
+            4,
+            5,
+            6
+        ],
+        "cantidad_puestos": 9
+    },
+    {
+        "cod_comuna": "794",
+        "comuna": "Graneros",
+        "dias": [
+            4,
+            5,
+            6
+        ],
+        "cantidad_puestos": 9
+    },
+    {
+        "cod_comuna": "795",
+        "comuna": "Las Cabras",
+        "dias": [
+            3,
+            6
+        ],
+        "cantidad_puestos": 172
+    },
+    {
+        "cod_comuna": "795",
+        "comuna": "Las Cabras",
+        "dias": [
+            3,
+            6
+        ],
+        "cantidad_puestos": 172
+    },
+    {
+        "cod_comuna": "796",
+        "comuna": "Las Cabras",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 180
+    },
+    {
+        "cod_comuna": "797",
+        "comuna": "Las Cabras",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 145
+    },
+    {
+        "cod_comuna": "799",
+        "comuna": "Las Cabras",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 38
+    },
+    {
+        "cod_comuna": "800",
+        "comuna": "Las Cabras",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 25
+    },
+    {
+        "cod_comuna": "801",
+        "comuna": "Las Cabras",
+        "dias": [
+            1,
+            4
+        ],
+        "cantidad_puestos": 54
+    },
+    {
+        "cod_comuna": "801",
+        "comuna": "Las Cabras",
+        "dias": [
+            1,
+            4
+        ],
+        "cantidad_puestos": 54
+    },
+    {
+        "cod_comuna": "802",
+        "comuna": "Las Cabras",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 20
+    },
+    {
+        "cod_comuna": "803",
+        "comuna": "Las Cabras",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 21
+    },
+    {
+        "cod_comuna": "804",
+        "comuna": "Machal\u00ed",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 29
+    },
+    {
+        "cod_comuna": "805",
+        "comuna": "Machal\u00ed",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 15
+    },
+    {
+        "cod_comuna": "806",
+        "comuna": "Mostazal",
+        "dias": [
+            1,
+            4
+        ],
+        "cantidad_puestos": 60
+    },
+    {
+        "cod_comuna": "806",
+        "comuna": "Mostazal",
+        "dias": [
+            1,
+            4
+        ],
+        "cantidad_puestos": 60
+    },
+    {
+        "cod_comuna": "807",
+        "comuna": "Mostazal",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 38
+    },
+    {
+        "cod_comuna": "808",
+        "comuna": "Mostazal",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 121
+    },
+    {
+        "cod_comuna": "809",
+        "comuna": "Olivar",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 20
+    },
+    {
+        "cod_comuna": "810",
+        "comuna": "Olivar",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 26
+    },
+    {
+        "cod_comuna": "812",
+        "comuna": "Pichidegua",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 5
+    },
+    {
+        "cod_comuna": "813",
+        "comuna": "Pichidegua",
+        "dias": [
+            2,
+            4
+        ],
+        "cantidad_puestos": 10
+    },
+    {
+        "cod_comuna": "813",
+        "comuna": "Pichidegua",
+        "dias": [
+            2,
+            4
+        ],
+        "cantidad_puestos": 10
+    },
+    {
+        "cod_comuna": "814",
+        "comuna": "Pichidegua",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 10
+    },
+    {
+        "cod_comuna": "815",
+        "comuna": "Pichidegua",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 8
+    },
+    {
+        "cod_comuna": "816",
+        "comuna": "Pichidegua",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 70
+    },
+    {
+        "cod_comuna": "817",
+        "comuna": "Quinta de Tilcoco",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 180
+    },
+    {
+        "cod_comuna": "819",
+        "comuna": "Rengo",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 125
+    },
+    {
+        "cod_comuna": "820",
+        "comuna": "Rengo",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 120
+    },
+    {
+        "cod_comuna": "821",
+        "comuna": "Requ\u00ednoa",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 130
+    },
+    {
+        "cod_comuna": "822",
+        "comuna": "Requ\u00ednoa",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 30
+    },
+    {
+        "cod_comuna": "823",
+        "comuna": "San Vicente",
+        "dias": [
+            0,
+            1,
+            3,
+            4
+        ],
+        "cantidad_puestos": 210
+    },
+    {
+        "cod_comuna": "823",
+        "comuna": "San Vicente",
+        "dias": [
+            0,
+            1,
+            3,
+            4
+        ],
+        "cantidad_puestos": 210
+    },
+    {
+        "cod_comuna": "823",
+        "comuna": "San Vicente",
+        "dias": [
+            0,
+            1,
+            3,
+            4
+        ],
+        "cantidad_puestos": 210
+    },
+    {
+        "cod_comuna": "823",
+        "comuna": "San Vicente",
+        "dias": [
+            0,
+            1,
+            3,
+            4
+        ],
+        "cantidad_puestos": 210
+    },
+    {
+        "cod_comuna": "824",
+        "comuna": "San Vicente",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 180
+    },
+    {
+        "cod_comuna": "824",
+        "comuna": "San Vicente",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 180
+    },
+    {
+        "cod_comuna": "825",
+        "comuna": "San Vicente",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 210
+    },
+    {
+        "cod_comuna": "826",
+        "comuna": "Pichilemu",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 122
+    },
+    {
+        "cod_comuna": "826",
+        "comuna": "Pichilemu",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 122
+    },
+    {
+        "cod_comuna": "829",
+        "comuna": "Marchihue",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 150
+    },
+    {
+        "cod_comuna": "830",
+        "comuna": "Marchihue",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 16
+    },
+    {
+        "cod_comuna": "830",
+        "comuna": "Marchihue",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 16
+    },
+    {
+        "cod_comuna": "830",
+        "comuna": "Marchihue",
+        "dias": [
+            1
+        ],
+        "cantidad_puestos": 16
+    },
+    {
+        "cod_comuna": "831",
+        "comuna": "Navidad",
+        "dias": [
+            2
+        ],
+        "cantidad_puestos": 71
+    },
+    {
+        "cod_comuna": "832",
+        "comuna": "Navidad",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 10
+    },
+    {
+        "cod_comuna": "833",
+        "comuna": "Navidad",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 35
+    },
+    {
+        "cod_comuna": "834",
+        "comuna": "Navidad",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 10
+    },
+    {
+        "cod_comuna": "835",
+        "comuna": "Navidad",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 30
+    },
+    {
+        "cod_comuna": "845",
+        "comuna": "San Fernando",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 279
+    },
+    {
+        "cod_comuna": "845",
+        "comuna": "San Fernando",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 279
+    },
+    {
+        "cod_comuna": "846",
+        "comuna": "San Fernando",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 52
+    },
+    {
+        "cod_comuna": "846",
+        "comuna": "San Fernando",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 52
+    },
+    {
+        "cod_comuna": "847",
+        "comuna": "San Fernando",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 28
+    },
+    {
+        "cod_comuna": "847",
+        "comuna": "San Fernando",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 28
+    },
+    {
+        "cod_comuna": "848",
+        "comuna": "San Fernando",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 80
+    },
+    {
+        "cod_comuna": "848",
+        "comuna": "San Fernando",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 80
+    },
+    {
+        "cod_comuna": "849",
+        "comuna": "Ch\u00e9pica",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 60
+    },
+    {
+        "cod_comuna": "854",
+        "comuna": "Lolol",
+        "dias": [
+            2,
+            4
+        ],
+        "cantidad_puestos": 14
+    },
+    {
+        "cod_comuna": "854",
+        "comuna": "Lolol",
+        "dias": [
+            2,
+            4
+        ],
+        "cantidad_puestos": 14
+    },
+    {
+        "cod_comuna": "855",
+        "comuna": "Lolol",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 16
+    },
+    {
+        "cod_comuna": "856",
+        "comuna": "Nancagua",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 288
+    },
+    {
+        "cod_comuna": "857",
+        "comuna": "Nancagua",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 36
+    },
+    {
+        "cod_comuna": "858",
+        "comuna": "Nancagua",
+        "dias": [
+            4
+        ],
+        "cantidad_puestos": 16
+    },
+    {
+        "cod_comuna": "859",
+        "comuna": "Palmilla",
+        "dias": [
+            2
+        ],
+        "cantidad_puestos": 15
+    },
+    {
+        "cod_comuna": "860",
+        "comuna": "Palmilla",
+        "dias": [
+            5
+        ],
+        "cantidad_puestos": 40
+    },
+    {
+        "cod_comuna": "861",
+        "comuna": "Palmilla",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 15
+    },
+    {
+        "cod_comuna": "863",
+        "comuna": "Peralillo",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 231
+    },
+    {
+        "cod_comuna": "864",
+        "comuna": "Peralillo",
+        "dias": [
+            3
+        ],
+        "cantidad_puestos": 20
+    },
+    {
+        "cod_comuna": "865",
+        "comuna": "Peralillo",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 110
+    },
+    {
+        "cod_comuna": "866",
+        "comuna": "Peralillo",
+        "dias": [
+            2
+        ],
+        "cantidad_puestos": 20
+    },
+    {
+        "cod_comuna": "867",
+        "comuna": "Placilla",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 97
+    },
+    {
+        "cod_comuna": "869",
+        "comuna": "Santa Cruz",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 235
+    },
+    {
+        "cod_comuna": "869",
+        "comuna": "Santa Cruz",
+        "dias": [
+            2,
+            5
+        ],
+        "cantidad_puestos": 235
+    },
+    {
+        "cod_comuna": "870",
+        "comuna": "Santa Cruz",
+        "dias": [
+            6
+        ],
+        "cantidad_puestos": 310
+    }
+]

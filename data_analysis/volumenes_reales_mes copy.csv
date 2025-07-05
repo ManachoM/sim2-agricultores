@@ -1,0 +1,261 @@
+prod,month_id,expected_volume
+Ajo,3,2220500
+Ajo,4,2220500
+Ajo,5,2220500
+Ajo,6,2220500
+Ajo,7,2220500
+Ajo,8,2220500
+Ajo,9,2220500
+Ajo,10,2220500
+Ajo,11,2220500
+Ajo,12,2220500
+Ajo,13,2220500
+Ajo,14,2220500
+Ajo,15,2220500
+Alcachofa,3,0
+Alcachofa,4,365700
+Alcachofa,5,365700
+Alcachofa,6,365700
+Alcachofa,7,365700
+Alcachofa,8,365700
+Alcachofa,9,365700
+Alcachofa,10,365700
+Alcachofa,11,0
+Alcachofa,12,0
+Alcachofa,13,0
+Alcachofa,14,0
+Alcachofa,15,0
+Apio,3,450000
+Apio,4,450000
+Apio,5,450000
+Apio,6,450000
+Apio,7,450000
+Apio,8,450000
+Apio,9,450000
+Apio,10,450000
+Apio,11,450000
+Apio,12,450000
+Apio,13,450000
+Apio,14,450000
+Apio,15,450000
+Arveja Verde,3,116750
+Arveja Verde,4,116750
+Arveja Verde,5,116750
+Arveja Verde,6,116750
+Arveja Verde,7,116750
+Arveja Verde,8,116750
+Arveja Verde,9,116750
+Arveja Verde,10,116750
+Arveja Verde,11,116750
+Arveja Verde,12,116750
+Arveja Verde,13,116750
+Arveja Verde,14,116750
+Arveja Verde,15,116750
+Brócoli,3,4899440
+Brócoli,4,4899440
+Brócoli,5,4899440
+Brócoli,6,4899440
+Brócoli,7,4899440
+Brócoli,8,4899440
+Brócoli,9,4899440
+Brócoli,10,4899440
+Brócoli,11,4899440
+Brócoli,12,4899440
+Brócoli,13,4899440
+Brócoli,14,4899440
+Brócoli,15,4899440
+Choclo,3,17291000
+Choclo,4,17291000
+Choclo,5,17291000
+Choclo,6,17291000
+Choclo,7,17291000
+Choclo,8,17291000
+Choclo,9,17291000
+Choclo,10,17291000
+Choclo,11,17291000
+Choclo,12,17291000
+Choclo,13,17291000
+Choclo,14,17291000
+Choclo,15,17291000
+Coliflor,3,4880610
+Coliflor,4,4880610
+Coliflor,5,4880610
+Coliflor,6,4880610
+Coliflor,7,4880610
+Coliflor,8,4880610
+Coliflor,9,4880610
+Coliflor,10,4880610
+Coliflor,11,4880610
+Coliflor,12,4880610
+Coliflor,13,4880610
+Coliflor,14,4880610
+Coliflor,15,4880610
+Espinaca,3,1166600
+Espinaca,4,1166600
+Espinaca,5,1166600
+Espinaca,6,1166600
+Espinaca,7,1166600
+Espinaca,8,1166600
+Espinaca,9,1166600
+Espinaca,10,1166600
+Espinaca,11,1166600
+Espinaca,12,1166600
+Espinaca,13,1166600
+Espinaca,14,1166600
+Espinaca,15,1166600
+Haba,3,0
+Haba,4,1639500
+Haba,5,1639500
+Haba,6,1639500
+Haba,7,1639500
+Haba,8,1639500
+Haba,9,1639500
+Haba,10,1639500
+Haba,11,1639500
+Haba,12,0
+Haba,13,0
+Haba,14,0
+Haba,15,0
+Lechuga,3,1009980
+Lechuga,4,1009980
+Lechuga,5,1009980
+Lechuga,6,1009980
+Lechuga,7,1009980
+Lechuga,8,1009980
+Lechuga,9,1009980
+Lechuga,10,1009980
+Lechuga,11,1009980
+Lechuga,12,1009980
+Lechuga,13,1009980
+Lechuga,14,1009980
+Lechuga,15,1009980
+Melón,3,0
+Melón,4,0
+Melón,5,0
+Melón,6,0
+Melón,7,0
+Melón,8,0
+Melón,9,0
+Melón,10,0
+Melón,11,385900
+Melón,12,385900
+Melón,13,385900
+Melón,14,385900
+Melón,15,0
+Pepino ensalada,3,698600
+Pepino ensalada,4,698600
+Pepino ensalada,5,698600
+Pepino ensalada,6,698600
+Pepino ensalada,7,698600
+Pepino ensalada,8,698600
+Pepino ensalada,9,698600
+Pepino ensalada,10,698600
+Pepino ensalada,11,698600
+Pepino ensalada,12,698600
+Pepino ensalada,13,698600
+Pepino ensalada,14,698600
+Pepino ensalada,15,698600
+Poroto granado,3,698600
+Poroto granado,4,698600
+Poroto granado,5,0
+Poroto granado,6,0
+Poroto granado,7,0
+Poroto granado,8,0
+Poroto granado,9,0
+Poroto granado,10,0
+Poroto granado,11,1788500
+Poroto granado,12,1788500
+Poroto granado,13,1788500
+Poroto granado,14,1788500
+Poroto granado,15,1788500
+Poroto verde,3,145250
+Poroto verde,4,145250
+Poroto verde,5,145250
+Poroto verde,6,145250
+Poroto verde,7,145250
+Poroto verde,8,145250
+Poroto verde,9,145250
+Poroto verde,10,145250
+Poroto verde,11,145250
+Poroto verde,12,145250
+Poroto verde,13,145250
+Poroto verde,14,145250
+Poroto verde,15,145250
+Repollo,3,10900
+Repollo,4,10900
+Repollo,5,10900
+Repollo,6,10900
+Repollo,7,10900
+Repollo,8,10900
+Repollo,9,10900
+Repollo,10,10900
+Repollo,11,10900
+Repollo,12,10900
+Repollo,13,10900
+Repollo,14,10900
+Repollo,15,10900
+Sandia,3,0
+Sandia,4,0
+Sandia,5,0
+Sandia,6,0
+Sandia,7,0
+Sandia,8,0
+Sandia,9,0
+Sandia,10,0
+Sandia,11,278130
+Sandia,12,278130
+Sandia,13,278130
+Sandia,14,278130
+Sandia,15,0
+Tomate,3,4598640
+Tomate,4,4598640
+Tomate,5,4598640
+Tomate,6,4598640
+Tomate,7,4598640
+Tomate,8,4598640
+Tomate,9,4598640
+Tomate,10,4598640
+Tomate,11,4598640
+Tomate,12,4598640
+Tomate,13,4598640
+Tomate,14,4598640
+Tomate,15,4598640
+Zanahoria,3,3576960
+Zanahoria,4,3576960
+Zanahoria,5,3576960
+Zanahoria,6,3576960
+Zanahoria,7,3576960
+Zanahoria,8,3576960
+Zanahoria,9,3576960
+Zanahoria,10,3576960
+Zanahoria,11,3576960
+Zanahoria,12,3576960
+Zanahoria,13,3576960
+Zanahoria,14,3576960
+Zanahoria,15,3576960
+Zapallo italiano,3,2927400
+Zapallo italiano,4,2927400
+Zapallo italiano,5,2927400
+Zapallo italiano,6,2927400
+Zapallo italiano,7,2927400
+Zapallo italiano,8,2927400
+Zapallo italiano,9,2927400
+Zapallo italiano,10,2927400
+Zapallo italiano,11,2927400
+Zapallo italiano,12,2927400
+Zapallo italiano,13,2927400
+Zapallo italiano,14,2927400
+Zapallo italiano,15,2927400
+Frutilla,3,2459951
+Frutilla,4,2459951
+Frutilla,5,0
+Frutilla,6,0
+Frutilla,7,0
+Frutilla,8,0
+Frutilla,9,2459951
+Frutilla,10,2459951
+Frutilla,11,2459951
+Frutilla,12,2459951
+Frutilla,13,2459951
+Frutilla,14,2459951
+Frutilla,15,2459951

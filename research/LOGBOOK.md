@@ -12,6 +12,17 @@
 - El autor confirmó Ubuntu 24 y conservación del entorno, PostgreSQL y scripts. Pendiente: exportar patch release/arquitectura, compilador, MPI/BSPlib/libpqxx, configuraciones efectivas, seeds si existen, scripts de figuras y respaldo de los experimentos originales.
 - Se descargaron CSV anuales 2025 completos: 202.029 filas mayoristas y 43.843 COMEX. Raw local en `data/raw/`, perfiles y catálogo en Git. No se hizo calibración ni se asignó importación nacional a Santiago.
 
+## 2026-11-10 — Validación y entrega de infraestructura
+
+- Integridad: `python3 tools/research.py check` pasa para 59 archivos candidatos, configuración y huellas raw presentes.
+- Utilidades: dos pruebas ejecutables pasan; cubren exclusión de credenciales, rechazo de sobrescrituras, entradas climáticas condicionales, contraseña con caracteres especiales y separación de unidad/origen al perfilar.
+- Perfiles ODEPA regenerados desde los CSV conservados en `data/raw/`: idénticos a los JSON versionados. JSON, CSV de trazabilidad, enlaces relativos y conteo de 360 corridas del protocolo comprobados.
+- `docker compose --env-file .env.example config --quiet` y `git diff --check` pasan. Se confirmó que no hay cambios en `src/`, `includes/`, `inputs/`, configuraciones heredadas, Makefile ni esquema original.
+- [GitHub Actions del primer commit](https://github.com/ManachoM/sim2-agricultores/actions/runs/42853322479) pasó, incluyendo compilación completa del contenedor en Ubuntu 24.04. Tras un aviso de deprecación se actualizó checkout a v7; el resultado de esa revisión queda en los checks del PR.
+- Publicación de trabajo: rama `research/interregional-continuation`, [PR #1 en borrador](https://github.com/ManachoM/sim2-agricultores/pull/1), sin merge. El plugin GitHub permitió leer pero devolvió 403 al escribir; la subida se realizó con la sesión SSH del laptop. La rama local sigue la remota y usa SSH para push.
+- Límites: no se ejecutó una simulación completa, ni se validó conexión/escritura de una corrida contra PostgreSQL, ni se certificó el entorno de la máquina original. Docker local tiene daemon inactivo. Compilar en CI no demuestra equivalencia experimental ni portabilidad ARM validada.
+- Próximo paso: F0, exportación del entorno Ubuntu 24 conservado y reconciliación de las cantidades del control; luego F2, normalización de origen/unidades.
+
 ## Plantilla de sesión
 
 - Fecha y responsable:

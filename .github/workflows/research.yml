@@ -6,7 +6,9 @@ jobs:
   checks:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - run: python3 tools/research.py check
       - run: python3 -m unittest discover -s tests
       - run: docker compose --env-file .env.example config --quiet

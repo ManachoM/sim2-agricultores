@@ -11,7 +11,18 @@
   "original_linux_environment": {
     "distribution_reported_by_author": "Ubuntu 24",
     "original_environment_database_scripts_preserved": true,
-    "patch_release_architecture_toolchain": "pending_export_from_original_machine"
+    "patch_release_architecture_toolchain": "pending_export_from_original_machine",
+    "uncommitted_research_state": {
+      "reported_by_author": "2026-11-10",
+      "contents": [
+        "O Higgins land dataset used in the work",
+        "local research data",
+        "research decisions not committed to Git"
+      ],
+      "inspection_status": "not_accessed_on_this_laptop",
+      "recovery_priority": "full working directory backup and separate database export before checkout or pull",
+      "git_snapshot_role": "partial_not_authoritative_for_published_inputs"
+    }
   },
   "paper": {
     "doi": "10.3390/fi17070316",

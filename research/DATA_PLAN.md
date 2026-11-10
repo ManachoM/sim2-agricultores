@@ -8,7 +8,7 @@ Consulta y descarga: 2026-11-10. Se guardan perfiles y muestras pequeñas en `re
 |---|---|---|
 | `inputs/prods*.json` | 20 productos con meses, unidad, rendimiento, consumo y precios | Candidatos de continuidad. `prods_calibrated.json` y su copia difieren: seleccionar explícitamente; no combinar calibraciones |
 | `inputs/ferias*.json` | RM: 343 ferias / 14.697 puestos; OH: 132 / 10.284; caso pequeño: 3 ferias | Calendario y escala; no son volúmenes ni flujos interregionales |
-| `inputs/terrenos*.json` | RM: 4.695 terrenos; OH: 40.863; pequeño: 23 | Oferta potencial tras validar muestra y área; no origen efectivo de cada partida comercial |
+| `inputs/terrenos*.json` | Versión Git: RM 4.695 terrenos; OH 40.863; pequeño 23 | Los terrenos OH del trabajo están en Ubuntu y no se commitearon; recuperar esa entrada antes de reconstruir la oferta publicada |
 | `inputs/frost_probs*.json`, SPI y calor | Perfiles mensuales y niveles; la serie calor se comparte en configuraciones auditadas | Reutilizar para control; no identifican correlación espacial diaria ni shocks conjuntos extremos |
 | `data_analysis/volumenes_reales_mes.csv` | 260 filas, producto/mes/volumen esperado; sin origen ni año en columnas | Referencia heredada de calibración, no nueva evidencia observacional OD; recuperar derivación y unidades |
 | `data_analysis/configs_results.csv` | 440 filas con errores y configuraciones | Resultados resumidos previos; no reemplazan réplicas individuales ni metadatos experimentales |
@@ -85,7 +85,7 @@ Todo parámetro debe marcarse `observed`, `estimated`, `literature` o `scenario`
 
 ## Secuencia de adquisición y validación
 
-1. Conservar el paquete Ubuntu 24 y recuperar la transformación de volúmenes, presupuesto y configuración original.
+1. Respaldar el paquete Ubuntu 24 completo, incluidos terrenos OH, datos y decisiones no commiteados, y recuperar la transformación de volúmenes, presupuesto y configuración original. Documentar las decisiones locales con su evidencia antes de seleccionar la entrada canónica; no sustituirlas por el snapshot de Git.
 2. Descargar al menos años completos adicionales (por ejemplo 2023–2024) para calibración y reservar 2025 para validación temporal; revisar comparabilidad. Los perfiles actuales de 2025 son exploratorios y no una validación independiente.
 3. Normalizar una pareja de mercados de Santiago por separado. Elegir explícitamente el hub que representa cada uno o definir un agregado; no bautizar como Lo Valledor el total de todas las plazas.
 4. Documentar conversiones y obtener series origen–producto–mes con cobertura, faltantes y cuota desconocida. Seleccionar regiones por cobertura y peso observado, no por conveniencia de la topología.

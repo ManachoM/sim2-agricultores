@@ -23,6 +23,13 @@
 - Límites: no se ejecutó una simulación completa, ni se validó conexión/escritura de una corrida contra PostgreSQL, ni se certificó el entorno de la máquina original. Docker local tiene daemon inactivo. Compilar en CI no demuestra equivalencia experimental ni portabilidad ARM validada.
 - Próximo paso: F0, exportación del entorno Ubuntu 24 conservado y reconciliación de las cantidades del control; luego F2, normalización de origen/unidades.
 
+## 2026-11-10 — Aclaración del autor sobre datos locales originales
+
+- El autor indicó que los terrenos OH del trabajo están en el equipo Ubuntu y forman parte de datos y decisiones aún no commiteados. No se ha accedido a esos archivos desde este laptop.
+- La comparación de 40.863 filas en Git con 4.863 agricultores en el artículo describe una brecha de versionado del paquete disponible, no evidencia de un error del trabajo publicado. Los conteos del inventario Git se conservan como observación de ese snapshot.
+- Se registró D012 y se actualizaron evaluación, plan, catálogo de baseline y guía de traslado. Las observaciones de código/datos Git quedan limitadas a la versión inspeccionada.
+- F0 comienza con respaldo completo del directorio Ubuntu, sus cambios locales y archivos ignorados/no rastreados, más exportación PostgreSQL. La continuidad se preparará en un clon separado; no se reemplazarán datos originales para hacer pasar el check del snapshot Git.
+
 ## Plantilla de sesión
 
 - Fecha y responsable:

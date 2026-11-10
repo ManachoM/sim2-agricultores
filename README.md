@@ -26,6 +26,6 @@ python3 tools/research.py snapshot --config sim_config_files/sim_config_1.json -
 
 ## Estado
 
-La rama de continuidad parte de `main`; las variantes paralelas permanecen en `main-parallel` y `main-parallel-credit`. Sus SHA están en [baseline.json](research/baseline.json). El commit exacto utilizado en el artículo y el entorno Linux original todavía deben confirmarse. No se creó una etiqueta que afirme una certificación inexistente.
+La rama de continuidad parte de `main`; las variantes paralelas permanecen en `main-parallel` y `main-parallel-credit`. Sus SHA están en [baseline.json](research/baseline.json). El autor conserva en Ubuntu 24 los terrenos de O'Higgins y otros datos y decisiones sin commit: Git es un snapshot parcial del paquete experimental. Primero se respaldará ese trabajo local y se identificarán las entradas efectivas. No se creó una etiqueta que afirme una certificación inexistente.
 
 El entorno de contenedores cubre inicialmente la variante secuencial. Las nuevas capas M0/M1/M2 son un protocolo de investigación, todavía no una implementación.

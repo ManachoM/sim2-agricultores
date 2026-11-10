@@ -15,10 +15,11 @@ Fecha inicial: 2026-11-10, America/Santiago. Las decisiones metodológicas sigui
 | D009 | Propuesta | Comparación de fidelidad por intervalos de equivalencia, además de diferencias | Una diferencia no significativa no prueba equivalencia | Justificación de márgenes con actores/datos |
 | D010 | Propuesta | No convertir producción regional o importación nacional directamente en oferta de Santiago | Coberturas y etapas distintas | Matriz de asignación observada o supuesto explícito con sensibilidad |
 | D011 | Propuesta, reemplaza D005 | Tomate principal y zanahoria contraste interregional; espinaca control local; ajo extensión internacional | Perfil RM 2025: espinaca solo local; ajo chino observado; COMEX identifica importaciones frescas | Normalización completa y revisión de cobertura |
+| D012 | Adoptada por aclaración del autor | Tratar Git como snapshot parcial del trabajo publicado; recuperar terrenos OH y datos/decisiones no commiteados desde Ubuntu antes de fijar el control | Aclaración del autor del 2026-11-10; los archivos locales aún no se inspeccionaron | Se respalde y documente el paquete experimental original |
 
 ## Plantilla para una nueva decisión
 
-### D012 — Título
+### D013 — Título
 
 - Fecha y responsable:
 - Estado: propuesta / adoptada / rechazada / reemplazada por Dxxx.

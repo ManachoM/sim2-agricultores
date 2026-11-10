@@ -1,0 +1,370 @@
+{
+  "inputs/ferias.json": {
+    "records": 343,
+    "sha256": "5ee39a45aa5fdc343684517d60138b5389c4778eb1d6a9e06484bec9da3d57e8",
+    "puestos": 14697
+  },
+  "inputs/ferias_oh.json": {
+    "records": 132,
+    "sha256": "35ccc1b4ba5f680e63406fa31897ab6829288567f75b385f55077d7ffe0614af",
+    "puestos": 10284
+  },
+  "inputs/ferias_small.json": {
+    "records": 3,
+    "sha256": "90746f768c66cc2f2fca12788e86836180b4c0b5e2483051f882cb0378bc1f25",
+    "puestos": 126
+  },
+  "inputs/frost_probs.json": {
+    "records": 12,
+    "sha256": "c69c19f9a1e4c0203ff84668ed898703d0074cbf0407a6bd3f2137168c5e662a"
+  },
+  "inputs/frost_probs_oh.json": {
+    "records": 12,
+    "sha256": "978aad146b72dd91cb701111078935b3b4eb182cf47ab030c433c157b91dd04f"
+  },
+  "inputs/heatwave_levels.json": {
+    "records": 1,
+    "sha256": "203b433a377104932a087a32c46793e2585a6e7000639acc2a86f1cfb67f359a"
+  },
+  "inputs/prods.json": {
+    "records": 20,
+    "sha256": "bf18f794ef5827682f95f7b0573ab8bfc46a815aab035ffe4c2bbb917b3c8647",
+    "products": [
+      {
+        "id": 0,
+        "nombre": "Ajo",
+        "unidad": "unidades"
+      },
+      {
+        "id": 1,
+        "nombre": "Alcachofa",
+        "unidad": "unidades"
+      },
+      {
+        "id": 2,
+        "nombre": "Apio",
+        "unidad": "unidades"
+      },
+      {
+        "id": 3,
+        "nombre": "Arveja Verde",
+        "unidad": "kilos"
+      },
+      {
+        "id": 4,
+        "nombre": "Brócoli",
+        "unidad": "unidades"
+      },
+      {
+        "id": 5,
+        "nombre": "Choclo",
+        "unidad": "unidades"
+      },
+      {
+        "id": 6,
+        "nombre": "Coliflor",
+        "unidad": "unidades"
+      },
+      {
+        "id": 7,
+        "nombre": "Espinaca",
+        "unidad": "kilos"
+      },
+      {
+        "id": 8,
+        "nombre": "Haba",
+        "unidad": "kilos"
+      },
+      {
+        "id": 9,
+        "nombre": "Lechuga",
+        "unidad": "unidades"
+      },
+      {
+        "id": 10,
+        "nombre": "Melón",
+        "unidad": "unidades"
+      },
+      {
+        "id": 11,
+        "nombre": "Pepino ensalada",
+        "unidad": "unidades"
+      },
+      {
+        "id": 12,
+        "nombre": "Poroto granado",
+        "unidad": "kilos"
+      },
+      {
+        "id": 13,
+        "nombre": "Poroto verde",
+        "unidad": "kilos"
+      },
+      {
+        "id": 14,
+        "nombre": "Repollo",
+        "unidad": "unidades"
+      },
+      {
+        "id": 15,
+        "nombre": "Sandia",
+        "unidad": "unidades"
+      },
+      {
+        "id": 16,
+        "nombre": "Tomate",
+        "unidad": "kilos"
+      },
+      {
+        "id": 17,
+        "nombre": "Zanahoria",
+        "unidad": "kilos"
+      },
+      {
+        "id": 18,
+        "nombre": "Zapallo italiano",
+        "unidad": "unidades"
+      },
+      {
+        "id": 19,
+        "nombre": "Frutilla",
+        "unidad": "kilos"
+      }
+    ]
+  },
+  "inputs/prods_calibrated copy.json": {
+    "records": 20,
+    "sha256": "cb992550afb1613cc60e896cb771e41e8b7679ece93548172ea03a50c78d79c7",
+    "products": [
+      {
+        "id": 0,
+        "nombre": "Ajo",
+        "unidad": "unidades"
+      },
+      {
+        "id": 1,
+        "nombre": "Alcachofa",
+        "unidad": "unidades"
+      },
+      {
+        "id": 2,
+        "nombre": "Apio",
+        "unidad": "unidades"
+      },
+      {
+        "id": 3,
+        "nombre": "Arveja Verde",
+        "unidad": "kilos"
+      },
+      {
+        "id": 4,
+        "nombre": "Brócoli",
+        "unidad": "unidades"
+      },
+      {
+        "id": 5,
+        "nombre": "Choclo",
+        "unidad": "unidades"
+      },
+      {
+        "id": 6,
+        "nombre": "Coliflor",
+        "unidad": "unidades"
+      },
+      {
+        "id": 7,
+        "nombre": "Espinaca",
+        "unidad": "kilos"
+      },
+      {
+        "id": 8,
+        "nombre": "Haba",
+        "unidad": "kilos"
+      },
+      {
+        "id": 9,
+        "nombre": "Lechuga",
+        "unidad": "unidades"
+      },
+      {
+        "id": 10,
+        "nombre": "Melón",
+        "unidad": "unidades"
+      },
+      {
+        "id": 11,
+        "nombre": "Pepino ensalada",
+        "unidad": "unidades"
+      },
+      {
+        "id": 12,
+        "nombre": "Poroto granado",
+        "unidad": "kilos"
+      },
+      {
+        "id": 13,
+        "nombre": "Poroto verde",
+        "unidad": "kilos"
+      },
+      {
+        "id": 14,
+        "nombre": "Repollo",
+        "unidad": "unidades"
+      },
+      {
+        "id": 15,
+        "nombre": "Sandia",
+        "unidad": "unidades"
+      },
+      {
+        "id": 16,
+        "nombre": "Tomate",
+        "unidad": "kilos"
+      },
+      {
+        "id": 17,
+        "nombre": "Zanahoria",
+        "unidad": "kilos"
+      },
+      {
+        "id": 18,
+        "nombre": "Zapallo italiano",
+        "unidad": "unidades"
+      },
+      {
+        "id": 19,
+        "nombre": "Frutilla",
+        "unidad": "kilos"
+      }
+    ]
+  },
+  "inputs/prods_calibrated.json": {
+    "records": 20,
+    "sha256": "4d1f801dd233200a026a56d6341d7224085140ebc750e6d9f251f07a508da7a1",
+    "products": [
+      {
+        "id": 0,
+        "nombre": "Ajo",
+        "unidad": "unidades"
+      },
+      {
+        "id": 1,
+        "nombre": "Alcachofa",
+        "unidad": "unidades"
+      },
+      {
+        "id": 2,
+        "nombre": "Apio",
+        "unidad": "unidades"
+      },
+      {
+        "id": 3,
+        "nombre": "Arveja Verde",
+        "unidad": "kilos"
+      },
+      {
+        "id": 4,
+        "nombre": "Brócoli",
+        "unidad": "unidades"
+      },
+      {
+        "id": 5,
+        "nombre": "Choclo",
+        "unidad": "unidades"
+      },
+      {
+        "id": 6,
+        "nombre": "Coliflor",
+        "unidad": "unidades"
+      },
+      {
+        "id": 7,
+        "nombre": "Espinaca",
+        "unidad": "kilos"
+      },
+      {
+        "id": 8,
+        "nombre": "Haba",
+        "unidad": "kilos"
+      },
+      {
+        "id": 9,
+        "nombre": "Lechuga",
+        "unidad": "unidades"
+      },
+      {
+        "id": 10,
+        "nombre": "Melón",
+        "unidad": "unidades"
+      },
+      {
+        "id": 11,
+        "nombre": "Pepino ensalada",
+        "unidad": "unidades"
+      },
+      {
+        "id": 12,
+        "nombre": "Poroto granado",
+        "unidad": "kilos"
+      },
+      {
+        "id": 13,
+        "nombre": "Poroto verde",
+        "unidad": "kilos"
+      },
+      {
+        "id": 14,
+        "nombre": "Repollo",
+        "unidad": "unidades"
+      },
+      {
+        "id": 15,
+        "nombre": "Sandia",
+        "unidad": "unidades"
+      },
+      {
+        "id": 16,
+        "nombre": "Tomate",
+        "unidad": "kilos"
+      },
+      {
+        "id": 17,
+        "nombre": "Zanahoria",
+        "unidad": "kilos"
+      },
+      {
+        "id": 18,
+        "nombre": "Zapallo italiano",
+        "unidad": "unidades"
+      },
+      {
+        "id": 19,
+        "nombre": "Frutilla",
+        "unidad": "kilos"
+      }
+    ]
+  },
+  "inputs/spi_levels.json": {
+    "records": 1,
+    "sha256": "dadd3a8ab6b3c7bc9a2fbbcbca84e496ad39be856b1acd8d8cc537b1da7f7c21"
+  },
+  "inputs/spi_levels_oh.json": {
+    "records": 1,
+    "sha256": "a3e640c97190f1fa2cc857c0a8fcc35a8df529a9095dfaf14ec34c539794f092"
+  },
+  "inputs/terrenos.json": {
+    "records": 4695,
+    "sha256": "5e97c48bb9d5e441e33cd7c61857709a2acffc2ccd5c9ec3d7ea80dfbf0bd194",
+    "area_ha": 41914.137
+  },
+  "inputs/terrenos_oh.json": {
+    "records": 40863,
+    "sha256": "599743e87972fbaab2616a2c78c15d2c1fd67c48ded1df9dea02337892c0ad33",
+    "area_ha": 122339.019
+  },
+  "inputs/terrenos_small.json": {
+    "records": 23,
+    "sha256": "81638660d9b6796f01851ede6b39eb52cf00ac1aa734a90341df5c2cd2536ce3",
+    "area_ha": 35.202
+  }
+}

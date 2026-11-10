@@ -1,0 +1,61 @@
+{
+  "review_date": "2026-11-10",
+  "sources": [
+    {
+      "id": "odepa_wholesale_2025",
+      "publisher": "ODEPA",
+      "license": "Creative Commons Attribution (catalog label)",
+      "retrieved_date": "2026-11-10",
+      "status": "full_csv_downloaded_and_profiled_not_calibrated",
+      "resource_url": "https://datos.odepa.gob.cl/dataset/33f10516-acbe-4446-b633-68244b9b6b26/resource/92353fad-463e-4e85-a3ff-accb0286d0c5",
+      "download_url": "https://datos.odepa.gob.cl/dataset/33f10516-acbe-4446-b633-68244b9b6b26/resource/92353fad-463e-4e85-a3ff-accb0286d0c5/download/precio_mayorista_fruta-hortaliza_2025.csv",
+      "api_sample_url": "https://datos.odepa.gob.cl/api/3/action/datastore_search?resource_id=92353fad-463e-4e85-a3ff-accb0286d0c5&limit=5",
+      "raw_path": "data/raw/odepa-wholesale-2025.csv",
+      "sha256": "fc7c7e30de9d940f48a16c69202fd66a77708ecb12ecc70a7c018665c72c2a18",
+      "profile_path": "research/data/wholesale-2025-profile.json",
+      "sample_path": "research/data/odepa-wholesale-sample.json",
+      "rows": 202029,
+      "transform_script": "tools/profile_odepa.py",
+      "spatial_resolution": "market_by_reported_origin",
+      "temporal_resolution": "reported_date",
+      "uncertainty": "Incomplete market coverage / unknown metropolitan allocation; original units preserved"
+    },
+    {
+      "id": "odepa_imports_2025",
+      "publisher": "ODEPA / Servicio Nacional de Aduanas",
+      "license": "Creative Commons Attribution (catalog label)",
+      "retrieved_date": "2026-11-10",
+      "status": "full_csv_downloaded_and_profiled_not_calibrated",
+      "resource_url": "https://datos.odepa.gob.cl/dataset/f9fc0580-37dd-4034-8690-1c04bfbf33af/resource/670c25a8-ff81-48ab-be4d-da0746bc15ec",
+      "download_url": "https://datos.odepa.gob.cl/dataset/f9fc0580-37dd-4034-8690-1c04bfbf33af/resource/670c25a8-ff81-48ab-be4d-da0746bc15ec/download/comex_importacion_2025.csv",
+      "api_sample_url": "https://datos.odepa.gob.cl/api/3/action/datastore_search?resource_id=670c25a8-ff81-48ab-be4d-da0746bc15ec&limit=5",
+      "raw_path": "data/raw/odepa-imports-2025.csv",
+      "sha256": "b783f5294c334ce917ca81b221926f9d7269fbcec8d06620cc2a89961de70ec9",
+      "profile_path": "research/data/imports-2025-profile.json",
+      "sample_path": "research/data/odepa-imports-sample.json",
+      "rows": 43843,
+      "transform_script": "tools/profile_odepa.py",
+      "spatial_resolution": "national_by_origin_country",
+      "temporal_resolution": "monthly",
+      "uncertainty": "Incomplete market coverage / unknown metropolitan allocation; original units preserved"
+    },
+    {
+      "id": "ine_hortalizas",
+      "url": "https://www.ine.gob.cl/estadisticas-por-tema/agricultura-y-medio-ambiente/hortalizas",
+      "status": "catalog_consulted_no_data_download",
+      "license": null
+    },
+    {
+      "id": "observatorio_logistico",
+      "url": "https://filesprod.observatoriologistico.cl/assets/frontend-graficos/api-datastream-docs/datastreams_api_docs.html",
+      "status": "api_documentation_consulted_no_specific_freight_series_verified",
+      "license": null
+    },
+    {
+      "id": "ucdavis_tomato",
+      "url": "https://postharvest.ucdavis.edu/produce-facts-sheets/tomato",
+      "status": "fact_sheet_consulted_not_local_calibration",
+      "license": null
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: continuation
+      POSTGRES_USER: simulator
+      POSTGRES_PASSWORD: ${SIM_DB_PASSWORD:?Copiar .env.example a .env}
+    volumes:
+      - continuation_pgdata:/var/lib/postgresql/data
+      - ./database/create_sim_db.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U simulator -d continuation"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  simulator:
+    build: .
+    user: "${SIM_UID:-1000}:${SIM_GID:-1000}"
+    working_dir: /workspace
+    environment:
+      SIM_DB_PASSWORD: ${SIM_DB_PASSWORD:?Copiar .env.example a .env}
+    volumes:
+      - .:/workspace:ro
+      - ./runs:/workspace/runs
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  continuation_pgdata:

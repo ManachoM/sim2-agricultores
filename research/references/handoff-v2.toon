@@ -1,0 +1,894 @@
+artifact:
+  schema: "research_project_handoff"
+  schema_version: "2.0-author-continuation"
+  format: "TOON"
+  title: "Interregional Fresh-Produce Logistics and Metropolitan Food-System Resilience"
+  short_name: "IR-FoodRes-HPC"
+  purpose: "Author-continuation research specification for extending the existing published simulator into an interregional fresh-produce logistics and resilience research program, with adversarial publication gates."
+  status: "planning"
+  target_domain: "Operations Research + High-Performance Computing + Food Logistics + Hybrid Simulation"
+  target_journals:
+    primary: "Computers & Industrial Engineering"
+    secondary: "IEEE Transactions on Intelligent Transportation Systems"
+    alternative: "Transportation Research Part E or Journal of Simulation"
+  baseline_paper:
+    citation: "Manriquez, M. I., Gil-Costa, V., & Marin, M. (2025). Parallel Agent-Based Framework for Analyzing Urban Agricultural Supply Chains. Future Internet, 17(7), 316."
+    url: "https://www.mdpi.com/1999-5903/17/7/316"
+    role: "Published baseline owned by the principal author; preserve, regression-certify, instrument, and extend rather than reimplement."
+
+
+author_context:
+  principal_investigator: "Main author of the 2025 baseline paper."
+  code_ownership: "Principal investigator owns and has direct access to the simulation source code and original experimental configurations."
+  implication_01: "Do not plan a clean-room reimplementation of the baseline."
+  implication_02: "Treat the published code path and archived experiment configuration as the executable scientific baseline."
+  implication_03: "Create a frozen publication tag/commit and a separate continuation branch."
+  implication_04: "Instrument the existing event kernel before making architectural changes."
+  implication_05: "Use code-level knowledge to identify true extension points, hidden assumptions, and existing performance bottlenecks."
+  implication_06: "Reuse existing ABM, DES, LP, FEL, synchronization, partitioning, prediction, and data-ingestion components where they remain valid."
+  implication_07: "Any inherited component is prior work, not novelty in the continuation paper."
+  implication_08: "Novel claims must be attached to changed scientific scope, new mechanisms, or experimentally demonstrated methodological extensions."
+  implication_09: "Preserve backwards compatibility long enough to execute baseline-versus-extension paired experiments."
+  implication_10: "Avoid large refactors before baseline regression fixtures and performance counters exist."
+
+adversarial_review:
+  overall_verdict: "Proceed, but narrow the first publication claim and exploit ownership of the simulator as an experimental-control advantage."
+  severity_scale: "critical > high > medium > low"
+  attack_01:
+    severity: "critical"
+    reviewer_objection: "The extension merely adds external suppliers and trucks; this is scope inflation, not research novelty."
+    response_requirement: "Define a falsifiable systems question: when does interregional sourcing improve or reduce metropolitan resilience once logistics constraints and perishability are endogenous?"
+    implementation_consequence: "Every new mechanism must connect to a primary outcome or be deferred."
+  attack_02:
+    severity: "critical"
+    reviewer_objection: "DES was added because the authors already own a DES engine, not because the problem requires event-based dynamics."
+    response_requirement: "Run M0/M1/M2 fidelity comparisons under matched seeds and show when queues, capacity, timing, or spoilage change conclusions."
+    implementation_consequence: "DES necessity is a scientific gate, not an architectural assumption."
+  attack_03:
+    severity: "critical"
+    reviewer_objection: "Distributed DES is unnecessary because Monte Carlo replications are embarrassingly parallel."
+    response_requirement: "Independent-replication parallelism is the mandatory HPC baseline; distributed DES must beat it on time-to-precision or latency for a defined workload class."
+    implementation_consequence: "No distributed-DES superiority claim without A1 versus A2/A3 comparisons."
+  attack_04:
+    severity: "high"
+    reviewer_objection: "The study combines sourcing, perishability, disruptions, forecasting, Bayesian prediction, partitioning, and synchronization into a kitchen-sink paper."
+    response_requirement: "Separate core publication claims from inherited modules and stretch mechanisms."
+    implementation_consequence: "Forecasting and predictive prefetching are optional ablations; they are not MVP dependencies."
+  attack_05:
+    severity: "critical"
+    reviewer_objection: "Approximate temporal execution silently changes the modeled food system."
+    response_requirement: "Maintain an exact/conservative reference mode and quantify outcome error, event-order disagreement, and resilience-ranking disagreement."
+    implementation_consequence: "Approximation is acceptable only on a measured speed-error frontier."
+  attack_06:
+    severity: "high"
+    reviewer_objection: "A single metropolitan case cannot support general claims about food-system resilience."
+    response_requirement: "Frame conclusions as mechanism-level findings; test parameterized synthetic network variants or multiple regional topologies for robustness."
+    implementation_consequence: "Do not overclaim geographic universality."
+  attack_07:
+    severity: "high"
+    reviewer_objection: "Too many weakly calibrated parameters make the model non-identifiable."
+    response_requirement: "Classify parameters as observed, estimated, literature-derived, or scenario-only; use sensitivity analysis for the latter two."
+    implementation_consequence: "Do not add a mechanism lacking either data support or an explicit scenario-analysis role."
+  attack_08:
+    severity: "high"
+    reviewer_objection: "Parallel speedups could be artifacts of changed hardware, compiler settings, event granularity, or workload scaling."
+    response_requirement: "Preserve a published baseline configuration and report strong scaling, weak scaling, overhead decomposition, event throughput, and hardware/software environment."
+    implementation_consequence: "Performance instrumentation is an early work package."
+  attack_09:
+    severity: "medium"
+    reviewer_objection: "The original architecture is being resold as novelty."
+    response_requirement: "Explicitly label ABM-DES, local FELs, approximate BSP, SA partitioning, Bayesian credit/prefetch, and forecasting modules as inherited where applicable."
+    implementation_consequence: "Novelty table must distinguish inherited, modified, and newly introduced components."
+  attack_10:
+    severity: "high"
+    reviewer_objection: "The logistics layer may duplicate what a stochastic lead-time model can already explain."
+    response_requirement: "Use paired fidelity experiments and practical-effect thresholds to identify where full logistics state is necessary."
+    implementation_consequence: "If M1 explains the outcomes, do not force M2 into the scientific conclusion."
+  attack_11:
+    severity: "high"
+    reviewer_objection: "The paper attempts both a domain contribution and a major new PDES algorithm, weakening both."
+    response_requirement: "Adopt a two-paper program by default: domain/modeling paper first; HPC-method paper only if the measurements support a distinct contribution."
+    implementation_consequence: "A single integrated paper is allowed only if the HPC method is required to obtain the scientific result at target scale."
+  attack_12:
+    severity: "medium"
+    reviewer_objection: "The continuation is not traceable to the original study."
+    response_requirement: "Maintain a paper-to-code-to-experiment traceability matrix."
+    implementation_consequence: "Every changed assumption must identify the original behavior, new behavior, rationale, test, and affected result."
+
+inheritance_and_novelty_policy:
+  inherited_components:
+    c01: "Hybrid ABM-DES engine."
+    c02: "Existing local-FEL/event scheduling implementation."
+    c03: "Existing parallel execution and synchronization machinery."
+    c04: "Existing workload partitioning machinery."
+    c05: "Existing Bayesian/predictive coordination machinery, if enabled in the baseline configuration."
+    c06: "Existing forecasting machinery, if enabled in the baseline configuration."
+  rule: "Inherited components are reusable infrastructure and baselines. They are not new contributions."
+  candidate_new_contributions:
+    n01: "Interregional sourcing as an endogenous extension of the metropolitan supply boundary."
+    n02: "Explicit mesoscopic shipment, hub, capacity, and perishability dynamics linked to market outcomes."
+    n03: "Empirical DES-necessity boundary: when explicit logistics changes substantive conclusions."
+    n04: "Empirical parallel-execution boundary: when intra-replication distribution beats sequential or replication-parallel execution."
+    n05: "Logistics-informed synchronization using physical minimum travel-time lookahead."
+    n06: "Communication-aware partitioning using observed interregional shipment/event flows."
+  novelty_acceptance_rule: "A candidate contribution is retained only if an experiment isolates and demonstrates its effect."
+
+codebase_continuation_strategy:
+  baseline_freeze:
+    action: "Tag the exact code/config/data state corresponding to the published paper."
+    suggested_tag: "paper-2025-baseline"
+    artifacts: "compiler/runtime versions, dependency lock, original configs, seeds where available, representative outputs, hardware metadata"
+  continuation_branch:
+    action: "Create an extension branch without initially changing baseline semantics."
+    suggested_branch: "interregional-logistics"
+  paper_code_traceability:
+    fields: "paper_section, published_claim, source_module, config, experiment_id, output, regression_test"
+  first_engineering_action: "Add observability, not new logistics."
+  required_instrumentation:
+    i01: "events processed by event type and LP"
+    i02: "wall time and CPU time by event type"
+    i03: "FEL occupancy distribution and heap operation counts"
+    i04: "cross-LP messages and bytes"
+    i05: "barrier/synchronization wait"
+    i06: "straggler/late-event counts and approximation handling"
+    i07: "partition imbalance over simulated time"
+    i08: "state migration cost"
+    i09: "RNG stream identifiers"
+    i10: "memory footprint by LP"
+    i11: "simulation time advanced per wall-clock second"
+    i12: "per-replication result variance"
+  extension_interface_rule: "Add external-region and logistics behavior behind interfaces that allow the original local-only behavior to remain executable."
+  refactor_rule: "Refactor only after regression tests prove semantic equivalence."
+
+
+handoff_intent:
+  planner_role: "Act as a research software architect, simulation scientist, HPC engineer, and OR experimental designer."
+  required_output: "Produce a phased implementation plan with tasks, dependencies, deliverables, validation gates, estimated computational experiments, reproducibility requirements, and publication milestones."
+  scope_rule: "Continue from the owned published codebase. First regression-certify and instrument it; then establish scientific necessity for new logistics DES mechanisms; then establish computational necessity for distributed DES."
+  novelty_rule: "Do not resell the 2025 architecture. Novelty must come from the interregional/logistics science or experimentally validated modifications to execution, synchronization, or partitioning."
+  reproducibility_rule: "Every stochastic generator, dataset transformation, calibration parameter, random seed policy, simulator configuration, and experiment manifest must be versioned and reproducible."
+
+project:
+  core_idea: "Extend the metropolitan urban-agriculture ABM-DES model into a multi-echelon fresh-produce system in which local production is complemented by produce sourced from other domestic regions through explicit, capacity-constrained, disruption-prone, perishable logistics."
+  central_scientific_question: "When does interregional sourcing increase metropolitan food-system resilience, and when do freight bottlenecks, correlated regional shocks, perishability, or market congestion reverse those benefits?"
+  central_methodological_question: "When does explicit DES materially change scientific conclusions relative to simplified stochastic lead-time models?"
+  central_hpc_question: "At what event scale and interaction density does distributed DES outperform sequential DES or embarrassingly parallel independent replications?"
+  research_positioning: "A continuation of the original urban agricultural supply-chain model, not a replacement by a generic routing problem."
+
+research_questions:
+  rq01: "How does the share of local versus interregional sourcing affect availability, price volatility, food loss, and recovery after supply shocks?"
+  rq02: "Does geographic source diversification reduce supply risk when production shocks are spatially correlated?"
+  rq03: "Under what conditions do freight capacity, terminal congestion, or corridor disruptions eliminate the resilience benefits of external sourcing?"
+  rq04: "How strongly do perishability and cold-chain failures alter effective metropolitan food availability?"
+  rq05: "Do wholesale-market and distribution-hub bottlenecks amplify upstream disruptions into downstream scarcity and price spikes?"
+  rq06: "When does an explicit logistics DES produce materially different results from instantaneous-supply or stochastic-lead-time abstractions?"
+  rq07: "What simulation scale marks the computational break-even point for distributed DES?"
+  rq08: "When is replication-level Monte Carlo parallelism superior to distributing an individual DES replication?"
+  rq09: "Can positive interregional transport times provide conservative lookahead that reduces synchronization cost relative to approximate fixed-window BSP?"
+  rq10: "Can communication-aware partitioning outperform workload-CV-only partitioning in the extended interregional model?"
+  rq11: "Does predictive state prefetching reduce cross-LP latency without changing physical feasibility or model semantics?"
+  rq12: "Which intervention offers the highest resilience gain per unit cost: local production expansion, source diversification, cold storage, hub capacity, reserve freight capacity, or corridor protection?"
+
+hypotheses:
+  h01:
+    statement: "Metropolitan resilience is non-monotonic in the local sourcing share."
+    expected_pattern: "A diversified local-plus-external portfolio can outperform both complete localization and near-total dependence on external inflows."
+  h02:
+    statement: "Simplified sourcing models overestimate resilience when terminal congestion, freight capacity, and spoilage are omitted."
+  h03:
+    statement: "Explicit DES is scientifically justified only when temporally ordered state interactions change downstream availability, losses, prices, or recovery times beyond a prespecified practical threshold."
+  h04:
+    statement: "Distributed DES is computationally justified only above an empirically measured break-even workload."
+  h05:
+    statement: "For small and medium stochastic experiments, independent-replication parallelism will outperform intra-replication distributed DES."
+  h06:
+    statement: "For sufficiently large event-intensive scenarios, hierarchical parallelism combining replication-level and intra-replication parallelism will minimize time-to-statistically-reliable-result."
+  h07:
+    statement: "Communication-aware partitioning will outperform pure workload balancing when cross-region logistics traffic is substantial."
+  h08:
+    statement: "Transport-time lower bounds can provide useful conservative lookahead for interregional LP synchronization, reducing the need for approximation."
+
+system_boundary:
+  spatial_scope:
+    metropolitan_area: "One focal metropolitan consumption market."
+    local_region: "Urban/peri-urban and nearby agricultural producers represented in the baseline."
+    external_regions: "Two or more domestic agricultural producing regions connected by freight corridors."
+    optional_future_scope: "International import layer with ports, customs, and phytosanitary inspection; exclude from first implementation."
+  temporal_scope:
+    pilot: "30 simulated days"
+    main: "90 to 180 simulated days"
+    optional_long_run: "365 simulated days for seasonality experiments"
+  product_scope:
+    minimum_products: 3
+    selection_rule: "Choose products with contrasting perishability and seasonality."
+    examples:
+      p1: "leafy greens: high perishability"
+      p2: "tomato: medium perishability"
+      p3: "potato or onion: relatively low perishability"
+  resolution_rule: "Use mesoscopic freight simulation; do not implement microscopic traffic unless traffic interaction itself becomes a validated research requirement."
+
+baseline_continuation:
+  objective: "Certify the published implementation as a stable experimental control and expose its extension points."
+  no_reimplementation: true
+  tasks:
+    c01: "Freeze/tag the published baseline commit and environment."
+    c02: "Re-run a representative subset of original experiments using original configuration files."
+    c03: "Create regression fixtures from deterministic or statistically bounded outputs."
+    c04: "Map every major published mechanism to source modules and runtime configuration."
+    c05: "Instrument event processing, communication, synchronization, and LP imbalance without changing semantics."
+    c06: "Profile the baseline on the hardware that will be used for continuation experiments."
+    c07: "Record which original mechanisms are always active, optional, or scenario-dependent."
+  regression_types:
+    deterministic: "Exact expected output or event trace for small deterministic cases."
+    stochastic: "Distributional or confidence-bound regression for stochastic cases."
+    performance: "Non-binding performance reference used to detect major regressions; do not require identical timing across machines."
+  gate: "No scientific extension becomes the new default until baseline regression tests and instrumentation pass."
+  author_advantage: "Because the principal investigator owns the implementation, undocumented assumptions should be resolved from code and original experiment notes rather than guessed from the paper."
+
+model_layers:
+  layer_0_baseline:
+    name: "Metropolitan local-market baseline"
+    purpose: "Replication control."
+    entities: "local farmers, vendors, consumers"
+  layer_1_regional_supply:
+    name: "Regional sourcing abstraction"
+    purpose: "Test geographic diversification without explicit freight DES."
+    mechanism: "External supply reaches the city after stochastic or deterministic lead times."
+  layer_2_logistics_des:
+    name: "Explicit interregional logistics"
+    purpose: "Represent shipments, vehicles, consolidation, freight corridors, terminals, queues, unloading, inventory availability, and spoilage."
+  layer_3_resilience:
+    name: "Disruptions and adaptive behavior"
+    purpose: "Represent production shocks, corridor disruptions, hub capacity shocks, cold-chain failures, and adaptive sourcing."
+  layer_4_hpc:
+    name: "Adaptive execution"
+    purpose: "Select sequential, replication-parallel, distributed-DES, or hierarchical execution based on measured workload."
+
+original_to_extension_traceability:
+  t01:
+    original: "Metropolitan production/trade boundary."
+    extension: "Multiple domestic source regions plus local production."
+    falsifiable_effect: "Changes source diversity, lead time, shock correlation, and effective availability."
+  t02:
+    original: "Trade/availability interactions among farmers, vendors, and consumers."
+    extension: "Physical shipment state between source and market."
+    falsifiable_effect: "Creates timing, capacity, queue, and spoilage effects."
+  t03:
+    original: "Existing DES event execution."
+    extension: "New logistics event families implemented inside the same kernel."
+    falsifiable_effect: "M2 differs from M0/M1 only because explicit state transitions matter."
+  t04:
+    original: "Existing parallel execution."
+    extension: "Topology-aware LP mapping and freight-time lookahead."
+    falsifiable_effect: "Reduces synchronization/communication overhead for specific workloads."
+  t05:
+    original: "Existing workload partitioning."
+    extension: "Communication-aware cost term derived from observed shipment/event flows."
+    falsifiable_effect: "Improves time-to-result beyond CV-only balancing."
+  t06:
+    original: "Existing predictive modules."
+    extension: "Optional use for logistics state prefetch or travel-time prediction."
+    falsifiable_effect: "Retain only if downstream outcomes or runtime improve."
+
+agents:
+  local_farmer:
+    decisions: "production availability, selling quantity, market participation"
+    key_state: "inventory, product, location, asking price"
+  external_supplier:
+    decisions: "quantity offered to focal market, shipment release timing"
+    key_state: "regional production, available inventory, source price, reliability"
+  vendor:
+    decisions: "source selection, order quantity, retail pricing"
+    key_state: "inventory by product and age, cash or purchasing limits, supplier beliefs"
+  consumer:
+    decisions: "purchase, substitution, quantity"
+    key_state: "demand, budget or price sensitivity, preferences"
+  carrier:
+    decisions: "vehicle or capacity assignment if endogenous; otherwise executes shipment plan"
+    key_state: "vehicle availability, load, position, route or corridor, refrigeration state"
+  wholesale_hub:
+    decisions: "dock assignment, unloading, inventory release"
+    key_state: "dock capacity, storage capacity, queue, inventory, operating status"
+  optional_regulator:
+    decisions: "emergency capacity release, subsidy or routing intervention"
+    activation: "Only for policy experiments after core model validation."
+
+simulation_entities:
+  shipment:
+    fields: "shipment_id, origin, destination, product, quantity, departure_time, vehicle_id, current_stage, temperature_state, quality_state, expected_arrival"
+    rule: "A shipment is a DES entity, not necessarily an autonomous ABM agent."
+
+state_variables:
+  production:
+    regional_yield: "Y[r,p,t]"
+    available_inventory: "I[r,p,t]"
+  logistics:
+    corridor_capacity: "Kcorr[e,t]"
+    travel_time: "tau[e,t]"
+    hub_dock_capacity: "Kdock[h,t]"
+    cold_storage_capacity: "Kcold[h,t]"
+  product:
+    quality: "q[s,t] in [0,1]"
+    usable_quantity: "Qusable[s,t]"
+  market:
+    wholesale_inventory: "Iwh[p,t]"
+    vendor_inventory: "Iv[v,p,t]"
+    market_price: "Price[p,t]"
+    unmet_demand: "UD[p,t]"
+
+event_taxonomy:
+  e01: "harvest_or_supply_release"
+  e02: "vendor_order_creation"
+  e03: "shipment_creation"
+  e04: "vehicle_assignment"
+  e05: "loading_start"
+  e06: "loading_complete"
+  e07: "shipment_departure"
+  e08: "corridor_entry"
+  e09: "transport_delay_or_disruption"
+  e10: "hub_arrival"
+  e11: "queue_entry"
+  e12: "unloading_start"
+  e13: "unloading_complete"
+  e14: "inventory_available"
+  e15: "vendor_replenishment"
+  e16: "consumer_purchase"
+  e17: "quality_threshold_crossed"
+  e18: "spoilage_or_rejection"
+  e19: "cold_chain_failure"
+  e20: "cold_chain_recovery"
+  e21: "corridor_capacity_change"
+  e22: "production_shock_start"
+  e23: "production_shock_end"
+  e24: "adaptive_resourcing_decision"
+
+perishability:
+  baseline_model: "q_s(t+dt) = q_s(t) * exp(-k_p(T) * dt)"
+  advanced_model: "q_s(t) = q_s(0) * exp(-integral_0^t k_p(T_s(u)) du)"
+  saleability_rule: "Shipment or fraction becomes unsalable when q_s(t) < q_min[p]."
+  research_requirement: "Parameterize product-specific decay from published or official empirical sources; perform sensitivity analysis when calibration is weak."
+
+sourcing_model:
+  local_share: "lambda = Q_local / Q_total"
+  experiment_grid: "lambda in {0.0,0.1,0.2,...,1.0}"
+  supplier_utility: "U[v,r,p,t] = -b1*price - b2*lead_time + b3*quality + b4*reliability"
+  choice_model: "P(r|v,p,t) proportional to exp(U[v,r,p,t])"
+  diversification_metric: "HHI = sum_r share_r^2"
+  shock_correlation: "Estimate or scenario-test correlation among regional production shocks."
+
+logistics_model:
+  recommended_resolution: "Mesoscopic"
+  travel_time: "T_s = T0_s + stochastic_delay_s + disruption_delay_s"
+  minimum_travel_time: "tau_min[i,j] > 0 where physically defensible"
+  terminal_process: "arrival -> queue -> unloading -> inventory_release"
+  capacity_constraints:
+    c01: "vehicle payload capacity"
+    c02: "corridor throughput where modeled"
+    c03: "hub unloading docks"
+    c04: "cold-storage capacity"
+    c05: "operating-hour constraints"
+  modeling_exclusions:
+    x01: "Do not create one agent per road segment by default."
+    x02: "Do not simulate vehicle-by-vehicle urban traffic unless validated as causally important."
+    x03: "Do not add event detail solely to increase runtime."
+
+des_necessity_gate:
+  purpose: "Prove that explicit DES changes the science before optimizing the DES engine."
+  models_to_compare:
+    m0: "Instantaneous external availability."
+    m1: "External supply with stochastic lead time but no queues or explicit freight state."
+    m2: "Full mesoscopic logistics DES."
+  primary_difference_metric: "Delta_k = abs(Y[M_k]-Y[M2]) / abs(Y[M2])"
+  outcomes_to_compare: "availability, unmet demand, food loss, price volatility, recovery time"
+  practical_significance_rule: "Pre-register a domain-relevant threshold epsilon_science for material differences."
+  decision:
+    if_m0_m1_close_to_m2: "Full DES is not justified for that scenario class; retain simpler model."
+    if_m0_or_m1_materially_differs: "DES is scientifically justified."
+
+des_kernel:
+  future_event_list: "Binary min-heap per logical process."
+  event_cost_expression: "Heap insertion/extraction approximately O(log(E_p)), where E_p is the local queued-event count."
+  deterministic_replay: true
+  rng_policy: "Counter-based or stream-partitioned RNG with reproducible per-replication and per-entity streams."
+  state_reset: "Support checkpoint/reset or clean reconstruction for repeated Monte Carlo evaluation."
+  logging_modes:
+    debug: "Full event trace."
+    validation: "Selected state transitions plus invariants."
+    production: "Aggregated metrics with minimal tracing."
+
+parallel_execution_candidates:
+  a0:
+    name: "Sequential DES"
+    use: "Reference semantics and small workloads."
+  a1:
+    name: "Independent-replication parallelism"
+    use: "Default parallel strategy when many stochastic replications are required and individual runs are modest."
+  a2:
+    name: "Distributed DES within one replication"
+    use: "Only when one trajectory is sufficiently expensive and contains exploitable LP concurrency."
+  a3:
+    name: "Hierarchical parallelism"
+    use: "Run several replications concurrently, each using multiple LP workers, when large trajectories and Monte Carlo replication are both expensive."
+
+hpc_break_even:
+  single_core_runtime: "T1 = T_other + T_DES"
+  distributed_runtime: "TP = T_other + T_DES/(eta_P*P) + H_P"
+  overhead: "H_P = T_comm + T_sync + T_partition + T_migration"
+  positive_speedup_condition: "T_DES > H_P / (1 - 1/(eta_P*P))"
+  target_speedup_condition: "For desired S_min, derive and test the corresponding minimum T_DES."
+  policy: "Distributed DES is disabled unless pilot profiling predicts and observed measurements confirm a speedup above the pre-registered threshold."
+  required_measurements: "wall time, useful event time, communication time, synchronization time, idle time, messages, bytes, LP imbalance, migration cost"
+
+logical_process_partitioning:
+  initial_partition: "Start from the published partitioning machinery; add geographic region or hub-based LP mapping as the first extension candidate."
+  rationale: "Regional decomposition has physical meaning and limits high-frequency internal communication."
+  workload_metric: "L[p] = observed or predicted event-processing cost."
+  baseline_objective: "CV(L) = sigma(L)/mu(L)"
+  proposed_objective: "J(pi) = alpha*CV(L) + beta*cross_LP_flow(pi) + gamma*migration_cost(pi)"
+  cross_lp_flow: "sum_(i,j) w[i,j] * indicator(pi(i) != pi(j))"
+  w_definition: "Expected cross-partition shipment or event intensity."
+  repartition_gate: "Repartition only when estimated imbalance savings exceed repartition plus state-migration overhead."
+
+synchronization_research:
+  baseline: "Use the owned published approximate-BSP implementation as the inherited baseline; regression-test it before modifying synchronization."
+  candidate_1: "Fixed approximate temporal window W."
+  candidate_2: "Adaptive approximation window controlled by observed error."
+  candidate_3: "Conservative lookahead using minimum interregional transport times."
+  candidate_4: "Hybrid: conservative lookahead for long-haul links plus smaller/adaptive windows for dense metropolitan interactions."
+  key_relation: "If W <= defensible tau_min across a dependency boundary, safe progress may be possible without approximation for that boundary."
+  evaluation: "runtime, causality violations, state error, outcome error, candidate-ranking error, LP idle fraction"
+  prohibition: "Do not report speedup without reporting approximation error or semantic consistency."
+
+predictive_state_prefetch:
+  purpose: "Reduce cross-LP latency by predicting likely future resource or state requests."
+  model: "Laplace-smoothed Naive Bayes may be retained as baseline, but compare with no-prediction and simple-frequency predictors."
+  permitted_action: "prefetch metadata, prepare tentative resource state, stage communication"
+  prohibited_action: "irrevocably consume capacity based solely on a prediction"
+  commit_rule: "All physical capacity and inventory changes require exact feasibility checks at event commit."
+
+forecasting:
+  role: "Optional, not architectural."
+  possible_targets: "corridor travel times, demand, wholesale arrivals, or price."
+  baseline_models:
+    f0: "historical mean or seasonal profile"
+    f1: "lightweight statistical model"
+    f2: "gradient-boosted or linear ML baseline"
+    f3: "Autoformer or another Transformer only if justified by data volume and downstream value"
+  evaluation: "MAE, RMSE, sMAPE/MAPE where valid, plus downstream change in shortage, loss, lateness, and cost"
+  retain_rule: "Retain deep forecasting only if it materially improves downstream simulation or decision outcomes."
+
+disruption_scenarios:
+  s0: "Normal operations."
+  s1: "Local production shock."
+  s2: "External regional production shock."
+  s3: "Major freight-corridor capacity reduction."
+  s4: "Wholesale-hub unloading-capacity reduction."
+  s5: "Cold-chain degradation or refrigeration failures."
+  s6: "Demand surge."
+  s7: "Fuel or transport-cost shock."
+  s8: "Compound local production plus freight disruption."
+  s9: "Compound multi-region production shock with correlated severity."
+  s10: "Recovery scenario with emergency sourcing or reserve capacity."
+
+policy_experiments:
+  p01: "Increase local production capacity."
+  p02: "Diversify source regions."
+  p03: "Increase wholesale-hub dock capacity."
+  p04: "Add cold-storage capacity."
+  p05: "Reserve emergency freight capacity."
+  p06: "Protect or add alternative freight corridors."
+  p07: "Maintain strategic fresh-produce inventory where physically meaningful."
+  p08: "Introduce emergency sourcing subsidies or contracts."
+  p09: "Add a second metropolitan distribution hub."
+  p10: "Joint portfolio optimization across sourcing, logistics capacity, and resilience."
+
+metrics:
+  food_availability: "FA[p,t] = available_supply[p,t] / demand[p,t]"
+  unmet_demand: "UD[p] = sum_t max(0,demand[p,t]-supply[p,t])"
+  food_loss: "FL[p] = discarded_quantity[p] / shipped_quantity[p]"
+  price_volatility: "PV[p] = stdev(price[p]) / mean(price[p])"
+  recovery_time: "TR = first t after shock where performance >= (1-epsilon)*baseline_performance"
+  source_concentration: "HHI = sum_r share[r]^2"
+  average_freshness: "Mean quality at wholesale and retail availability."
+  lead_time: "Mean, p95, and variance."
+  terminal_queue: "Mean and p95 wait; utilization."
+  logistics_cost: "line-haul + handling + cold chain + spoilage + emergency recourse"
+  emissions_optional: "CO2e by source and transport mode if defensible data are available."
+  hpc_speedup: "S_P = T1 / TP"
+  hpc_efficiency: "E_P = S_P / P"
+  event_throughput: "processed events per wall-clock second"
+  approximation_error: "Difference between approximate and exact/reference simulation outcomes."
+
+experimental_design:
+  replication_policy: "Use independent random seeds across replications and common random numbers for paired model or policy comparisons when appropriate."
+  statistical_reporting: "Means, confidence intervals, standardized effect sizes, and distributional diagnostics; do not rely on best-run values."
+  factor_1_local_share: "0.0 to 1.0 in increments of 0.1 for core resilience curve."
+  factor_2_disruption_severity: "at least low, medium, high"
+  factor_3_source_correlation: "low, medium, high"
+  factor_4_product_perishability: "high, medium, low"
+  factor_5_network_scale: "small, medium, large, extra_large"
+  factor_6_execution_mode: "A0, A1, A2, A3"
+  scale_rule: "Scale by meaningful entities, shipments, hubs, simulated horizon, and observed event count; do not use event count alone as realism evidence."
+  paired_fidelity_experiment: "Run M0, M1, and M2 under the same scenario seeds to quantify the scientific value of explicit DES."
+  scaling_experiment: "Increase model scale until sequential and distributed runtimes cross; estimate N_star with confidence intervals."
+  partition_ablation: "geographic static vs CV-only vs communication-aware adaptive"
+  synchronization_ablation: "exact/conservative vs fixed-W approximate vs adaptive-W vs hybrid lookahead"
+  prefetch_ablation: "none vs Naive Bayes vs simple frequency predictor"
+  forecasting_ablation: "historical baseline vs lightweight predictor vs deep model if included"
+
+data_strategy:
+  production:
+    preferred: "Official regional agricultural production statistics and harvest calendars."
+    fallback: "Published crop-production datasets with documented spatial resolution."
+  freight:
+    preferred: "Freight origin-destination or commodity-flow data, truck counts, wholesale arrival records."
+    fallback: "Calibrated synthetic flows constrained by known production and market totals."
+  road_network:
+    source: "OpenStreetMap"
+    use: "Network distances, corridor topology, route alternatives; do not infer traffic dynamics without supporting data."
+  wholesale_market:
+    preferred: "Daily arrival volumes, prices, operating hours, and facility capacity if accessible."
+  travel_time:
+    preferred: "Observed freight or traffic travel times."
+    fallback: "Calibrated stochastic corridor travel-time distributions."
+  perishability:
+    source: "Peer-reviewed product-specific shelf-life and temperature-response studies."
+  demand:
+    preferred: "Official consumption or market-sales data."
+    fallback: "Calibrated demand profiles with sensitivity analysis."
+  provenance_requirement: "Maintain a data dictionary, source URL/DOI, license, retrieval date, transformation script, spatial units, temporal units, and uncertainty notes for every dataset."
+
+software_architecture:
+  language_recommendation: "Use the language and runtime that best preserves/reuses the baseline implementation; Python may orchestrate experiments and analysis even if the simulator core uses C/C++/Java."
+  modules:
+    m01: "config_and_schema"
+    m02: "random_streams"
+    m03: "geospatial_network"
+    m04: "agent_models"
+    m05: "shipment_and_inventory_state"
+    m06: "event_kernel_and_FEL"
+    m07: "perishability_model"
+    m08: "market_and_sourcing_behavior"
+    m09: "disruption_engine"
+    m10: "metrics"
+    m11: "sequential_runner"
+    m12: "replication_parallel_runner"
+    m13: "distributed_DES_runtime"
+    m14: "partitioner"
+    m15: "synchronization_strategies"
+    m16: "predictive_prefetch"
+    m17: "forecast_adapter_optional"
+    m18: "experiment_manifest"
+    m19: "checkpoint_and_replay"
+    m20: "analysis_pipeline"
+  interfaces:
+    i01: "Agent decisions must emit explicit actions/events; they must not mutate remote LP state directly."
+    i02: "Physical state changes occur through event handlers."
+    i03: "Execution strategy must be swappable without changing model semantics."
+    i04: "Synchronization policy must be swappable behind a common runtime interface."
+    i05: "Every experiment must be fully defined by a versioned manifest."
+
+verification_validation:
+  unit_tests:
+    t01: "FEL ordering and tie-breaking."
+    t02: "Shipment conservation."
+    t03: "Inventory conservation."
+    t04: "Vehicle and hub capacity invariants."
+    t05: "Perishability monotonicity under fixed temperature."
+    t06: "No negative inventory."
+    t07: "Deterministic replay with identical seed and configuration."
+    t08: "Cross-LP message serialization/deserialization."
+  integration_tests:
+    t09: "Small hand-computable logistics network."
+    t10: "Sequential and exact parallel execution produce equivalent state trajectories where semantics require equivalence."
+    t11: "Approximate execution reports bounded and measurable deviations."
+  empirical_validation:
+    v01: "Baseline model reproduces published patterns."
+    v02: "Regional production and seasonal availability match observed aggregates."
+    v03: "Travel-time distributions match observed corridor data where available."
+    v04: "Wholesale arrivals and prices match empirical ranges."
+    v05: "Queueing or terminal behavior is validated if operational data exist."
+  sensitivity:
+    rule: "Parameters without strong empirical calibration must be varied systematically and identified as uncertain."
+
+implementation_plan:
+  wp0:
+    name: "Freeze the published baseline"
+    goal: "Establish a canonical executable control from the existing code."
+    tasks: "tag commit; archive environment; collect original configs; rerun representative published experiments; store golden/regression outputs"
+    deliverables: "baseline tag; environment manifest; regression suite; paper-to-code map"
+    exit_gate: "Published behavior is reproducible from the owned repository."
+  wp1:
+    name: "Instrument the existing simulator"
+    goal: "Measure where time, events, communication, waiting, and imbalance actually occur before redesign."
+    tasks: "event timers; FEL counters; LP load traces; message counters; sync wait; approximation diagnostics; memory; RNG stream logging"
+    deliverables: "profiling layer; baseline performance report; bottleneck map"
+    dependencies: "wp0"
+    exit_gate: "A run can be decomposed into useful event work, synchronization, communication, idle time, and overhead."
+  wp2:
+    name: "Introduce interregional sourcing without explicit logistics"
+    goal: "Create the minimum scientific extension while preserving the original market engine."
+    tasks: "external region entity/state; source availability; seasonal supply; source reliability; sourcing choice; fixed/stochastic lead-time adapter"
+    deliverables: "M0 instantaneous model; M1 lead-time model; local-versus-external sourcing experiments"
+    dependencies: "wp0,wp1"
+    exit_gate: "The original local-only model remains executable and paired comparisons can be run with matched seeds."
+  wp3:
+    name: "Add mesoscopic logistics inside the existing DES kernel"
+    goal: "Represent only logistics state transitions that can causally affect market outcomes."
+    tasks: "shipment entity; dispatch/departure; corridor transit; disruption; hub arrival; queue; unload; inventory release"
+    deliverables: "M2 explicit-logistics model; small deterministic logistics tests"
+    dependencies: "wp2"
+    exit_gate: "Mass/inventory conservation and hand-computable event traces pass."
+  wp4:
+    name: "Add perishability as a controlled mechanism"
+    goal: "Connect elapsed logistics time and temperature/cold-chain state to usable supply."
+    tasks: "quality state; product-specific decay; rejection/spoilage threshold; cold-chain failure event"
+    deliverables: "perishability module; calibration provenance; sensitivity ranges"
+    dependencies: "wp3"
+    exit_gate: "Quality trajectories match selected empirical/literature curves within declared tolerance."
+  wp5:
+    name: "Adversarial DES-necessity experiment"
+    goal: "Attempt to falsify the need for full DES."
+    tasks: "paired M0/M1/M2 runs; common random numbers; practical-effect thresholds; identify scenario classes where conclusions differ"
+    deliverables: "DES-necessity map; effect sizes; simplified-model adequacy regions"
+    dependencies: "wp3,wp4"
+    exit_gate: "The project can state where explicit logistics DES is necessary and where it is not."
+  wp6:
+    name: "Core resilience science"
+    goal: "Answer the substantive interregional-sourcing question before adding new HPC methods."
+    tasks: "local-share sweep; source-correlation sweep; production shock; corridor shock; hub-capacity shock; compound shocks"
+    deliverables: "resilience curves; recovery analysis; shortage/loss/price results"
+    dependencies: "wp5"
+    exit_gate: "At least one robust mechanism-level finding survives sensitivity analysis."
+  wp7:
+    name: "Independent-replication HPC baseline"
+    goal: "Establish the strongest simple parallel baseline using the existing simulator."
+    tasks: "parallel replication launcher; load balancing across replications; time-to-confidence measurement"
+    deliverables: "A1 scaling curves; time-to-precision baseline"
+    dependencies: "wp1,wp3"
+    exit_gate: "All distributed-DES claims can be compared against replication parallelism."
+  wp8:
+    name: "Extend, do not rebuild, the existing distributed runtime"
+    goal: "Reuse the published LP/FEL/runtime machinery for the new logistics workload."
+    tasks: "map regions/hubs to LPs; add cross-LP shipment events; validate small exact/reference cases; expose topology metrics"
+    deliverables: "regional LP mapping; distributed M2 mode; semantic validation report"
+    dependencies: "wp3,wp7"
+    exit_gate: "Distributed M2 runs reproduce reference semantics where exactness is required."
+  wp9:
+    name: "Synchronization continuation"
+    goal: "Test whether logistics physics provides safer/faster synchronization than simply reusing fixed approximate windows."
+    tasks: "measure minimum travel-time lookahead; compare existing approximate BSP; conservative lookahead; adaptive/hybrid windows"
+    deliverables: "speed-error frontier; causality diagnostics; synchronization ablation"
+    dependencies: "wp8"
+    exit_gate: "Any new synchronization method improves a defined metric without unacceptable outcome error."
+  wp10:
+    name: "Partitioning continuation"
+    goal: "Extend the existing partitioner only if communication becomes a measurable bottleneck."
+    tasks: "CV-only baseline; shipment/event cut metric; migration cost; communication-aware objective; repartition trigger"
+    deliverables: "partitioning ablation; overhead decomposition"
+    dependencies: "wp8"
+    exit_gate: "Communication-aware partitioning beats inherited partitioning on the workload class claimed."
+  wp11:
+    name: "Parallel break-even and execution policy"
+    goal: "Identify when A0, A1, A2, or A3 is best."
+    tasks: "strong/weak scaling; vary event density and cross-LP interaction; estimate break-even; hierarchical replication-plus-PDES tests"
+    deliverables: "execution-regime map; N_star or workload-boundary estimates; scheduler policy"
+    dependencies: "wp7,wp8,wp9,wp10"
+    exit_gate: "Distributed DES is recommended only inside empirically supported regions."
+  wp12:
+    name: "Primary-paper experiment freeze"
+    goal: "Lock the smallest set of mechanisms and experiments required for the domain/modeling paper."
+    tasks: "freeze configs; rerun final seeds; archive data transformations; regenerate all tables/figures from manifests"
+    deliverables: "publication dataset; reproducibility bundle; evidence matrix"
+    dependencies: "wp6,wp11"
+    exit_gate: "Every primary claim maps to one predeclared experiment and one reproducible artifact."
+  wp13:
+    name: "Conditional HPC-method paper"
+    goal: "Pursue a second paper only if synchronization, partitioning, or execution-policy results are independently novel."
+    tasks: "isolate HPC contribution; expand synthetic/topological benchmark suite; compare inherited versus modified runtime methods"
+    deliverables: "HPC manuscript dataset and benchmark suite"
+    dependencies: "wp11"
+    exit_gate: "A distinct methodological claim exists beyond application-specific scaling."
+  wp14:
+    name: "Optional predictive modules"
+    goal: "Evaluate forecasting or predictive prefetch only after the core papers are secure."
+    tasks: "baseline predictor; inherited Bayesian/predictive method; lightweight alternatives; downstream-value test"
+    deliverables: "optional ablation"
+    dependencies: "wp12"
+    exit_gate: "Retain only if it improves downstream outcomes or runtime enough to justify complexity."
+
+milestones:
+  m1: "Published baseline frozen and regression-certified."
+  m2: "Simulator fully instrumented on continuation hardware."
+  m3: "M0/M1 interregional sourcing extension operational."
+  m4: "M2 mesoscopic logistics integrated into the existing DES kernel."
+  m5: "Perishability calibrated and validated."
+  m6: "DES-necessity map completed."
+  m7: "Core resilience result established."
+  m8: "Independent-replication parallel baseline completed."
+  m9: "Regional distributed execution validated using the inherited runtime."
+  m10: "Synchronization and partitioning continuation experiments completed."
+  m11: "Parallel break-even/execution-regime map completed."
+  m12: "Primary publication package frozen."
+  m13: "Conditional HPC-method paper decision made."
+
+decision_gates:
+  g1_des_science:
+    question: "Does explicit DES materially alter scientific conclusions?"
+    yes: "Retain DES for the affected scenario classes."
+    no: "Use the simpler M0/M1 model for those classes and report DES as unnecessary."
+  g2_distributed_hpc:
+    question: "Does distributed DES beat sequential and replication-parallel baselines after overhead?"
+    yes: "Use distributed DES only above the measured break-even region."
+    no: "Do not claim distributed DES as an operational improvement; report the negative result and retain replication parallelism."
+  g3_approximation:
+    question: "Does approximate synchronization yield substantial speedup while preserving conclusions within pre-registered tolerance?"
+    yes: "Retain and characterize the Pareto frontier."
+    no: "Use conservative/exact synchronization."
+  g4_deep_forecasting:
+    question: "Does deep forecasting improve downstream food-system outcomes beyond lightweight models?"
+    yes: "Retain as optional predictive module."
+    no: "Remove from core architecture."
+
+acceptance_criteria:
+  scientific:
+    a01: "At least one primary resilience relationship is supported by statistically robust experiments."
+    a02: "The role of logistics is identified by paired fidelity comparison rather than assumed."
+    a03: "Compound shocks are analyzed."
+    a04: "Results distinguish potential production from effective market-available supply."
+  simulation:
+    a05: "State and flow conservation invariants pass."
+    a06: "Stochastic replication is reproducible."
+    a07: "Event semantics are documented."
+    a08: "Approximation errors are explicitly reported."
+  hpc:
+    a09: "Sequential, independent-replication, and distributed-DES baselines are all measured."
+    a10: "Speedup is reported with parallel efficiency and overhead decomposition."
+    a11: "A break-even workload region is estimated."
+    a12: "No distributed strategy is claimed as superior outside measured evidence."
+  reproducibility:
+    a13: "All final figures and tables can be regenerated from manifests."
+    a14: "Code, configuration, seed policy, and data provenance are archived."
+    a15: "Synthetic or transformed datasets are generated by scripts, not manually."
+
+risks:
+  r01:
+    risk: "External-regional flow data are incomplete."
+    mitigation: "Calibrate synthetic flows to observed production and wholesale totals; expose uncertainty through sensitivity analysis."
+  r02:
+    risk: "DES adds little scientific value."
+    mitigation: "Treat this as a falsifiable result; retain M0/M1 as valid simpler models."
+  r03:
+    risk: "Distributed DES overhead dominates."
+    mitigation: "Use replication-level parallelism; publish measured break-even boundary."
+  r04:
+    risk: "Approximate BSP changes model conclusions."
+    mitigation: "Use conservative lookahead or exact synchronization."
+  r05:
+    risk: "Too many mechanisms make calibration impossible."
+    mitigation: "Add layers sequentially and require an exit gate after each."
+  r06:
+    risk: "Perishability parameters are uncertain."
+    mitigation: "Use product classes, parameter ranges, and global sensitivity analysis."
+  r07:
+    risk: "Model becomes a traffic simulator."
+    mitigation: "Keep freight mesoscopic unless road interaction is empirically shown to drive food-system outcomes."
+  r08:
+    risk: "Publication novelty becomes technology stacking."
+    mitigation: "Center contribution on resilience findings, DES-necessity evidence, and HPC break-even methodology."
+
+publication_strategy:
+  default_program: "Two-paper continuation, not one kitchen-sink paper."
+  paper_A:
+    role: "Primary scientific continuation."
+    working_title: "Interregional Sourcing and Perishable Logistics in Metropolitan Food Systems: A Hybrid ABM-DES Resilience Study"
+    central_claim: "Explicit logistics can alter the resilience value of geographic sourcing diversification, and the study identifies when that extra simulation fidelity is necessary."
+    core_methods: "Existing hybrid simulator + interregional sourcing + mesoscopic logistics + perishability + disruption experiments + M0/M1/M2 fidelity analysis."
+    hpc_role: "Enabling and transparently benchmarked, but not the main novelty unless required at target scale."
+    preferred_targets: "Computers & Industrial Engineering; Transportation Research Part E; Journal of Simulation depending final emphasis."
+  paper_B:
+    role: "Conditional HPC continuation."
+    working_title: "Workload-Aware Parallel Discrete-Event Simulation for Interregional Perishable Logistics"
+    central_claim: "Physical freight lookahead, communication-aware partitioning, or hierarchical execution produces a measurable new performance regime relative to the published runtime."
+    required_evidence: "Must outperform inherited methods and replication-level parallelism on independently reproducible benchmark classes."
+    preferred_targets: "IEEE Transactions on Intelligent Transportation Systems if transportation computation is central; Simulation or an HPC/simulation venue otherwise."
+    kill_condition: "Do not write Paper B if results reduce to application-specific scaling with no distinct method or boundary."
+  one_paper_exception: "Merge A and B only if the new HPC method is necessary to make the scientific experiment feasible and both contributions can be explained without diluting either."
+
+publication_story:
+  contribution_1: "A traceable continuation of the authors’ published metropolitan simulator into interregional fresh-produce sourcing and logistics."
+  contribution_2: "Evidence showing when explicit logistics DES changes food-system resilience conclusions relative to simpler abstractions."
+  contribution_3: "A workload-aware execution policy that distinguishes sequential DES, replication parallelism, distributed DES, and hierarchical parallelism."
+  contribution_4: "A comparison of synchronization strategies exploiting physical freight lookahead versus approximate temporal windows."
+  contribution_5: "A reproducible disruption and policy testbed for metropolitan fresh-produce resilience."
+  claims_to_avoid:
+    c01: "Do not claim that DES is always required."
+    c02: "Do not claim distributed execution is always faster."
+    c03: "Do not claim that more local food is always more resilient."
+    c04: "Do not claim deep learning is necessary without downstream evidence."
+    c05: "Do not use event count alone as evidence of realism."
+
+minimum_viable_research:
+  principle: "Exploit the existing simulator; minimize new mechanisms until the central effect is demonstrated."
+  scope: "Frozen 2025 baseline + instrumentation + 2 external domestic regions + 1 wholesale hub + 2 or 3 products + M0/M1/M2 logistics fidelity + stochastic corridor delay + one production shock + one freight disruption + perishability + local-share sweep + sequential versus replication-parallel baseline."
+  distributed_DES_requirement: "Not required for the MVP scientific paper unless profiling shows that target experiments cannot be executed efficiently without it."
+  defer: "International imports, ports/customs, microscopic traffic, deep forecasting, predictive credit changes, multi-city validation, large-scale simulation-optimization."
+  success_science: "Show a robust case in which logistics constraints materially change the resilience effect of interregional sourcing."
+  success_method: "Show where M0/M1 approximations are adequate and where M2 is necessary."
+  success_hpc: "Measure, rather than assume, whether the inherited distributed runtime becomes beneficial for the new workload."
+
+stretch_goals:
+  sg01: "Multiobjective optimization of sourcing mix, hub capacity, and emergency logistics."
+  sg02: "International import layer with port/border processes."
+  sg03: "Online data assimilation and digital-twin operation."
+  sg04: "Adaptive runtime that chooses A0/A1/A2/A3 automatically."
+  sg05: "Surrogate modeling for expensive simulation-optimization."
+  sg06: "Multi-city comparative resilience study."
+
+literature_seeds:
+  ref01:
+    citation: "Manriquez, M. I., Gil-Costa, V., & Marin, M. (2025). Parallel Agent-Based Framework for Analyzing Urban Agricultural Supply Chains. Future Internet, 17(7), 316."
+    url: "https://www.mdpi.com/1999-5903/17/7/316"
+    use: "Baseline architecture and domain model."
+  ref02:
+    citation: "Ge, H., Gomez, M. I., & Peters, C. J. (2026). Supply chain network design and food loss in the US fresh produce system. Journal of Cleaner Production."
+    url: "https://www.sciencedirect.com/science/article/pii/S0959652626020317"
+    use: "Fresh-produce network design and loss mechanisms."
+  ref03:
+    citation: "Ballesteros-Gomez, C., & Floden, J. et al. (2026). Resilience of perishable freight transport: a systematic literature review. Transport Reviews."
+    url: "https://www.tandfonline.com/doi/abs/10.1080/01441647.2026.2738756"
+    use: "Perishable freight resilience gap."
+  ref04:
+    citation: "Moynihan, E., Avraam, C., Siddiqui, S., et al. (2022). Optimization Based Modeling for the Food Supply Chain's Resilience to Outbreaks. Frontiers in Sustainable Food Systems, 6."
+    url: "https://www.frontiersin.org/journals/sustainable-food-systems/articles/10.3389/fsufs.2022.887819/full"
+    use: "Food-system resilience and shock propagation."
+  ref05:
+    citation: "Higgins, A., Bruce, C., McFallan, S., Chilcott, C., et al. (2023). Enhancing farmer linkages to markets in developing countries through mapping of supply chains and optimising transport. Case Studies on Transport Policy."
+    url: "https://www.sciencedirect.com/science/article/pii/S2213624X23000068"
+    use: "Production-to-market transport linkage."
+  ref06:
+    citation: "Yu, C., & Song, J. (2024). After the COVID-19 pandemic: changes and continuities in the food supply chain. Food Quality and Safety."
+    url: "https://academic.oup.com/fqs/article-abstract/doi/10.1093/fqsafe/fyad066/7471845"
+    use: "Disruption and geographic flow motivation."
+  ref07:
+    citation: "Chepeliev, M., Maliszewska, M., & Pereira, M. F. S. (2025). Disentangling the Channels of Impact of the Ukraine War on Global Food Markets: An Integrated Scenario Approach. Food Security."
+    url: "https://link.springer.com/article/10.1007/s12571-025-01560-6"
+    use: "Compound food-market shocks."
+  ref08:
+    citation: "Wang, X., & Shan, W. (2026). Quality-driven long-haul routing optimization for perishable products with dynamic freshness decay. Annals of Operations Research."
+    url: "https://link.springer.com/article/10.1007/s10479-026-07428-y"
+    use: "Long-haul freight and freshness decay."
+  ref09:
+    citation: "Beheshti, S., Bigdellou, S., & Heydari, J. (2026). Time-sensitive circularity in agri-food supply chains: a hybrid closed-open loop model under scenario-based disruption. Annals of Operations Research."
+    url: "https://link.springer.com/article/10.1007/s10479-026-07190-1"
+    use: "Time-sensitive disruption modeling."
+  ref10:
+    citation: "Kogler, C., Maxera, P., & Woletz, J. (2026). The importance of verification, validation, and credibility in discrete simulation models for resilient freight transportation and terminal logistics: a literature review. Journal of Simulation."
+    url: "https://www.tandfonline.com/doi/abs/10.1080/17477778.2026.2690992"
+    use: "DES verification and validation requirements."
+  ref11:
+    citation: "Tolia, A., & Ponis, S. T. (2026). Digital Twins for Real-Time Decision-Making in Supply Chain Management and Logistics: A Systematic Review. Information, 17(8), 732."
+    url: "https://www.mdpi.com/2078-2489/17/8/732"
+    use: "Optional future digital-twin framing."
+
+planner_directive:
+  instruction_01: "Assume the principal investigator owns and understands the published simulator. Never plan a clean-room rebuild unless explicitly requested."
+  instruction_02: "Begin by freezing the published commit/configuration and creating regression fixtures."
+  instruction_03: "Create a paper-to-code-to-experiment traceability matrix before adding mechanisms."
+  instruction_04: "Instrument the existing event kernel before optimizing or refactoring it."
+  instruction_05: "Preserve the original local-only scenario as an executable control throughout the project."
+  instruction_06: "Implement M0, M1, and M2 as interchangeable fidelity modes over as much shared code as possible."
+  instruction_07: "Treat the original ABM-DES, partitioning, synchronization, Bayesian, and forecasting machinery as inherited infrastructure, not novelty."
+  instruction_08: "Make the first paper about interregional sourcing, explicit logistics, perishability, resilience, and the necessity of simulation fidelity."
+  instruction_09: "Treat independent-replication parallelism as the mandatory performance baseline."
+  instruction_10: "Reuse and extend the existing distributed runtime only after instrumentation indicates a plausible benefit."
+  instruction_11: "Attempt conservative physical lookahead from freight travel-time lower bounds before inventing more approximate synchronization."
+  instruction_12: "Keep exact/reference execution available for validation of approximate modes."
+  instruction_13: "Do not let a predictor change physical capacity or inventory semantics without an exact commit check."
+  instruction_14: "Do not add microscopic traffic unless a sensitivity experiment shows that mesoscopic travel-time dynamics are insufficient."
+  instruction_15: "For every work package, specify source modules touched, regression tests, new tests, data inputs, output artifacts, compute requirements, and rollback conditions."
+  instruction_16: "For every proposed feature, state the reviewer objection it answers and the experiment that can falsify its value."
+  instruction_17: "Prefer deletion or deferral when a mechanism does not improve explanatory power, validation, or computational feasibility."
+  instruction_18: "Generate a minimum viable plan first, then a full plan, then stretch work."
+  instruction_19: "Separate Paper A and Paper B by default; merge only if the HPC contribution is necessary to obtain the scientific result."
+  instruction_20: "End the generated implementation plan with an evidence matrix: claim -> inherited/new component -> experiment -> metric -> acceptance threshold -> artifact -> paper section."

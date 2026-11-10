@@ -1,0 +1,1291 @@
+{
+  "source_filename": "odepa-wholesale-2025.csv",
+  "sha256": "fc7c7e30de9d940f48a16c69202fd66a77708ecb12ecc70a7c018665c72c2a18",
+  "kind": "wholesale",
+  "rows": 202029,
+  "zero_volume_rows_all_products": 201,
+  "selected_rows": 12843,
+  "selected_dates": [
+    "2025-01-02",
+    "2025-01-03",
+    "2025-01-06",
+    "2025-01-07",
+    "2025-01-08",
+    "2025-01-09",
+    "2025-01-10",
+    "2025-01-13",
+    "2025-01-14",
+    "2025-01-15",
+    "2025-01-16",
+    "2025-01-17",
+    "2025-01-20",
+    "2025-01-21",
+    "2025-01-22",
+    "2025-01-23",
+    "2025-01-24",
+    "2025-01-27",
+    "2025-01-28",
+    "2025-01-29",
+    "2025-01-30",
+    "2025-01-31",
+    "2025-02-03",
+    "2025-02-04",
+    "2025-02-05",
+    "2025-02-06",
+    "2025-02-07",
+    "2025-02-10",
+    "2025-02-11",
+    "2025-02-12",
+    "2025-02-13",
+    "2025-02-14",
+    "2025-02-17",
+    "2025-02-18",
+    "2025-02-19",
+    "2025-02-20",
+    "2025-02-21",
+    "2025-02-24",
+    "2025-02-25",
+    "2025-02-26",
+    "2025-02-27",
+    "2025-02-28",
+    "2025-03-03",
+    "2025-03-04",
+    "2025-03-05",
+    "2025-03-06",
+    "2025-03-07",
+    "2025-03-10",
+    "2025-03-11",
+    "2025-03-12",
+    "2025-03-13",
+    "2025-03-14",
+    "2025-03-17",
+    "2025-03-18",
+    "2025-03-19",
+    "2025-03-20",
+    "2025-03-21",
+    "2025-03-24",
+    "2025-03-25",
+    "2025-03-26",
+    "2025-03-27",
+    "2025-03-28",
+    "2025-03-31",
+    "2025-04-01",
+    "2025-04-02",
+    "2025-04-03",
+    "2025-04-04",
+    "2025-04-07",
+    "2025-04-08",
+    "2025-04-09",
+    "2025-04-10",
+    "2025-04-11",
+    "2025-04-14",
+    "2025-04-15",
+    "2025-04-16",
+    "2025-04-17",
+    "2025-04-21",
+    "2025-04-22",
+    "2025-04-23",
+    "2025-04-24",
+    "2025-04-25",
+    "2025-04-28",
+    "2025-04-29",
+    "2025-04-30",
+    "2025-05-02",
+    "2025-05-05",
+    "2025-05-06",
+    "2025-05-07",
+    "2025-05-08",
+    "2025-05-09",
+    "2025-05-12",
+    "2025-05-13",
+    "2025-05-14",
+    "2025-05-15",
+    "2025-05-16",
+    "2025-05-19",
+    "2025-05-20",
+    "2025-05-22",
+    "2025-05-23",
+    "2025-05-26",
+    "2025-05-27",
+    "2025-05-28",
+    "2025-05-29",
+    "2025-05-30",
+    "2025-06-02",
+    "2025-06-03",
+    "2025-06-04",
+    "2025-06-05",
+    "2025-06-06",
+    "2025-06-09",
+    "2025-06-10",
+    "2025-06-11",
+    "2025-06-12",
+    "2025-06-13",
+    "2025-06-16",
+    "2025-06-17",
+    "2025-06-18",
+    "2025-06-19",
+    "2025-06-23",
+    "2025-06-24",
+    "2025-06-25",
+    "2025-06-26",
+    "2025-06-27",
+    "2025-06-30",
+    "2025-07-01",
+    "2025-07-02",
+    "2025-07-03",
+    "2025-07-04",
+    "2025-07-07",
+    "2025-07-08",
+    "2025-07-09",
+    "2025-07-10",
+    "2025-07-11",
+    "2025-07-14",
+    "2025-07-15",
+    "2025-07-17",
+    "2025-07-18",
+    "2025-07-21",
+    "2025-07-22",
+    "2025-07-23",
+    "2025-07-24",
+    "2025-07-25",
+    "2025-07-28",
+    "2025-07-29",
+    "2025-07-30",
+    "2025-07-31",
+    "2025-08-01",
+    "2025-08-04",
+    "2025-08-05",
+    "2025-08-06",
+    "2025-08-07",
+    "2025-08-08",
+    "2025-08-11",
+    "2025-08-12",
+    "2025-08-13",
+    "2025-08-14",
+    "2025-08-18",
+    "2025-08-19",
+    "2025-08-20",
+    "2025-08-21",
+    "2025-08-22",
+    "2025-08-25",
+    "2025-08-26",
+    "2025-08-29",
+    "2025-09-01",
+    "2025-09-02",
+    "2025-09-03",
+    "2025-09-04",
+    "2025-09-05",
+    "2025-09-08",
+    "2025-09-09",
+    "2025-09-10",
+    "2025-09-11",
+    "2025-09-12",
+    "2025-09-15",
+    "2025-09-16",
+    "2025-09-17",
+    "2025-09-22",
+    "2025-09-23",
+    "2025-09-24",
+    "2025-09-25",
+    "2025-09-26",
+    "2025-09-29",
+    "2025-09-30",
+    "2025-10-01",
+    "2025-10-02",
+    "2025-10-03",
+    "2025-10-06",
+    "2025-10-07",
+    "2025-10-08",
+    "2025-10-09",
+    "2025-10-10",
+    "2025-10-13",
+    "2025-10-14",
+    "2025-10-15",
+    "2025-10-16",
+    "2025-10-17",
+    "2025-10-20",
+    "2025-10-21",
+    "2025-10-22",
+    "2025-10-23",
+    "2025-10-24",
+    "2025-10-27",
+    "2025-10-28",
+    "2025-10-29",
+    "2025-10-30",
+    "2025-11-03",
+    "2025-11-04",
+    "2025-11-05",
+    "2025-11-06",
+    "2025-11-07",
+    "2025-11-10",
+    "2025-11-11",
+    "2025-11-12",
+    "2025-11-13",
+    "2025-11-14",
+    "2025-11-17",
+    "2025-11-18",
+    "2025-11-19",
+    "2025-11-20",
+    "2025-11-21",
+    "2025-11-24",
+    "2025-11-25",
+    "2025-11-26",
+    "2025-11-27",
+    "2025-11-28",
+    "2025-12-01",
+    "2025-12-02",
+    "2025-12-03",
+    "2025-12-04",
+    "2025-12-05",
+    "2025-12-09",
+    "2025-12-10",
+    "2025-12-11",
+    "2025-12-12",
+    "2025-12-15",
+    "2025-12-16",
+    "2025-12-17",
+    "2025-12-18",
+    "2025-12-19",
+    "2025-12-22",
+    "2025-12-23",
+    "2025-12-24",
+    "2025-12-26",
+    "2025-12-29",
+    "2025-12-30",
+    "2025-12-31"
+  ],
+  "scope": "RM: five candidate products",
+  "warning": "Volumes retain original commercial units. No mass conversion, coverage inference or metropolitan allocation performed. Zero rows require closure/missingness audit.",
+  "groups": [
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "China",
+        "$/caja 10 kilos"
+      ],
+      "reported_volume": "324780",
+      "positive_rows": 247
+    },
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "China",
+        "$/malla 10 kilos"
+      ],
+      "reported_volume": "151758",
+      "positive_rows": 158
+    },
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Talagante",
+        "$/caja 10 kilos"
+      ],
+      "reported_volume": "6580",
+      "positive_rows": 31
+    },
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Talagante",
+        "$/paquete 20 unidades (volumen en unidades)"
+      ],
+      "reported_volume": "660000",
+      "positive_rows": 22
+    },
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Talagante",
+        "$/trenza 50 unidades"
+      ],
+      "reported_volume": "11140",
+      "positive_rows": 37
+    },
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/paquete 20 unidades (volumen en unidades)"
+      ],
+      "reported_volume": "1226000",
+      "positive_rows": 38
+    },
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/trenza 50 unidades"
+      ],
+      "reported_volume": "1030",
+      "positive_rows": 4
+    },
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Arica y Parinacota",
+        "$/trenza 50 unidades"
+      ],
+      "reported_volume": "1700",
+      "positive_rows": 6
+    },
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de O'Higgins",
+        "$/caja 10 kilos"
+      ],
+      "reported_volume": "1100",
+      "positive_rows": 4
+    },
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de O'Higgins",
+        "$/paquete 20 unidades (volumen en unidades)"
+      ],
+      "reported_volume": "696000",
+      "positive_rows": 33
+    },
+    {
+      "key": [
+        "Ajo",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de O'Higgins",
+        "$/trenza 50 unidades"
+      ],
+      "reported_volume": "11310",
+      "positive_rows": 38
+    },
+    {
+      "key": [
+        "Ajo",
+        "Vega Central Mapocho de Santiago",
+        "China",
+        "$/caja 10 kilos"
+      ],
+      "reported_volume": "44800",
+      "positive_rows": 52
+    },
+    {
+      "key": [
+        "Ajo",
+        "Vega Central Mapocho de Santiago",
+        "China",
+        "$/malla 10 kilos"
+      ],
+      "reported_volume": "28850",
+      "positive_rows": 46
+    },
+    {
+      "key": [
+        "Ajo",
+        "Vega Central Mapocho de Santiago",
+        "Provincia de Talagante",
+        "$/paquete 20 unidades (volumen en unidades)"
+      ],
+      "reported_volume": "21400",
+      "positive_rows": 5
+    },
+    {
+      "key": [
+        "Ajo",
+        "Vega Central Mapocho de Santiago",
+        "Provincia de Talagante",
+        "$/trenza 50 unidades"
+      ],
+      "reported_volume": "2163",
+      "positive_rows": 21
+    },
+    {
+      "key": [
+        "Ajo",
+        "Vega Central Mapocho de Santiago",
+        "Región Metropolitana",
+        "$/paquete 20 unidades (volumen en unidades)"
+      ],
+      "reported_volume": "12550",
+      "positive_rows": 5
+    },
+    {
+      "key": [
+        "Ajo",
+        "Vega Central Mapocho de Santiago",
+        "Región Metropolitana",
+        "$/trenza 50 unidades"
+      ],
+      "reported_volume": "156",
+      "positive_rows": 3
+    },
+    {
+      "key": [
+        "Ajo",
+        "Vega Central Mapocho de Santiago",
+        "Región de Arica y Parinacota",
+        "$/trenza 50 unidades"
+      ],
+      "reported_volume": "235",
+      "positive_rows": 4
+    },
+    {
+      "key": [
+        "Ajo",
+        "Vega Central Mapocho de Santiago",
+        "Región de O'Higgins",
+        "$/paquete 20 unidades (volumen en unidades)"
+      ],
+      "reported_volume": "27030",
+      "positive_rows": 12
+    },
+    {
+      "key": [
+        "Ajo",
+        "Vega Central Mapocho de Santiago",
+        "Región de O'Higgins",
+        "$/trenza 50 unidades"
+      ],
+      "reported_volume": "720",
+      "positive_rows": 9
+    },
+    {
+      "key": [
+        "Espinaca",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Chacabuco",
+        "$/cuna 10 kilos"
+      ],
+      "reported_volume": "25810",
+      "positive_rows": 118
+    },
+    {
+      "key": [
+        "Espinaca",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/cuna 10 kilos"
+      ],
+      "reported_volume": "79780",
+      "positive_rows": 235
+    },
+    {
+      "key": [
+        "Espinaca",
+        "Vega Central Mapocho de Santiago",
+        "Provincia de Chacabuco",
+        "$/cuna 10 kilos"
+      ],
+      "reported_volume": "29489",
+      "positive_rows": 191
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Cachapoal",
+        "$/caja 15 unidades"
+      ],
+      "reported_volume": "200",
+      "positive_rows": 1
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Melipilla",
+        "$/caja 12 unidades"
+      ],
+      "reported_volume": "1100",
+      "positive_rows": 1
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de San Antonio",
+        "$/caja 10 unidades"
+      ],
+      "reported_volume": "1100",
+      "positive_rows": 1
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/caja 10 unidades"
+      ],
+      "reported_volume": "196110",
+      "positive_rows": 230
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/caja 12 unidades"
+      ],
+      "reported_volume": "125448",
+      "positive_rows": 213
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/caja 15 unidades"
+      ],
+      "reported_volume": "331384",
+      "positive_rows": 479
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/caja 18 unidades"
+      ],
+      "reported_volume": "370920",
+      "positive_rows": 528
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/caja 20 unidades"
+      ],
+      "reported_volume": "82258",
+      "positive_rows": 136
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/caja 24 unidades"
+      ],
+      "reported_volume": "1220",
+      "positive_rows": 6
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Coquimbo",
+        "$/caja 15 unidades"
+      ],
+      "reported_volume": "411338",
+      "positive_rows": 227
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Coquimbo",
+        "$/caja 18 unidades"
+      ],
+      "reported_volume": "124110",
+      "positive_rows": 120
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de O'Higgins",
+        "$/caja 15 unidades"
+      ],
+      "reported_volume": "2300",
+      "positive_rows": 3
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de O'Higgins",
+        "$/caja 18 unidades"
+      ],
+      "reported_volume": "1400",
+      "positive_rows": 1
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de O'Higgins",
+        "$/caja 20 unidades"
+      ],
+      "reported_volume": "900",
+      "positive_rows": 1
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Valparaíso",
+        "$/caja 10 unidades"
+      ],
+      "reported_volume": "13760",
+      "positive_rows": 14
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Valparaíso",
+        "$/caja 12 unidades"
+      ],
+      "reported_volume": "1690",
+      "positive_rows": 4
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Valparaíso",
+        "$/caja 15 unidades"
+      ],
+      "reported_volume": "330",
+      "positive_rows": 1
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región Metropolitana",
+        "$/caja 10 unidades"
+      ],
+      "reported_volume": "39257",
+      "positive_rows": 121
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región Metropolitana",
+        "$/caja 12 unidades"
+      ],
+      "reported_volume": "24794",
+      "positive_rows": 118
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región Metropolitana",
+        "$/caja 15 unidades"
+      ],
+      "reported_volume": "51525",
+      "positive_rows": 326
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región Metropolitana",
+        "$/caja 18 unidades"
+      ],
+      "reported_volume": "32438",
+      "positive_rows": 325
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región Metropolitana",
+        "$/caja 20 unidades"
+      ],
+      "reported_volume": "160",
+      "positive_rows": 1
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región de Coquimbo",
+        "$/caja 15 unidades"
+      ],
+      "reported_volume": "92240",
+      "positive_rows": 142
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región de Coquimbo",
+        "$/caja 18 unidades"
+      ],
+      "reported_volume": "62040",
+      "positive_rows": 138
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región de O'Higgins",
+        "$/caja 10 unidades"
+      ],
+      "reported_volume": "27844",
+      "positive_rows": 134
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región de O'Higgins",
+        "$/caja 12 unidades"
+      ],
+      "reported_volume": "15967",
+      "positive_rows": 134
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región de O'Higgins",
+        "$/caja 15 unidades"
+      ],
+      "reported_volume": "40930",
+      "positive_rows": 349
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región de O'Higgins",
+        "$/caja 18 unidades"
+      ],
+      "reported_volume": "24871",
+      "positive_rows": 353
+    },
+    {
+      "key": [
+        "Lechuga",
+        "Vega Central Mapocho de Santiago",
+        "Región de O'Higgins",
+        "$/caja 20 unidades"
+      ],
+      "reported_volume": "4617",
+      "positive_rows": 54
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mapocho venta directa de Santiago",
+        "Limache",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "7470",
+      "positive_rows": 15
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mapocho venta directa de Santiago",
+        "Provincia de Huasco",
+        "$/bandeja 15 kilos"
+      ],
+      "reported_volume": "280",
+      "positive_rows": 2
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mapocho venta directa de Santiago",
+        "Provincia de Quillota",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "266975",
+      "positive_rows": 480
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mapocho venta directa de Santiago",
+        "Provincia de Quillota",
+        "$/bandeja 20 kilos"
+      ],
+      "reported_volume": "1090",
+      "positive_rows": 3
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mapocho venta directa de Santiago",
+        "Provincia de Talca",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "1770",
+      "positive_rows": 3
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mapocho venta directa de Santiago",
+        "Región Metropolitana",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "8080",
+      "positive_rows": 21
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mapocho venta directa de Santiago",
+        "Región de Arica y Parinacota",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "282718",
+      "positive_rows": 505
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mapocho venta directa de Santiago",
+        "Región de O'Higgins",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "10125",
+      "positive_rows": 22
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Limache",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "7240",
+      "positive_rows": 20
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Limache",
+        "$/bandeja 20 kilos"
+      ],
+      "reported_volume": "220",
+      "positive_rows": 1
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Copiapó",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "880",
+      "positive_rows": 3
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Copiapó",
+        "$/bandeja 20 kilos"
+      ],
+      "reported_volume": "1740",
+      "positive_rows": 4
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Huasco",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "123",
+      "positive_rows": 1
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Huasco",
+        "$/caja 20 kilos"
+      ],
+      "reported_volume": "320",
+      "positive_rows": 2
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Limarí",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "24820",
+      "positive_rows": 56
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Melipilla",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "2630",
+      "positive_rows": 4
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Quillota",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "397173",
+      "positive_rows": 529
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Quillota",
+        "$/bandeja 20 kilos"
+      ],
+      "reported_volume": "184600",
+      "positive_rows": 284
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/bandeja 15 kilos"
+      ],
+      "reported_volume": "770",
+      "positive_rows": 7
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "293720",
+      "positive_rows": 365
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Arica y Parinacota",
+        "$/bandeja 15 kilos"
+      ],
+      "reported_volume": "370",
+      "positive_rows": 2
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Arica y Parinacota",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "531355",
+      "positive_rows": 581
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Arica y Parinacota",
+        "$/bandeja 20 kilos"
+      ],
+      "reported_volume": "291020",
+      "positive_rows": 403
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Arica y Parinacota",
+        "$/caja 10 kilos"
+      ],
+      "reported_volume": "500",
+      "positive_rows": 2
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Arica y Parinacota",
+        "$/caja 8 kilos"
+      ],
+      "reported_volume": "17400",
+      "positive_rows": 95
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de O'Higgins",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "445624",
+      "positive_rows": 637
+    },
+    {
+      "key": [
+        "Tomate",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de O'Higgins",
+        "$/bandeja 20 kilos"
+      ],
+      "reported_volume": "65960",
+      "positive_rows": 119
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Limache",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "3677",
+      "positive_rows": 11
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Provincia de Huasco",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "70",
+      "positive_rows": 1
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Provincia de Melipilla",
+        "$/bandeja 15 kilos"
+      ],
+      "reported_volume": "2672",
+      "positive_rows": 41
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Provincia de Quillota",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "182579",
+      "positive_rows": 401
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Región Metropolitana",
+        "$/bandeja 15 kilos"
+      ],
+      "reported_volume": "824",
+      "positive_rows": 11
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Región Metropolitana",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "66230",
+      "positive_rows": 158
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Región de Arica y Parinacota",
+        "$/bandeja 15 kilos"
+      ],
+      "reported_volume": "122",
+      "positive_rows": 2
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Región de Arica y Parinacota",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "207116",
+      "positive_rows": 444
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Región de Arica y Parinacota",
+        "$/bandeja 20 kilos"
+      ],
+      "reported_volume": "18380",
+      "positive_rows": 53
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Región de Arica y Parinacota",
+        "$/caja 10 kilos"
+      ],
+      "reported_volume": "1710",
+      "positive_rows": 9
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Región de Arica y Parinacota",
+        "$/caja 8 kilos"
+      ],
+      "reported_volume": "7656",
+      "positive_rows": 69
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Región de O'Higgins",
+        "$/bandeja 18 kilos"
+      ],
+      "reported_volume": "5190",
+      "positive_rows": 15
+    },
+    {
+      "key": [
+        "Tomate",
+        "Vega Central Mapocho de Santiago",
+        "Región de O'Higgins",
+        "$/bandeja 20 kilos"
+      ],
+      "reported_volume": "66564",
+      "positive_rows": 180
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia de Melipilla",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "9200",
+      "positive_rows": 4
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Provincia del Biobío",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "85550",
+      "positive_rows": 74
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región Metropolitana",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "509608",
+      "positive_rows": 282
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Coquimbo",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "43500",
+      "positive_rows": 37
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de La Araucanía",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "240276",
+      "positive_rows": 201
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Mercado Mayorista Lo Valledor de Santiago",
+        "Región de Ñuble",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "742240",
+      "positive_rows": 513
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Vega Central Mapocho de Santiago",
+        "Provincia del Biobío",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "14150",
+      "positive_rows": 17
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Vega Central Mapocho de Santiago",
+        "Provincia del Elquí",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "3360",
+      "positive_rows": 3
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Vega Central Mapocho de Santiago",
+        "Región Metropolitana",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "195210",
+      "positive_rows": 208
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Vega Central Mapocho de Santiago",
+        "Región de La Araucanía",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "119560",
+      "positive_rows": 145
+    },
+    {
+      "key": [
+        "Zanahoria",
+        "Vega Central Mapocho de Santiago",
+        "Región de Ñuble",
+        "$/saco 20 kilos"
+      ],
+      "reported_volume": "268736",
+      "positive_rows": 318
+    }
+  ]
+}

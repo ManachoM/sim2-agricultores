@@ -37,3 +37,13 @@ bin/*
 
 # Logs
 *.log
+
+# Local research state and external data (transfer separately with checksums)
+.env
+runs/
+data/raw/
+__pycache__/
+*.pyc
+*.dump
+libs_build/
+gmon.out

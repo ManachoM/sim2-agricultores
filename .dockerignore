@@ -1,0 +1,9 @@
+.git
+.env
+**/*.dump
+runs
+data_analysis
+datasets
+obj
+bin
+libs_build
